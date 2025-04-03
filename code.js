@@ -215,6 +215,20 @@ function renderTimeline() {
                 // Color index is now handled per-segment inside the loop above
             }); // End forEach cycle
         }); // End forEach installment
+
+        // --- Draw Horizontal Separator Line (if not the last conference) ---
+        if (confIndex < conferenceLayouts.length - 1) {
+            const separatorY = currentY + confHeight + (CONFERENCE_PADDING / 2);
+            const separatorLine = document.createElementNS(SVG_NS, "line");
+            separatorLine.setAttribute("x1", 0); // Start from the very left
+            separatorLine.setAttribute("y1", separatorY);
+            separatorLine.setAttribute("x2", totalSvgWidth); // Extend to the full SVG width
+            separatorLine.setAttribute("y2", separatorY);
+            separatorLine.setAttribute("stroke", "#cccccc"); // Light gray color
+            separatorLine.setAttribute("stroke-width", "1");
+            svg.appendChild(separatorLine);
+        }
+
         currentY += confHeight + CONFERENCE_PADDING; // Update Y for the next conference row
     }); // End forEach conferenceLayout
 
