@@ -54,12 +54,23 @@ function getTodaysDateTest() {
 // Use the test date for now
 const getTodaysDate = getTodaysDateTest;
 
+// Global variable to store fetched conference data
+let conferenceData = null;
+
 // --- Timeline Rendering ---
 
 /**
- * Renders the entire conference timeline.
+ * Renders the entire conference timeline using the globally stored data.
  */
 function renderTimeline() {
+    if (!conferenceData) {
+        console.log("Timeline data not loaded yet.");
+        // Optionally display a loading message
+        const container = document.getElementById('timeline-container');
+        if (container) container.innerHTML = '<p>Loading timeline data...</p>';
+        return;
+    }
+
     const container = document.getElementById('timeline-container');
     if (!container) {
         console.error("Timeline container not found!");
@@ -92,13 +103,21 @@ function renderTimeline() {
     const totalSvgTimelineWidth = isSmallScreen ? (timelineAreaWidth / totalDaysInView) * daysForWidthCalculation : timelineAreaWidth;
     const totalSvgWidth = LABEL_WIDTH + totalSvgTimelineWidth;
 
-    const conferences = window.data || [];
+    // Use the globally fetched data
+    const conferences = conferenceData;
 
     // --- Pre-calculate heights and cycle counts ---
     let totalRequiredHeight = MONTH_LABEL_HEIGHT;
     const conferenceLayouts = conferences.map(conf => {
         let totalCycles = 0;
-        conf.installments.forEach(inst => {
+        // Ensure installments and cycles exist before trying to access length
+        if (conf.installments) {
+            conf.installments.forEach(inst => {
+                if (inst.cycles) {
+                    totalCycles += inst.cycles.length;
+                }
+            });
+        }
             totalCycles += inst.cycles.length;
         });
         const confHeight = totalCycles === 0 ? 0 : (totalCycles * BAR_HEIGHT) + (Math.max(0, totalCycles - 1) * CYCLE_PADDING);
@@ -253,6 +272,26 @@ function renderTimeline() {
     });
 }
 
+// --- Data Fetching and Initialization ---
+async function loadAndRenderTimeline() {
+    try {
+        const response = await fetch('data.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        conferenceData = await response.json();
+        console.log("Timeline data loaded successfully.");
+        renderTimeline(); // Initial render after data is loaded
+    } catch (error) {
+        console.error("Failed to load timeline data:", error);
+        // Display an error message to the user
+        const container = document.getElementById('timeline-container');
+        if (container) container.innerHTML = '<p>Error loading timeline data. Please try again later.</p>';
+    }
+}
+
+
 // --- Event Listeners ---
-document.addEventListener('DOMContentLoaded', renderTimeline);
+document.addEventListener('DOMContentLoaded', loadAndRenderTimeline);
+// Re-render on resize using the already loaded data
 window.addEventListener('resize', renderTimeline);
