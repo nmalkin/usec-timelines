@@ -72,12 +72,16 @@ function renderTimeline() {
     const timelineDurationMonths = isSmallScreen ? 3 : 12;
 
     const startDate = new Date(today);
-    const endDate = new Date(today);
+    const endDate = new Date(today); // End of the initially visible area
     endDate.setUTCMonth(endDate.getUTCMonth() + timelineDurationMonths);
 
     const totalDaysInView = diffDays(startDate, endDate); // Days in the 3 or 12 month view
     // For small screens, calculate width based on a full year for consistent scrolling
     const daysForWidthCalculation = isSmallScreen ? diffDays(startDate, new Date(Date.UTC(startDate.getUTCFullYear() + 1, startDate.getUTCMonth(), startDate.getUTCDate()))) : totalDaysInView;
+    // Calculate the actual end date for the full scrollable range
+    const scrollableEndDate = new Date(startDate);
+    scrollableEndDate.setUTCDate(scrollableEndDate.getUTCDate() + daysForWidthCalculation);
+
 
     const containerWidth = container.clientWidth;
     // Width available for the actual timeline bars/markers (excluding labels)
@@ -150,28 +154,23 @@ function renderTimeline() {
                     const segmentStartDate = parseDate(startEvent.date);
                     const segmentEndDate = parseDate(endEvent.date);
 
-                    // Clamp dates to the *overall timeline range* (e.g., 1 year for small screens)
-                    // We calculate positions based on the full range but only draw within the view window later?
-                    // No, clamp to the view window (startDate, endDate) for drawing.
-                    const clampedStartDate = segmentStartDate < startDate ? startDate : segmentStartDate;
-                    const clampedEndDate = segmentEndDate > endDate ? endDate : segmentEndDate;
+                    // Clamp the segment dates to the *full scrollable range* (startDate to scrollableEndDate)
+                    const renderStartDate = segmentStartDate < startDate ? startDate : segmentStartDate;
+                    const renderEndDate = segmentEndDate > scrollableEndDate ? scrollableEndDate : segmentEndDate;
 
-                    if (clampedStartDate < clampedEndDate) { // Only render if there's *some* overlap with the view
-                        // Calculate days relative to the view's startDate
-                        const startDayInView = diffDays(startDate, clampedStartDate);
-                        const endDayInView = diffDays(startDate, clampedEndDate);
-                        const durationDaysInView = Math.max(0, endDayInView - startDayInView);
+                    // Only render if the clamped segment has a positive duration and starts before the scrollable end date
+                    if (renderStartDate < renderEndDate && renderStartDate < scrollableEndDate) {
+                        // Calculate x position and width based on the *total timeline width* and *total days for width calc*
+                        // Use the clamped dates relative to the overall timeline start (startDate)
+                        const x = LABEL_WIDTH + (diffDays(startDate, renderStartDate) / daysForWidthCalculation) * totalSvgTimelineWidth;
+                        const width = (diffDays(renderStartDate, renderEndDate) / daysForWidthCalculation) * totalSvgTimelineWidth;
 
-                        // Only draw if the segment starts within or ends within the viewable duration
-                        if (startDayInView < totalDaysInView && endDayInView > 0 && durationDaysInView > 0) {
-                            // Calculate x position and width based on the *total timeline width* and *total days for width calc*
-                            const x = LABEL_WIDTH + (diffDays(startDate, clampedStartDate) / daysForWidthCalculation) * totalSvgTimelineWidth;
-                            const width = (diffDays(clampedStartDate, clampedEndDate) / daysForWidthCalculation) * totalSvgTimelineWidth;
-
+                        // Ensure width is at least 1 pixel if it's supposed to be visible
+                        if (width >= 0) { // Avoid drawing if calculation is somehow negative
                             const rect = document.createElementNS(SVG_NS, "rect");
                             rect.setAttribute("x", x);
                             rect.setAttribute("y", cycleY); // Use the calculated Y for the current cycle
-                            rect.setAttribute("width", Math.max(1, width)); // Ensure minimum width of 1px
+                            rect.setAttribute("width", Math.max(1, width)); // Ensure minimum width of 1px for visibility
                             rect.setAttribute("height", BAR_HEIGHT);
                             rect.setAttribute("fill", COLORS[colorIndex % COLORS.length]);
 
@@ -189,16 +188,15 @@ function renderTimeline() {
                             rect.setAttribute("data-bs-html", "true"); // Allow HTML in content
 
                             svg.appendChild(rect); // Add rect directly to the main SVG
-                            colorIndex++;
-                        }
-                    }
-                }
+                        } // End if (width >= 0)
+                    } // End if (renderStartDate < renderEndDate && renderStartDate < scrollableEndDate)
+                } // End for loop (cycle.dates)
                 cycleOffsetY += BAR_HEIGHT + CYCLE_PADDING; // Increment offset for the next cycle
-                colorIndex++; // Change color per cycle
-            });
-        });
+                colorIndex++; // Change color per cycle (consistent color for all segments in a cycle)
+            }); // End forEach cycle
+        }); // End forEach installment
         currentY += confHeight + CONFERENCE_PADDING; // Update Y for the next conference row
-    });
+    }); // End forEach conferenceLayout
 
     // --- Render Month Markers (Last, so they are on top) ---
     const monthGroup = document.createElementNS(SVG_NS, "g");
