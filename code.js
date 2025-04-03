@@ -2,7 +2,7 @@
 const SVG_NS = "http://www.w3.org/2000/svg";
 const BAR_HEIGHT = 30; // Height of each timeline bar
 const ROW_PADDING = 10; // Vertical space below each row
-const LABEL_WIDTH = 100; // Estimated width for labels (adjust as needed)
+const LABEL_WIDTH = 120; // Increased width for labels
 const MONTH_LABEL_HEIGHT = 20; // Space for month labels
 const COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
 const SMALL_BREAKPOINT = 576; // Bootstrap's 'sm' breakpoint
@@ -74,111 +74,45 @@ function renderTimeline() {
     const endDate = new Date(today);
     endDate.setUTCMonth(endDate.getUTCMonth() + timelineDurationMonths);
 
-    const totalDays = diffDays(startDate, endDate);
-    const totalTimelineDaysForWidthCalc = isSmallScreen ? diffDays(startDate, new Date(today.getFullYear() + 1, today.getMonth(), today.getDate())) : totalDays; // Use 1 year for width calc on small screens
+    const totalDaysInView = diffDays(startDate, endDate); // Days in the 3 or 12 month view
+    // For small screens, calculate width based on a full year for consistent scrolling
+    const daysForWidthCalculation = isSmallScreen ? diffDays(startDate, new Date(Date.UTC(startDate.getUTCFullYear() + 1, startDate.getUTCMonth(), startDate.getUTCDate()))) : totalDaysInView;
 
-    // Calculate available width for the SVG timeline itself
     const containerWidth = container.clientWidth;
-    const svgTimelineWidth = containerWidth - LABEL_WIDTH; // Subtract label width
+    // Width available for the actual timeline bars/markers (excluding labels)
+    const timelineAreaWidth = Math.max(0, containerWidth - LABEL_WIDTH);
 
-    // Calculate the total width the SVG needs to represent 1 year (for scrolling on small screens)
-    const totalSvgContentWidth = isSmallScreen ? (svgTimelineWidth / totalDays) * totalTimelineDaysForWidthCalc : svgTimelineWidth;
+    // Calculate the total width the SVG needs. For small screens, this allows scrolling.
+    // Scale the timelineAreaWidth based on the ratio of total days (1yr) to viewable days (3mo)
+    const totalSvgTimelineWidth = isSmallScreen ? (timelineAreaWidth / totalDaysInView) * daysForWidthCalculation : timelineAreaWidth;
+    const totalSvgWidth = LABEL_WIDTH + totalSvgTimelineWidth;
 
     const conferences = window.data || [];
+    // Calculate total height needed for the SVG
     const totalSvgHeight = MONTH_LABEL_HEIGHT + conferences.length * (BAR_HEIGHT + ROW_PADDING);
 
-    // Create main SVG container
-    const svgContainerDiv = document.createElement('div');
-    svgContainerDiv.className = 'timeline-svg-container';
-
+    // --- Create Single SVG ---
     const svg = document.createElementNS(SVG_NS, "svg");
     svg.setAttribute("class", "timeline-svg");
-    // Set viewable width/height
-    svg.setAttribute("width", isSmallScreen ? totalSvgContentWidth : svgTimelineWidth); // Full content width for scrolling
+    svg.setAttribute("width", totalSvgWidth); // Full width including labels and scrollable area
     svg.setAttribute("height", totalSvgHeight);
-    // svg.setAttribute("viewBox", `0 0 ${totalSvgContentWidth} ${totalSvgHeight}`); // Might not need viewBox if width is set correctly
+    // No viewBox needed if width/height are set correctly relative to content
+    container.appendChild(svg); // Append the single SVG directly to the main container
 
-    // Append the SVG container div (handling potential scrolling) to the main page container
-    container.appendChild(svgContainerDiv);
-    svgContainerDiv.appendChild(svg); // Append the SVG itself
-
-
-    // --- Render Month Markers ---
-    const monthGroup = document.createElementNS(SVG_NS, "g");
-    svg.appendChild(monthGroup); // Add the group to the main SVG
-    let currentMonth = new Date(startDate);
-    currentMonth.setUTCDate(1); // Start from the first day of the starting month
-
-    while (currentMonth <= endDate) {
-        const daysFromStart = diffDays(startDate, currentMonth);
-        if (daysFromStart >= 0) { // Only draw markers within the timeline range
-            const xPos = (daysFromStart / totalDays) * (isSmallScreen ? totalSvgContentWidth : svgTimelineWidth);
-
-            // Vertical line - Ensure it starts from the top of the label area and goes down
-            const line = document.createElementNS(SVG_NS, "line");
-            line.setAttribute("x1", xPos);
-            line.setAttribute("y1", 0); // Start from the very top
-            line.setAttribute("x2", xPos);
-            line.setAttribute("y2", totalSvgHeight); // Extend to the bottom
-            line.setAttribute("stroke", "#e0e0e0"); // Light gray
-            line.setAttribute("stroke-width", "1");
-            line.setAttribute("shape-rendering", "crispEdges"); // Make thin lines sharp
-            monthGroup.appendChild(line);
-
-            // Month label - Position within the top margin
-            const label = document.createElementNS(SVG_NS, "text");
-            label.setAttribute("x", xPos + 3); // Slight offset from the line
-            label.setAttribute("y", MONTH_LABEL_HEIGHT - 7); // Position towards the bottom of the label area
-            label.setAttribute("font-size", "10px");
-            label.setAttribute("fill", "#555"); // Slightly darker text
-            label.setAttribute("dominant-baseline", "middle"); // Align text vertically
-            label.textContent = `${currentMonth.toLocaleString('default', { month: 'short', timeZone: 'UTC' })} ${currentMonth.getUTCFullYear()}`;
-            monthGroup.appendChild(label);
-        }
-
-        // Move to the next month
-        currentMonth.setUTCMonth(currentMonth.getUTCMonth() + 1);
-    }
-
-
-    // --- Render Conference Rows ---
+    // --- Render Conference Rows (Labels and Bars) ---
     let currentY = MONTH_LABEL_HEIGHT; // Start below month labels
     conferences.forEach((conf, confIndex) => {
-        const rowDiv = document.createElement('div');
-        // Use Bootstrap grid for label + SVG layout
-        rowDiv.className = 'row timeline-row align-items-center'; // Align items vertically
 
-        // Label Column
-        const labelCol = document.createElement('div');
-        labelCol.className = `col-auto conference-label`; // Auto width for label
-        labelCol.style.width = `${LABEL_WIDTH}px`; // Fixed width
-        labelCol.textContent = conf.conference;
-        rowDiv.appendChild(labelCol);
+        // Render Label (as SVG text)
+        const labelText = document.createElementNS(SVG_NS, "text");
+        labelText.setAttribute("x", 10); // Padding from left edge
+        labelText.setAttribute("y", currentY + BAR_HEIGHT / 2); // Vertically center in the bar area
+        labelText.setAttribute("font-weight", "bold");
+        labelText.setAttribute("dominant-baseline", "middle"); // Better vertical alignment
+        labelText.textContent = conf.conference;
+        svg.appendChild(labelText);
 
-        // SVG Column
-        const svgCol = document.createElement('div');
-        svgCol.className = 'col'; // Takes remaining space
-        svgCol.style.paddingLeft = '0'; // Remove default col padding
-        svgCol.style.paddingRight = '0';
-
-        // Create SVG specifically for this row's bars
-        const rowSvg = document.createElementNS(SVG_NS, "svg");
-        rowSvg.setAttribute("width", isSmallScreen ? totalSvgContentWidth : svgTimelineWidth);
-        rowSvg.setAttribute("height", BAR_HEIGHT);
-        rowSvg.setAttribute("overflow", "visible"); // Allow bars to potentially overflow if needed (though width should handle it)
-        rowSvg.style.display = 'block'; // Prevent extra space
-
-        svgCol.appendChild(rowSvg); // Add the row's SVG to its column
-        rowDiv.appendChild(svgCol); // Add the SVG column to the row div
-        // IMPORTANT: We append the rowDiv (label + SVG col) to the main container,
-        // NOT directly to the main SVG with the month markers.
-        // This means the month markers are in a separate SVG layer above.
-        // To have lines go *through* the bars, we'd need a single SVG approach.
-        // Let's stick to the current structure for now, where markers are above.
-        container.appendChild(rowDiv);
-
-
-        // --- Render Timeline Bars for this Conference (within its own SVG) ---
+        // Render Timeline Bars for this Conference (directly into the main SVG)
         let colorIndex = 0;
         conf.installments.forEach(inst => {
             inst.cycles.forEach(cycle => {
@@ -189,22 +123,27 @@ function renderTimeline() {
                     const segmentStartDate = parseDate(startEvent.date);
                     const segmentEndDate = parseDate(endEvent.date);
 
-                    // Clamp dates to the visible timeline window
+                    // Clamp dates to the *overall timeline range* (e.g., 1 year for small screens)
+                    // We calculate positions based on the full range but only draw within the view window later?
+                    // No, clamp to the view window (startDate, endDate) for drawing.
                     const clampedStartDate = segmentStartDate < startDate ? startDate : segmentStartDate;
                     const clampedEndDate = segmentEndDate > endDate ? endDate : segmentEndDate;
 
-                    if (clampedStartDate < clampedEndDate) { // Only render if there's overlap
-                        const startDay = diffDays(startDate, clampedStartDate);
-                        const endDay = diffDays(startDate, clampedEndDate);
-                        const durationDays = endDay - startDay;
+                    if (clampedStartDate < clampedEndDate) { // Only render if there's *some* overlap with the view
+                        // Calculate days relative to the view's startDate
+                        const startDayInView = diffDays(startDate, clampedStartDate);
+                        const endDayInView = diffDays(startDate, clampedEndDate);
+                        const durationDaysInView = Math.max(0, endDayInView - startDayInView);
 
-                        if (startDay >= 0 && durationDays > 0) {
-                            const x = (startDay / totalDays) * (isSmallScreen ? totalSvgContentWidth : svgTimelineWidth);
-                            const width = (durationDays / totalDays) * (isSmallScreen ? totalSvgContentWidth : svgTimelineWidth);
+                        // Only draw if the segment starts within or ends within the viewable duration
+                        if (startDayInView < totalDaysInView && endDayInView > 0 && durationDaysInView > 0) {
+                            // Calculate x position and width based on the *total timeline width* and *total days for width calc*
+                            const x = LABEL_WIDTH + (diffDays(startDate, clampedStartDate) / daysForWidthCalculation) * totalSvgTimelineWidth;
+                            const width = (diffDays(clampedStartDate, clampedEndDate) / daysForWidthCalculation) * totalSvgTimelineWidth;
 
                             const rect = document.createElementNS(SVG_NS, "rect");
                             rect.setAttribute("x", x);
-                            rect.setAttribute("y", 0); // Y is relative to the row's SVG
+                            rect.setAttribute("y", currentY); // Use the calculated Y for the current row
                             rect.setAttribute("width", Math.max(1, width)); // Ensure minimum width of 1px
                             rect.setAttribute("height", BAR_HEIGHT);
                             rect.setAttribute("fill", COLORS[colorIndex % COLORS.length]);
@@ -222,18 +161,64 @@ function renderTimeline() {
                             rect.setAttribute("data-bs-content", content);
                             rect.setAttribute("data-bs-html", "true"); // Allow HTML in content
 
-                            rowSvg.appendChild(rect); // Add rect to the row's SVG
+                            svg.appendChild(rect); // Add rect directly to the main SVG
                             colorIndex++;
                         }
                     }
                 }
             });
         });
-        // currentY += BAR_HEIGHT + ROW_PADDING; // Update Y for the next row (handled by separate divs now)
+        currentY += BAR_HEIGHT + ROW_PADDING; // Update Y for the next row
     });
 
+    // --- Render Month Markers (Last, so they are on top) ---
+    const monthGroup = document.createElementNS(SVG_NS, "g");
+    svg.appendChild(monthGroup); // Add the group to the main SVG
+    let currentMonth = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), 1)); // Start from the first day of the starting month
+
+    // Iterate potentially beyond the end date to draw markers for the full scrollable width if needed
+    const markerEndDate = new Date(startDate);
+    markerEndDate.setUTCDate(markerEndDate.getUTCDate() + daysForWidthCalculation);
+
+    while (currentMonth <= markerEndDate) {
+        const daysFromStart = diffDays(startDate, currentMonth);
+
+        // Only draw markers if they fall within the calculated total timeline duration
+        if (daysFromStart >= 0 && daysFromStart <= daysForWidthCalculation) {
+            // Calculate x position based on the total timeline width
+            const xPos = LABEL_WIDTH + (daysFromStart / daysForWidthCalculation) * totalSvgTimelineWidth;
+
+            // Vertical line
+            const line = document.createElementNS(SVG_NS, "line");
+            line.setAttribute("x1", xPos);
+            line.setAttribute("y1", 0); // Start from the very top
+            line.setAttribute("x2", xPos);
+            line.setAttribute("y2", totalSvgHeight); // Extend to the bottom
+            line.setAttribute("stroke", "#e0e0e0"); // Light gray
+            line.setAttribute("stroke-width", "1");
+            line.setAttribute("shape-rendering", "crispEdges"); // Make thin lines sharp
+            monthGroup.appendChild(line);
+
+            // Month label - Position within the top margin
+            // Only draw label if it's within the initial visible range for clarity? Or allow scrolling? Let's allow scrolling.
+            const label = document.createElementNS(SVG_NS, "text");
+            label.setAttribute("x", xPos + 3); // Slight offset from the line
+            label.setAttribute("y", MONTH_LABEL_HEIGHT - 7); // Position towards the bottom of the label area
+            label.setAttribute("font-size", "10px");
+            label.setAttribute("fill", "#555"); // Slightly darker text
+            label.setAttribute("dominant-baseline", "middle"); // Align text vertically
+            label.textContent = `${currentMonth.toLocaleString('default', { month: 'short', timeZone: 'UTC' })} ${currentMonth.getUTCFullYear()}`;
+            monthGroup.appendChild(label);
+        }
+
+        // Move to the next month
+        currentMonth.setUTCMonth(currentMonth.getUTCMonth() + 1);
+        currentMonth.setUTCDate(1); // Ensure we are on the 1st for the next iteration
+    }
+
+
     // --- Initialize Popovers ---
-    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    const popoverTriggerList = [].slice.call(svg.querySelectorAll('[data-bs-toggle="popover"]')); // Query within the SVG
     popoverTriggerList.map(function (popoverTriggerEl) {
         return new bootstrap.Popover(popoverTriggerEl);
     });

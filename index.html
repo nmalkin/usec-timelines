@@ -10,15 +10,22 @@
         font-weight: bold;
         white-space: nowrap;
         padding-right: 10px; /* Space between label and timeline */
+        /* Ensure labels align nicely with bars */
+        height: calc(var(--bar-height, 30px) + var(--row-padding, 10px));
+        display: flex;
+        align-items: center;
       }
-      .timeline-svg-container {
-        overflow-x: auto; /* Enable horizontal scrolling on small screens */
-      }
+      /* .timeline-svg-container removed */
       .timeline-svg {
         display: block; /* Prevent extra space below SVG */
       }
       .timeline-row {
           margin-bottom: 10px; /* Space between conference rows */
+      }
+      #timeline-container {
+          overflow-x: auto; /* Enable horizontal scrolling on small screens */
+          --bar-height: 30px; /* CSS variable for bar height */
+          --row-padding: 10px; /* CSS variable for row padding */
       }
     </style>
     <script>
