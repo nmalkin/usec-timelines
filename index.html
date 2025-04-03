@@ -10,22 +10,24 @@
         font-weight: bold;
         white-space: nowrap;
         padding-right: 10px; /* Space between label and timeline */
-        /* Ensure labels align nicely with bars */
-        height: calc(var(--bar-height, 30px) + var(--row-padding, 10px));
-        display: flex;
-        align-items: center;
+        /* Label height is now controlled by SVG positioning, not direct CSS height */
+        /* height: calc(var(--bar-height, 30px) + var(--conference-padding, 10px)); */
+        /* display: flex; */
+        /* align-items: center; */
       }
       /* .timeline-svg-container removed */
       .timeline-svg {
         display: block; /* Prevent extra space below SVG */
       }
-      .timeline-row {
-          margin-bottom: 10px; /* Space between conference rows */
-      }
+      /* .timeline-row class is no longer used as structure is built within SVG */
+      /* .timeline-row {
+          margin-bottom: var(--conference-padding, 10px);
+      } */
       #timeline-container {
           overflow-x: auto; /* Enable horizontal scrolling on small screens */
           --bar-height: 30px; /* CSS variable for bar height */
-          --row-padding: 10px; /* CSS variable for row padding */
+          --conference-padding: 10px; /* CSS variable for conference row padding */
+          --cycle-padding: 5px; /* CSS variable for cycle padding (optional, JS controls layout) */
       }
     </style>
     <script>

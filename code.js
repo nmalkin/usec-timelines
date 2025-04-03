@@ -1,7 +1,8 @@
 // --- Constants ---
 const SVG_NS = "http://www.w3.org/2000/svg";
 const BAR_HEIGHT = 30; // Height of each timeline bar
-const ROW_PADDING = 10; // Vertical space below each row
+const CYCLE_PADDING = 5; // Vertical space between cycle bars within a conference
+const CONFERENCE_PADDING = 10; // Vertical space below each conference row
 const LABEL_WIDTH = 120; // Increased width for labels
 const MONTH_LABEL_HEIGHT = 20; // Space for month labels
 const COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
@@ -88,8 +89,25 @@ function renderTimeline() {
     const totalSvgWidth = LABEL_WIDTH + totalSvgTimelineWidth;
 
     const conferences = window.data || [];
-    // Calculate total height needed for the SVG
-    const totalSvgHeight = MONTH_LABEL_HEIGHT + conferences.length * (BAR_HEIGHT + ROW_PADDING);
+
+    // --- Pre-calculate heights and cycle counts ---
+    let totalRequiredHeight = MONTH_LABEL_HEIGHT;
+    const conferenceLayouts = conferences.map(conf => {
+        let totalCycles = 0;
+        conf.installments.forEach(inst => {
+            totalCycles += inst.cycles.length;
+        });
+        const confHeight = totalCycles === 0 ? 0 : (totalCycles * BAR_HEIGHT) + (Math.max(0, totalCycles - 1) * CYCLE_PADDING);
+        const layout = { conf, totalCycles, confHeight };
+        totalRequiredHeight += confHeight + (confHeight > 0 ? CONFERENCE_PADDING : 0); // Add padding only if height > 0
+        return layout;
+    });
+    // Remove padding added after the last conference
+    if (conferenceLayouts.length > 0 && conferenceLayouts[conferenceLayouts.length - 1].confHeight > 0) {
+        totalRequiredHeight -= CONFERENCE_PADDING;
+    }
+    const totalSvgHeight = totalRequiredHeight;
+
 
     // --- Create Single SVG ---
     const svg = document.createElementNS(SVG_NS, "svg");
@@ -101,12 +119,17 @@ function renderTimeline() {
 
     // --- Render Conference Rows (Labels and Bars) ---
     let currentY = MONTH_LABEL_HEIGHT; // Start below month labels
-    conferences.forEach((conf, confIndex) => {
+    conferenceLayouts.forEach((layout, confIndex) => {
+        const { conf, totalCycles, confHeight } = layout;
 
-        // Render Label (as SVG text)
+        if (confHeight === 0) return; // Skip conferences with no cycles/height
+
+        const conferenceStartY = currentY; // Y position where this conference row starts
+
+        // Render Label (as SVG text) - Vertically centered in the conference's total height
         const labelText = document.createElementNS(SVG_NS, "text");
         labelText.setAttribute("x", 10); // Padding from left edge
-        labelText.setAttribute("y", currentY + BAR_HEIGHT / 2); // Vertically center in the bar area
+        labelText.setAttribute("y", conferenceStartY + confHeight / 2); // Center in the allocated block
         labelText.setAttribute("font-weight", "bold");
         labelText.setAttribute("dominant-baseline", "middle"); // Better vertical alignment
         labelText.textContent = conf.conference;
@@ -114,8 +137,12 @@ function renderTimeline() {
 
         // Render Timeline Bars for this Conference (directly into the main SVG)
         let colorIndex = 0;
+        let cycleOffsetY = 0; // Vertical offset within the current conference row
+
         conf.installments.forEach(inst => {
             inst.cycles.forEach(cycle => {
+                const cycleY = conferenceStartY + cycleOffsetY; // Calculate Y for this specific cycle's bars
+
                 for (let i = 0; i < cycle.dates.length - 1; i++) {
                     const startEvent = cycle.dates[i];
                     const endEvent = cycle.dates[i + 1];
@@ -143,7 +170,7 @@ function renderTimeline() {
 
                             const rect = document.createElementNS(SVG_NS, "rect");
                             rect.setAttribute("x", x);
-                            rect.setAttribute("y", currentY); // Use the calculated Y for the current row
+                            rect.setAttribute("y", cycleY); // Use the calculated Y for the current cycle
                             rect.setAttribute("width", Math.max(1, width)); // Ensure minimum width of 1px
                             rect.setAttribute("height", BAR_HEIGHT);
                             rect.setAttribute("fill", COLORS[colorIndex % COLORS.length]);
@@ -166,9 +193,11 @@ function renderTimeline() {
                         }
                     }
                 }
+                cycleOffsetY += BAR_HEIGHT + CYCLE_PADDING; // Increment offset for the next cycle
+                colorIndex++; // Change color per cycle
             });
         });
-        currentY += BAR_HEIGHT + ROW_PADDING; // Update Y for the next row
+        currentY += confHeight + CONFERENCE_PADDING; // Update Y for the next conference row
     });
 
     // --- Render Month Markers (Last, so they are on top) ---
