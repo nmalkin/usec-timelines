@@ -132,12 +132,16 @@ document.addEventListener('DOMContentLoaded', () => {
             title.className = 'mb-1';
             confRow.appendChild(title);
 
-            const barContainer = document.createElement('div');
-            barContainer.style.position = 'relative'; // Context for absolute positioned segments
-            barContainer.style.height = barHeight;
-            barContainer.style.backgroundColor = '#f8f9fa'; // Light background for the bar area
-            barContainer.style.borderRadius = '4px';
-            barContainer.className = 'w-100'; // Take full width of its parent
+            // Create SVG container for the timeline bar
+            const svgNS = "http://www.w3.org/2000/svg";
+            const barContainer = document.createElementNS(svgNS, 'svg');
+            barContainer.setAttribute('width', '100%');
+            barContainer.setAttribute('height', barHeight);
+            // preserveAspectRatio="none" ensures rects stretch vertically if needed,
+            // though with height="100%" on rects it might not be strictly necessary.
+            barContainer.setAttribute('preserveAspectRatio', 'none');
+            // Add class for potential styling, though Bootstrap width utility might not directly apply
+            barContainer.setAttribute('class', 'w-100'); // Keep for layout consistency if parent uses flex/grid
 
             let segmentIndex = 0; // To cycle through colors
 
@@ -169,29 +173,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         const { left, width } = calculatePositionAndWidth(segData.start.date, segData.end.date, timelineStartMs, totalTimelineDurationMs * (isMobile ? 4 : 1)); // Use full year duration for calculation base
 
                         if (width > 0) {
-                            const segmentDiv = document.createElement('div');
-                            segmentDiv.style.position = 'absolute';
-                            segmentDiv.style.left = `${left}%`;
-                            segmentDiv.style.width = `${width}%`;
-                            segmentDiv.style.height = '100%';
-                            segmentDiv.style.backgroundColor = segmentColors[segmentIndex % segmentColors.length];
-                            segmentDiv.style.zIndex = '2'; // Above markers
-                            segmentDiv.style.border = '1px solid rgba(0,0,0,0.1)'; // Subtle border
+                            const segmentRect = document.createElementNS(svgNS, 'rect');
+                            segmentRect.setAttribute('x', `${left}%`);
+                            segmentRect.setAttribute('y', '0');
+                            segmentRect.setAttribute('width', `${width}%`);
+                            segmentRect.setAttribute('height', '100%'); // Use '100%' to fill the SVG height
+                            segmentRect.setAttribute('fill', segmentColors[segmentIndex % segmentColors.length]);
 
-                            // Add popover attributes
-                            segmentDiv.setAttribute('data-bs-toggle', 'popover');
-                            segmentDiv.setAttribute('data-bs-trigger', 'hover focus'); // Show on hover or focus
-                            segmentDiv.setAttribute('data-bs-placement', 'top');
+                            // Add popover attributes directly to the rect
+                            segmentRect.setAttribute('data-bs-toggle', 'popover');
+                            segmentRect.setAttribute('data-bs-trigger', 'hover focus'); // Show on hover or focus
+                            segmentRect.setAttribute('data-bs-placement', 'top');
                             const popoverTitle = `${segData.label} (${conf.conference} ${inst.year})`;
                             const popoverContent = `
                                 Start: ${formatDate(segData.start.date)} (${segData.start.description})<br>
                                 End: ${formatDate(segData.end.date)} (${segData.end.description})
                             `;
-                            segmentDiv.setAttribute('data-bs-title', popoverTitle);
-                            segmentDiv.setAttribute('data-bs-content', popoverContent);
-                            segmentDiv.setAttribute('data-bs-html', 'true'); // Allow HTML in content
+                            segmentRect.setAttribute('data-bs-title', popoverTitle);
+                            segmentRect.setAttribute('data-bs-content', popoverContent);
+                            segmentRect.setAttribute('data-bs-html', 'true'); // Allow HTML in content
 
-                            barContainer.appendChild(segmentDiv);
+                            barContainer.appendChild(segmentRect);
                             segmentIndex++;
                         }
                     });
