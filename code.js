@@ -140,12 +140,12 @@ function renderTimeline() {
         svg.appendChild(labelText);
 
         // Render Timeline Bars for this Conference (directly into the main SVG)
-        let colorIndex = 0;
         let cycleOffsetY = 0; // Vertical offset within the current conference row
 
         conf.installments.forEach(inst => {
             inst.cycles.forEach(cycle => {
                 const cycleY = conferenceStartY + cycleOffsetY; // Calculate Y for this specific cycle's bars
+                let colorIndex = 0; // Reset color index for each cycle
 
                 for (let i = 0; i < cycle.dates.length - 1; i++) {
                     const startEvent = cycle.dates[i];
@@ -190,9 +190,11 @@ function renderTimeline() {
                             svg.appendChild(rect); // Add rect directly to the main SVG
                         } // End if (width >= 0)
                     } // End if (renderStartDate < renderEndDate && renderStartDate < scrollableEndDate)
+
+                    colorIndex++; // Increment color index for the *next* segment in this cycle
                 } // End for loop (cycle.dates)
                 cycleOffsetY += BAR_HEIGHT + CYCLE_PADDING; // Increment offset for the next cycle
-                colorIndex++; // Change color per cycle (consistent color for all segments in a cycle)
+                // Color index is now handled per-segment inside the loop above
             }); // End forEach cycle
         }); // End forEach installment
         currentY += confHeight + CONFERENCE_PADDING; // Update Y for the next conference row
