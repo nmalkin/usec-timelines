@@ -116,10 +116,9 @@ function renderTimeline() {
                 if (inst.cycles) {
                     totalCycles += inst.cycles.length;
                 }
-            });
-        }
-            totalCycles += inst.cycles.length;
-        });
+            }); // End forEach inst
+        } // End if (conf.installments)
+        // Calculate height based on the total cycles found for this conference
         const confHeight = totalCycles === 0 ? 0 : (totalCycles * BAR_HEIGHT) + (Math.max(0, totalCycles - 1) * CYCLE_PADDING);
         const layout = { conf, totalCycles, confHeight };
         totalRequiredHeight += confHeight + (confHeight > 0 ? CONFERENCE_PADDING : 0); // Add padding only if height > 0
