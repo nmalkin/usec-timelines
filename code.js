@@ -293,6 +293,25 @@ async function loadAndRenderTimeline() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         conferenceData = await response.json();
+
+        // --- Sort cycle dates chronologically ---
+        if (conferenceData) {
+            conferenceData.forEach(conf => {
+                if (conf.installments) {
+                    conf.installments.forEach(inst => {
+                        if (inst.cycles) {
+                            inst.cycles.forEach(cycle => {
+                                if (cycle.dates && cycle.dates.length > 1) {
+                                    cycle.dates.sort((a, b) => parseDate(a.date) - parseDate(b.date));
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+        // --- End sorting ---
+
         console.log("Timeline data loaded successfully.");
         renderTimeline(); // Initial render after data is loaded
     } catch (error) {
