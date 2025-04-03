@@ -98,12 +98,14 @@ function renderTimeline() {
     svg.setAttribute("height", totalSvgHeight);
     // svg.setAttribute("viewBox", `0 0 ${totalSvgContentWidth} ${totalSvgHeight}`); // Might not need viewBox if width is set correctly
 
-    svgContainerDiv.appendChild(svg);
+    // Append the SVG container div (handling potential scrolling) to the main page container
+    container.appendChild(svgContainerDiv);
+    svgContainerDiv.appendChild(svg); // Append the SVG itself
 
 
     // --- Render Month Markers ---
     const monthGroup = document.createElementNS(SVG_NS, "g");
-    svg.appendChild(monthGroup);
+    svg.appendChild(monthGroup); // Add the group to the main SVG
     let currentMonth = new Date(startDate);
     currentMonth.setUTCDate(1); // Start from the first day of the starting month
 
@@ -112,22 +114,24 @@ function renderTimeline() {
         if (daysFromStart >= 0) { // Only draw markers within the timeline range
             const xPos = (daysFromStart / totalDays) * (isSmallScreen ? totalSvgContentWidth : svgTimelineWidth);
 
-            // Vertical line
+            // Vertical line - Ensure it starts from the top of the label area and goes down
             const line = document.createElementNS(SVG_NS, "line");
             line.setAttribute("x1", xPos);
-            line.setAttribute("y1", MONTH_LABEL_HEIGHT - 5); // Start below label
+            line.setAttribute("y1", 0); // Start from the very top
             line.setAttribute("x2", xPos);
-            line.setAttribute("y2", totalSvgHeight);
+            line.setAttribute("y2", totalSvgHeight); // Extend to the bottom
             line.setAttribute("stroke", "#e0e0e0"); // Light gray
             line.setAttribute("stroke-width", "1");
+            line.setAttribute("shape-rendering", "crispEdges"); // Make thin lines sharp
             monthGroup.appendChild(line);
 
-            // Month label
+            // Month label - Position within the top margin
             const label = document.createElementNS(SVG_NS, "text");
-            label.setAttribute("x", xPos + 5); // Slight offset
-            label.setAttribute("y", MONTH_LABEL_HEIGHT - 5);
+            label.setAttribute("x", xPos + 3); // Slight offset from the line
+            label.setAttribute("y", MONTH_LABEL_HEIGHT - 7); // Position towards the bottom of the label area
             label.setAttribute("font-size", "10px");
-            label.setAttribute("fill", "#666");
+            label.setAttribute("fill", "#555"); // Slightly darker text
+            label.setAttribute("dominant-baseline", "middle"); // Align text vertically
             label.textContent = `${currentMonth.toLocaleString('default', { month: 'short', timeZone: 'UTC' })} ${currentMonth.getUTCFullYear()}`;
             monthGroup.appendChild(label);
         }
@@ -164,12 +168,17 @@ function renderTimeline() {
         rowSvg.setAttribute("overflow", "visible"); // Allow bars to potentially overflow if needed (though width should handle it)
         rowSvg.style.display = 'block'; // Prevent extra space
 
-        svgCol.appendChild(rowSvg);
-        rowDiv.appendChild(svgCol);
-        container.appendChild(rowDiv); // Add the whole row (label + SVG) to the main container
+        svgCol.appendChild(rowSvg); // Add the row's SVG to its column
+        rowDiv.appendChild(svgCol); // Add the SVG column to the row div
+        // IMPORTANT: We append the rowDiv (label + SVG col) to the main container,
+        // NOT directly to the main SVG with the month markers.
+        // This means the month markers are in a separate SVG layer above.
+        // To have lines go *through* the bars, we'd need a single SVG approach.
+        // Let's stick to the current structure for now, where markers are above.
+        container.appendChild(rowDiv);
 
 
-        // --- Render Timeline Bars for this Conference ---
+        // --- Render Timeline Bars for this Conference (within its own SVG) ---
         let colorIndex = 0;
         conf.installments.forEach(inst => {
             inst.cycles.forEach(cycle => {
