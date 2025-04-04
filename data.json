@@ -172,5 +172,646 @@
         ]
       }
     ]
+  },
+  {
+    "conference": "CCS",
+    "full_name": "ACM Conference on Computer and Communications Security",
+    "installments": [
+      {
+        "year": 2025,
+        "cycles": [
+          {
+            "dates": [
+              {
+                "date": "2025-01-02",
+                "description": "Mandatory Abstract Submission Deadline"
+              },
+              {
+                "date": "2025-01-09",
+                "description": "Full Paper Submission Deadline"
+              },
+              {
+                "date": "2025-02-10",
+                "description": "Early-rejection Papers Notification"
+              },
+              {
+                "date": "2025-03-03",
+                "description": "Author Rebuttal Period - Start"
+              },
+              {
+                "date": "2025-03-06",
+                "description": "Author Rebuttal Period - End"
+              },
+              {
+                "date": "2025-03-06",
+                "description": "Rebuttal Deadline"
+              },
+              {
+                "date": "2025-03-28",
+                "description": "Final Author Notification"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2025-04-07",
+                "description": "Mandatory Abstract Submission Deadline"
+              },
+              {
+                "date": "2025-04-14",
+                "description": "Full Paper Submission Deadline"
+              },
+              {
+                "date": "2025-05-16",
+                "description": "Early-rejection Papers Notification"
+              },
+              {
+                "date": "2025-06-05",
+                "description": "Author Rebuttal Period - Start"
+              },
+              {
+                "date": "2025-06-10",
+                "description": "Author Rebuttal Period - End"
+              },
+              {
+                "date": "2025-06-10",
+                "description": "Rebuttal Deadline"
+              },
+              {
+                "date": "2025-07-01",
+                "description": "Author Notifications"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "conference": "NDSS",
+    "full_name": "Network and Distributed System Security Symposium",
+    "installments": [
+      {
+        "year": 2025,
+        "cycles": [
+          {
+            "dates": [
+              {
+                "date": "2024-04-17",
+                "description": "Paper Submission Deadline"
+              },
+              {
+                "date": "2024-05-21",
+                "description": "Early reject/Round 2 Notifications and Round 1 Reviews"
+              },
+              {
+                "date": "2024-06-10",
+                "description": "Author Rebuttal Period - Start"
+              },
+              {
+                "date": "2024-06-13",
+                "description": "Author Rebuttal Period - End"
+              },
+              {
+                "date": "2024-06-10",
+                "description": "Interactive Discussion with Reviewers - Start"
+              },
+              {
+                "date": "2024-06-18",
+                "description": "Interactive Discussion with Reviewers - End"
+              },
+              {
+                "date": "2024-06-20",
+                "description": "Author Notifications"
+              },
+              {
+                "date": "2024-08-07",
+                "description": "Resubmission Deadline for Major Revision Papers and Minor Revision Decisions"
+              },
+              {
+                "date": "2024-08-29",
+                "description": "Author Notification for Major Revisions"
+              },
+              {
+                "date": "2024-09-12",
+                "description": "Camera-ready Deadline"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2024-07-10",
+                "description": "Paper Submission Deadline"
+              },
+              {
+                "date": "2024-08-20",
+                "description": "Early reject/Round 2 Notifications and Round 1 Reviews"
+              },
+              {
+                "date": "2024-09-09",
+                "description": "Author Rebuttal Period - Start"
+              },
+              {
+                "date": "2024-09-13",
+                "description": "Author Rebuttal Period - End"
+              },
+              {
+                "date": "2024-09-09",
+                "description": "Interactive Discussion with Reviewers - Start"
+              },
+              {
+                "date": "2024-09-17",
+                "description": "Interactive Discussion with Reviewers - End"
+              },
+              {
+                "date": "2024-09-19",
+                "description": "Author Notifications"
+              },
+              {
+                "date": "2024-10-30",
+                "description": "Resubmission Deadline for Major Revision Papers and Minor Revision Decisions"
+              },
+              {
+                "date": "2024-11-21",
+                "description": "Author Notification for Major Revisions"
+              },
+              {
+                "date": "2024-12-05",
+                "description": "Camera-ready Deadline"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "conference": "SOUPS",
+    "full_name": "Symposium on Usable Privacy and Security",
+    "installments": [
+      {
+        "year": 2025,
+        "cycles": [
+          {
+            "dates": [
+              {
+                "date": "2025-02-06",
+                "description": "Mandatory Paper Registration Deadline"
+              },
+              {
+                "date": "2025-02-13",
+                "description": "Paper Submission Deadline"
+              },
+              {
+                "date": "2025-03-20",
+                "description": "Early Rejection Notification"
+              },
+              {
+                "date": "2025-04-17",
+                "description": "Author Response Period - Start"
+              },
+              {
+                "date": "2025-04-24",
+                "description": "Author Response Period - End"
+              },
+              {
+                "date": "2025-05-12",
+                "description": "Paper Notifications"
+              },
+              {
+                "date": "2025-06-09",
+                "description": "Final Papers Files Due"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "conference": "PETS",
+    "full_name": "Privacy Enhancing Technologies Symposium",
+    "installments": [
+      {
+        "year": 2025,
+        "cycles": [
+          {
+            "dates": [
+              {
+                "date": "2024-11-30",
+                "description": "Paper Submission Deadline"
+              },
+              {
+                "date": "2025-01-14",
+                "description": "Rebuttal Period - Start"
+              },
+              {
+                "date": "2025-01-17",
+                "description": "Rebuttal Period - End"
+              },
+              {
+                "date": "2025-02-01",
+                "description": "Author Notification"
+              },
+              {
+                "date": "2025-03-01",
+                "description": "Revision Deadline"
+              },
+              {
+                "date": "2025-03-15",
+                "description": "Camera-ready Deadline"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2025-02-28",
+                "description": "Paper Submission Deadline"
+              },
+              {
+                "date": "2025-04-15",
+                "description": "Rebuttal Period - Start"
+              },
+              {
+                "date": "2025-04-18",
+                "description": "Rebuttal Period - End"
+              },
+              {
+                "date": "2025-05-01",
+                "description": "Author Notification"
+              },
+              {
+                "date": "2025-06-01",
+                "description": "Revision Deadline"
+              },
+              {
+                "date": "2025-06-15",
+                "description": "Camera-ready Deadline"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "year": 2026,
+        "cycles": [
+          {
+            "dates": [
+              {
+                "date": "2025-05-31",
+                "description": "Paper Submission Deadline"
+              },
+              {
+                "date": "2025-07-11",
+                "description": "Rebuttal Period - Start"
+              },
+              {
+                "date": "2025-07-17",
+                "description": "Rebuttal Period - End"
+              },
+              {
+                "date": "2025-08-01",
+                "description": "Author Notification"
+              },
+              {
+                "date": "2025-09-01",
+                "description": "Revision Deadline"
+              },
+              {
+                "date": "2025-09-15",
+                "description": "Camera-ready Deadline"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2025-08-31",
+                "description": "Paper Submission Deadline"
+              },
+              {
+                "date": "2025-10-10",
+                "description": "Rebuttal Period - Start"
+              },
+              {
+                "date": "2025-10-16",
+                "description": "Rebuttal Period - End"
+              },
+              {
+                "date": "2025-11-01",
+                "description": "Author Notification"
+              },
+              {
+                "date": "2025-12-01",
+                "description": "Revision Deadline"
+              },
+              {
+                "date": "2025-12-15",
+                "description": "Camera-ready Deadline"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2025-11-30",
+                "description": "Paper Submission Deadline"
+              },
+              {
+                "date": "2026-01-12",
+                "description": "Rebuttal Period - Start"
+              },
+              {
+                "date": "2026-01-19",
+                "description": "Rebuttal Period - End"
+              },
+              {
+                "date": "2026-02-01",
+                "description": "Author Notification"
+              },
+              {
+                "date": "2026-03-01",
+                "description": "Revision Deadline"
+              },
+              {
+                "date": "2026-03-15",
+                "description": "Camera-ready Deadline"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2026-02-28",
+                "description": "Paper Submission Deadline"
+              },
+              {
+                "date": "2026-04-10",
+                "description": "Rebuttal Period - Start"
+              },
+              {
+                "date": "2026-04-16",
+                "description": "Rebuttal Period - End"
+              },
+              {
+                "date": "2026-05-01",
+                "description": "Author Notification"
+              },
+              {
+                "date": "2026-06-01",
+                "description": "Revision Deadline"
+              },
+              {
+                "date": "2026-06-15",
+                "description": "Camera-ready Deadline"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "conference": "CHI",
+    "full_name": "ACM CHI Conference on Human Factors in Computing Systems",
+    "installments": [
+      {
+        "year": 2025,
+        "cycles": [
+          {
+            "dates": [
+              {
+                "date": "2024-09-05",
+                "description": "Abstract/Metadata Deadline"
+              },
+              {
+                "date": "2024-09-12",
+                "description": "Full Papers Submission Deadline"
+              },
+              {
+                "date": "2025-01-16",
+                "description": "Notification of Acceptance"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2024-10-10",
+                "description": "Submission Deadline"
+              },
+              {
+                "date": "2024-11-28",
+                "description": "Notification"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2024-10-24",
+                "description": "Submissions Due"
+              },
+              {
+                "date": "2024-12-05",
+                "description": "Notifications"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2024-12-05",
+                "description": "Submission Deadline"
+              },
+              {
+                "date": "2025-01-30",
+                "description": "Notification"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2024-12-19",
+                "description": "Submissions Due"
+              },
+              {
+                "date": "2025-01-16",
+                "description": "Notifications"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2025-01-23",
+                "description": "Submission Deadline"
+              },
+              {
+                "date": "2025-02-20",
+                "description": "Notification"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "conference": "CSCW",
+    "full_name": "ACM Conference on Computer-Supported Cooperative Work and Social Computing",
+    "installments": [
+      {
+        "year": 2025,
+        "cycles": [
+          {
+            "dates": [
+              {
+                "date": "2025-05-09",
+                "description": "Submission Deadline"
+              },
+              {
+                "date": "2025-06-13",
+                "description": "Notification of Acceptance"
+              },
+              {
+                "date": "2025-06-27",
+                "description": "Final Versions Due"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2025-05-14",
+                "description": "Submission Deadline"
+              },
+              {
+                "date": "2025-06-18",
+                "description": "Notification of Acceptance"
+              },
+              {
+                "date": "2025-07-09",
+                "description": "Camera-ready Submissions Due"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2025-05-13",
+                "description": "Submission Deadline"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "conference": "IMWUT/UbiComp",
+    "full_name": "ACM International Joint Conference on Pervasive and Ubiquitous Computing",
+    "installments": [
+      {
+        "year": 2025,
+        "cycles": [
+          {
+            "dates": [
+              {
+                "date": "2025-02-01",
+                "description": "Deadline 1"
+              },
+              {
+                "date": "2025-05-01",
+                "description": "Deadline 2"
+              },
+              {
+                "date": "2025-11-01",
+                "description": "Deadline 3"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2025-04-30",
+                "description": "Submission Deadline"
+              },
+              {
+                "date": "2025-05-02",
+                "description": "Notification of Acceptance"
+              },
+              {
+                "date": "2025-05-25",
+                "description": "Camera-ready Version of Workshop Description"
+              }
+            ]
+          },
+          {
+            "dates": [
+              {
+                "date": "2025-05-30",
+                "description": "Submission Deadline"
+              },
+              {
+                "date": "2025-06-20",
+                "description": "Notification"
+              },
+              {
+                "date": "2025-06-29",
+                "description": "Camera-ready Deadline"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "conference": "EuroUSEC",
+    "full_name": "European Symposium on Usable Security",
+    "installments": [
+      {
+        "year": 2025,
+        "cycles": [
+          {
+            "dates": [
+              {
+                "date": "2025-05-05",
+                "description": "Paper Registration Deadline"
+              },
+              {
+                "date": "2025-05-09",
+                "description": "Paper Submission Deadline"
+              },
+              {
+                "date": "2025-06-16",
+                "description": "Author's Notification"
+              },
+              {
+                "date": "2025-06-17",
+                "description": "Revision Period - Start"
+              },
+              {
+                "date": "2025-07-07",
+                "description": "Revision Period - End"
+              },
+              {
+                "date": "2025-07-14",
+                "description": "Revision Author Notification (for Shepherded Papers)"
+              },
+              {
+                "date": "2025-08-04",
+                "description": "Camera-ready Submission for all papers"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]
