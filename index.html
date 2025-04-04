@@ -30,7 +30,7 @@
         background-color: white; /* Prevent timeline showing through */
         z-index: 10;      /* Ensure labels are above the SVG lines */
         /* Height needs to match the SVG height dynamically or be large enough */
-        /* height: calc(100vh - 40px); */ /* Let JS control height */
+        /* height: calc(100vh - 40px); */ /* Let content define height */
         overflow-y: hidden; /* Prevent vertical scrollbar on labels */
         border-right: 1px solid #ccc; /* Separator */
       }
@@ -57,7 +57,7 @@
         overflow-y: hidden; /* Prevent vertical scrollbar on SVG container */
         position: relative; /* Needed for absolute positioning of SVG if required */
         /* Height needs to match label container or be managed */
-        /* height: calc(100vh - 40px); */ /* Let JS control height */
+        /* height: calc(100vh - 40px); */ /* Let content define height */
       }
 
       .timeline-svg {
