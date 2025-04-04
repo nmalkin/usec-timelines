@@ -289,7 +289,7 @@ function renderTimeline() {
                             // Calculate duration
                             const durationDays = diffDays(segmentStartDate, segmentEndDate);
                             // Construct the content string using a CSS class for duration formatting
-                            const content = `<strong>${startEvent.description}</strong><br>${formattedStartDate}<br><br>(<span class="popover-duration">${durationDays} days</span>)<br><br><strong>${endEvent.description}</strong><br>${formattedEndDate}`;
+                            const content = `<strong>${startEvent.description}</strong><br>${formattedStartDate}<br><br><span class="popover-duration">(${durationDays} days)</span><br><br><strong>${endEvent.description}</strong><br>${formattedEndDate}`;
                             rect.setAttribute("data-bs-title", title);
                             rect.setAttribute("data-bs-content", content);
                             rect.setAttribute("data-bs-html", "true"); // Allow HTML in content
