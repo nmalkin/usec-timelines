@@ -237,7 +237,6 @@ function renderTimeline() {
                     const endEvent = cycle.dates[i + 1];
 
                     const segmentStartDate = parseDate(startEvent.date);
-                    const segmentStartDate = parseDate(startEvent.date);
                     const segmentEndDate = parseDate(endEvent.date);
 
                     // No clamping needed, render everything relative to the absolute minDate
