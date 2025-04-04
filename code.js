@@ -148,33 +148,26 @@ function renderTimeline() {
         totalRequiredHeight += confHeight + (confHeight > 0 ? CONFERENCE_PADDING : 0); // Add padding only if height > 0
         return layout;
     });
-    // Remove padding added after the last conference
-    if (conferenceLayouts.length > 0 && conferenceLayouts[conferenceLayouts.length - 1].confHeight > 0) {
-        // Ensure last conf doesn't add extra padding if its height is 0
-        if (conferenceLayouts.length > 0 && conferenceLayouts[conferenceLayouts.length - 1].confHeight === 0) {
-             // Find the last one with height > 0 to remove padding after it
-             let lastVisibleIndex = conferenceLayouts.length - 1;
-             while(lastVisibleIndex >= 0 && conferenceLayouts[lastVisibleIndex].confHeight === 0) {
-                 lastVisibleIndex--;
-             }
-             if (lastVisibleIndex < conferenceLayouts.length - 1) {
-                 // We removed padding from a zero-height one, potentially incorrectly.
-                 // Let's just ensure total height doesn't include padding if the very last item has no height.
-                 if (conferenceLayouts[conferenceLayouts.length - 1].confHeight === 0 && totalRequiredHeight > MONTH_LABEL_HEIGHT) {
-                    // This logic might be complex, let's simplify: only subtract if the last *rendered* one added padding.
-                 }
-                 // Simpler: just remove padding if the last one added it.
-                 if (conferenceLayouts.length > 0 && conferenceLayouts[conferenceLayouts.length - 1].confHeight > 0) {
-                     totalRequiredHeight -= CONFERENCE_PADDING;
-                 }
-             } else if (lastVisibleIndex === conferenceLayouts.length - 1 && conferenceLayouts[lastVisibleIndex].confHeight > 0) {
-                 // Last one has height, remove its bottom padding
-                 totalRequiredHeight -= CONFERENCE_PADDING;
-             }
-        } else if (conferenceLayouts.length > 0 && conferenceLayouts[conferenceLayouts.length - 1].confHeight > 0) {
-             totalRequiredHeight -= CONFERENCE_PADDING; // Remove padding added after the last visible conference
+
+    // --- Refined Height Calculation ---
+    // Recalculate totalRequiredHeight ensuring padding is handled correctly
+    totalRequiredHeight = MONTH_LABEL_HEIGHT; // Reset and start from month label height
+    let lastVisibleConfAddedPadding = false;
+    conferenceLayouts.forEach(layout => {
+        if (layout.confHeight > 0) {
+            totalRequiredHeight += layout.confHeight + CONFERENCE_PADDING;
+            lastVisibleConfAddedPadding = true; // Mark that padding was added for this visible conf
+        } else {
+            lastVisibleConfAddedPadding = false; // Reset if this one wasn't visible
         }
+    });
+
+    // If the loop added padding for the very last visible conference, remove it
+    if (lastVisibleConfAddedPadding) {
+        totalRequiredHeight -= CONFERENCE_PADDING;
     }
+    // --- End Refined Calculation ---
+
     const totalSvgHeight = Math.max(MONTH_LABEL_HEIGHT, totalRequiredHeight); // Ensure minimum height for labels
 
 
