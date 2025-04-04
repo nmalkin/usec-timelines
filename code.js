@@ -286,8 +286,8 @@ function renderTimeline() {
                             // Format dates using the new verbose formatter
                             const formattedStartDate = formatDateVerbose(segmentStartDate);
                             const formattedEndDate = formatDateVerbose(segmentEndDate);
-                            // Construct the content string in the desired format
-                            const content = `<strong>${startEvent.description}</strong>: ${formattedStartDate} — <strong>${endEvent.description}</strong>: ${formattedEndDate}`;
+                            // Construct the content string with line breaks and paragraph break
+                            const content = `<strong>${startEvent.description}</strong><br>${formattedStartDate}<br><br><strong>${endEvent.description}</strong><br>${formattedEndDate}`;
                             rect.setAttribute("data-bs-title", title);
                             rect.setAttribute("data-bs-content", content);
                             rect.setAttribute("data-bs-html", "true"); // Allow HTML in content
