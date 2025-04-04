@@ -53,6 +53,19 @@ function getTodaysDateTest() {
     return parseDate("2024-09-01");
 }
 
+/**
+ * Formats a Date object into a verbose string (e.g., "Thursday, April 3, 2025").
+ * Uses UTC to ensure consistency.
+ * @param {Date} date - The Date object to format.
+ * @returns {string} The formatted date string.
+ */
+function formatDateVerbose(date) {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
+    // Use en-US locale for consistent formatting, adjust if needed for other locales
+    return date.toLocaleDateString('en-US', options);
+}
+
+
 // Use the test date for now
 const getTodaysDate = getTodaysDateReal;
 
@@ -270,10 +283,11 @@ function renderTimeline() {
                             rect.setAttribute("data-bs-placement", "top");
                             rect.setAttribute("data-bs-trigger", "hover focus"); // Show on hover or focus
                             const title = `${conf.conference} ${inst.year}`;
-                            const content = `
-                                <strong>Start:</strong> ${startEvent.description} (${startEvent.date})<br>
-                                <strong>End:</strong> ${endEvent.description} (${endEvent.date})
-                            `;
+                            // Format dates using the new verbose formatter
+                            const formattedStartDate = formatDateVerbose(segmentStartDate);
+                            const formattedEndDate = formatDateVerbose(segmentEndDate);
+                            // Construct the content string in the desired format
+                            const content = `<strong>${startEvent.description}</strong>: ${formattedStartDate} — <strong>${endEvent.description}</strong>: ${formattedEndDate}`;
                             rect.setAttribute("data-bs-title", title);
                             rect.setAttribute("data-bs-content", content);
                             rect.setAttribute("data-bs-html", "true"); // Allow HTML in content
