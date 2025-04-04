@@ -8,7 +8,7 @@
     <style>
       /* CSS Variables */
       :root {
-        --label-width: 120px; /* Consistent label width */
+        /* --label-width: 120px; */ /* Width is now auto */
         --bar-height: 30px;
         --cycle-padding: 5px;
         --conference-padding: 10px;
@@ -23,7 +23,7 @@
       }
 
       #timeline-labels {
-        flex: 0 0 var(--label-width); /* Don't grow, don't shrink, base width */
+        flex: 0 0 auto; /* Don't grow, don't shrink, base width on content */
         padding-top: var(--month-label-height); /* Align with SVG content */
         position: sticky; /* Keep labels visible */
         left: 0;          /* Stick to the left edge */
