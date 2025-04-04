@@ -286,8 +286,10 @@ function renderTimeline() {
                             // Format dates using the new verbose formatter
                             const formattedStartDate = formatDateVerbose(segmentStartDate);
                             const formattedEndDate = formatDateVerbose(segmentEndDate);
-                            // Construct the content string with line breaks and paragraph break
-                            const content = `<strong>${startEvent.description}</strong><br>${formattedStartDate}<br><br><strong>${endEvent.description}</strong><br>${formattedEndDate}`;
+                            // Calculate duration
+                            const durationDays = diffDays(segmentStartDate, segmentEndDate);
+                            // Construct the content string with duration and formatting
+                            const content = `<strong>${startEvent.description}</strong><br>${formattedStartDate}<br><br>(<span style="font-style: italic; font-size: 0.8em;">${durationDays} days</span>)<br><br><strong>${endEvent.description}</strong><br>${formattedEndDate}`;
                             rect.setAttribute("data-bs-title", title);
                             rect.setAttribute("data-bs-content", content);
                             rect.setAttribute("data-bs-html", "true"); // Allow HTML in content
