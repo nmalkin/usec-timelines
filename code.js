@@ -54,7 +54,7 @@ function getTodaysDateTest() {
 }
 
 // Use the test date for now
-const getTodaysDate = getTodaysDateTest;
+const getTodaysDate = getTodaysDateReal;
 
 // Global variable to store fetched conference data
 let conferenceData = null;
