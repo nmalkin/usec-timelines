@@ -6,7 +6,7 @@
 
       {
         "year": 2025,
-        "website": "https://www.usenix.org/conference/usenixsecurity25",
+        "website": "https://www.usenix.org/conference/usenixsecurity25/call-for-papers",
         "cycles": [
           {
             "name": "Cycle 1",
@@ -68,7 +68,7 @@
     "installments": [
       {
         "year": 2025,
-        "website": "https://www.ieee-security.org/TC/SP2025/",
+        "website": "https://www.ieee-security.org/TC/SP2025/cfpapers.html",
         "cycles": [
           {
             "name": "First Deadline",
@@ -138,7 +138,7 @@
     "installments": [
       {
         "year": 2025,
-        "website": "https://www.sigsac.org/ccs/CCS2025/",
+        "website": "https://www.sigsac.org/ccs/CCS2025/call-for-papers/#:~:text=of%20your%20communication.-,Important%20Dates,-First%20Review%20Cycle",
         "cycles": [
           {
             "name": "First Review Cycle",
@@ -294,7 +294,7 @@
     "installments": [
       {
         "year": 2025,
-        "website": "https://www.usenix.org/conference/soups2025/",
+        "website": "https://www.usenix.org/conference/soups2025/call-for-papers",
         "cycles": [
           {
             "name": "Papers",
@@ -508,34 +508,8 @@
     "installments": [
       {
         "year": 2025,
-        "website": "https://cscw.acm.org/2025/",
+        "website": "https://cscw.acm.org/2025/index.php/submit-papers/",
         "cycles": [
-          {
-            "name": "Doctoral Consortium",
-            "dates": [
-              {
-                "date": "2025-05-09",
-                "description": "Submission Deadline"
-              },
-              {
-                "date": "2025-06-13",
-                "description": "Notification of Acceptance"
-              }
-            ]
-          },
-          {
-            "name": "Posters",
-            "dates": [
-              {
-                "date": "2025-05-14",
-                "description": "Submission Deadline"
-              },
-              {
-                "date": "2025-06-18",
-                "description": "Notification of Acceptance"
-              }
-            ]
-          },
           {
             "name": "Full Papers",
             "dates": [
@@ -550,12 +524,12 @@
     ]
   },
   {
-    "conference": "IMWUT/UbiComp",
+    "conference": "IMWUT",
     "full_name": "ACM International Joint Conference on Pervasive and Ubiquitous Computing",
     "installments": [
       {
         "year": 2025,
-        "website": "https://ubicomp.hosting.acm.org/ubicompiswc2025_wp/",
+        "website": "https://dl.acm.org/journal/imwut/how-to-submit",
         "cycles": [
           {
             "name": "New Submissions",
@@ -584,7 +558,7 @@
     "installments": [
       {
         "year": 2025,
-        "website": "https://eurousec2025.cis.strath.ac.uk/",
+        "website": "https://eurousec2025.cis.strath.ac.uk/#cfpapers",
         "cycles": [
           {
             "name": "Papers",
