@@ -17,12 +17,15 @@ const DARK_COLORS = ["#6baed6", "#fd8d3c", "#74c476", "#ef6548", "#ad49f3", "#d5
 /**
  * Parses a YYYY-MM-DD string into a Date object (UTC to avoid timezone issues).
  * @param {string} dateString - The date string in YYYY-MM-DD format.
- * @returns {Date} The corresponding Date object.
+ * @returns {object} An object containing the `date` (Date object) and `isUncertain` (boolean).
  */
 function parseDate(dateString) {
-    const parts = dateString.split('-');
+    const isUncertain = dateString.endsWith('?');
+    const cleanDateString = isUncertain ? dateString.slice(0, -1) : dateString;
+    const parts = cleanDateString.split('-');
     // Month is 0-indexed in JavaScript Date constructor
-    return new Date(Date.UTC(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])));
+    const date = new Date(Date.UTC(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])));
+    return { date, isUncertain };
 }
 
 /**
@@ -57,14 +60,26 @@ function getTodaysDateTest() {
 
 /**
  * Formats a Date object into a verbose string (e.g., "Thursday, April 3, 2025").
- * Uses UTC to ensure consistency.
+ * Uses UTC to ensure consistency. If the date is uncertain, formats as "Month (?) Year".
  * @param {Date} date - The Date object to format.
+ * @param {boolean} isUncertain - Flag indicating if the date is uncertain.
  * @returns {string} The formatted date string.
  */
-function formatDateVerbose(date) {
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
-    // Use en-US locale for consistent formatting, adjust if needed for other locales
-    return date.toLocaleDateString('en-US', options);
+function formatDateVerbose(date, isUncertain) {
+    if (isUncertain) {
+        const options = { year: 'numeric', month: 'long', timeZone: 'UTC' };
+        const formatted = date.toLocaleDateString('en-US', options);
+        // Inject the (?) after the month
+        const parts = formatted.split(' ');
+        if (parts.length === 2) { // Expecting "Month Year"
+            return `${parts[0]} (?) ${parts[1]}`;
+        }
+        return formatted; // Fallback if format is unexpected
+    } else {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
+        // Use en-US locale for consistent formatting, adjust if needed for other locales
+        return date.toLocaleDateString('en-US', options);
+    }
 }
 
 
@@ -118,7 +133,7 @@ function renderTimeline() {
         conf.installments?.forEach(inst => {
             inst.cycles?.forEach(cycle => {
                 cycle.dates?.forEach(event => {
-                    const d = parseDate(event.date);
+                    const { date: d } = parseDate(event.date); // Extract only the date object
                     if (d < minDate) minDate = d;
                     if (d > maxDate) maxDate = d;
                 });
@@ -260,8 +275,8 @@ function renderTimeline() {
 
                 if (cycle.dates && cycle.dates.length > 0) {
                     // Sort dates just in case, although they should be sorted already
-                    // cycle.dates.sort((a, b) => parseDate(a.date) - parseDate(b.date)); // Already sorted globally
-                    const firstEventDate = parseDate(cycle.dates[0].date);
+                    // cycle.dates.sort((a, b) => parseDate(a.date).date - parseDate(b.date).date); // Adjust sorting if needed
+                    const { date: firstEventDate } = parseDate(cycle.dates[0].date); // Extract date object
                     if (firstEventDate >= minDate) { // Ensure the first date is within the overall timeline
                         const startDaysOffset = diffDays(minDate, firstEventDate);
                         if (startDaysOffset >= 0) {
@@ -278,11 +293,14 @@ function renderTimeline() {
                     const startEvent = cycle.dates[i];
                     const endEvent = cycle.dates[i + 1];
 
-                    const segmentStartDate = parseDate(startEvent.date);
-                    const segmentEndDate = parseDate(endEvent.date);
+                    // Parse dates and get uncertainty flags
+                    const { date: segmentStartDate, isUncertain: startIsUncertain } = parseDate(startEvent.date);
+                    const { date: segmentEndDate, isUncertain: endIsUncertain } = parseDate(endEvent.date);
+
 
                     // No clamping needed, render everything relative to the absolute minDate
                     // Only render if the segment has a positive duration and is within the overall timeline
+                    // Comparisons use the Date objects
                     if (segmentStartDate < segmentEndDate && segmentEndDate > minDate && segmentStartDate < maxDate) {
                         // Calculate x position and width based on the *total SVG timeline width* and *total timeline days*
                         // Use the actual segment dates relative to the overall timeline start (minDate)
@@ -356,9 +374,9 @@ function renderTimeline() {
                             rect.setAttribute("data-bs-placement", "top");
                             rect.setAttribute("data-bs-trigger", "hover click focus"); // Show on hover or focus
                             const title = `${conf.conference} ${inst.year}`;
-                            // Format dates using the new verbose formatter
-                            const formattedStartDate = formatDateVerbose(segmentStartDate);
-                            const formattedEndDate = formatDateVerbose(segmentEndDate);
+                            // Format dates using the new verbose formatter, passing uncertainty flags
+                            const formattedStartDate = formatDateVerbose(segmentStartDate, startIsUncertain);
+                            const formattedEndDate = formatDateVerbose(segmentEndDate, endIsUncertain);
                             // Calculate duration
                             const durationDays = diffDays(segmentStartDate, segmentEndDate);
                             // Construct the content string using a CSS class for duration formatting
@@ -508,7 +526,8 @@ async function loadAndRenderTimeline() {
                         if (inst.cycles) {
                             inst.cycles.forEach(cycle => {
                                 if (cycle.dates && cycle.dates.length > 1) {
-                                    cycle.dates.sort((a, b) => parseDate(a.date) - parseDate(b.date));
+                                    // Sort based on the actual date object, ignoring uncertainty for sorting
+                                    cycle.dates.sort((a, b) => parseDate(a.date).date - parseDate(b.date).date);
                                 }
                             });
                         }
