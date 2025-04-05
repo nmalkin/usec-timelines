@@ -303,7 +303,7 @@ function renderTimeline() {
                                         // Position slightly left of the first segment, vertically centered
                                         labelText.setAttribute("x", firstSegmentX - 5); // 5px padding to the left
                                         labelText.setAttribute("y", cycleY + BAR_HEIGHT / 2);
-                                        labelText.setAttribute("font-size", "10px");
+                                        labelText.setAttribute("font-size", "14px");
                                         labelText.setAttribute("fill", "#333"); // Dark gray text
                                         labelText.setAttribute("text-anchor", "end"); // Align end of text to the x position
                                         labelText.setAttribute("dominant-baseline", "middle"); // Vertical centering
