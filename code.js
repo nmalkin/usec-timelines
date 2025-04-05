@@ -255,7 +255,7 @@ function renderFilterControls(conferences) {
 
     // Add row for conference checkboxes
     const conferenceRow = document.createElement('div');
-    conferenceRow.className = 'row g-2'; // Add row class and gutter spacing
+    conferenceRow.className = 'row g-1'; // Add row class and reduced gutter spacing
     filterContainer.appendChild(conferenceRow);
 
     // Add individual conference checkboxes
