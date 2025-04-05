@@ -297,18 +297,38 @@ function renderTimeline() {
                                 if (firstSegmentX === -1) {
                                     firstSegmentX = x;
 
-                                    // --- Create and add the cycle name label ---
+                                    // --- Create and add the cycle name label (potentially as a link) ---
                                     if (cycle.name) { // Only add if name exists
                                         const labelText = document.createElementNS(SVG_NS, "text");
                                         // Position slightly left of the first segment, vertically centered
                                         labelText.setAttribute("x", firstSegmentX - 5); // 5px padding to the left
                                         labelText.setAttribute("y", cycleY + BAR_HEIGHT / 2);
                                         labelText.setAttribute("font-size", "14px");
-                                        labelText.setAttribute("fill", "#333"); // Dark gray text
+                                        // labelText.setAttribute("fill", "#333"); // Link color will override unless specified
                                         labelText.setAttribute("text-anchor", "end"); // Align end of text to the x position
                                         labelText.setAttribute("dominant-baseline", "middle"); // Vertical centering
                                         labelText.textContent = cycle.name;
-                                        svg.appendChild(labelText);
+
+                                        // Check if the installment has a website URL
+                                        if (inst.website) {
+                                            const link = document.createElementNS(SVG_NS, "a");
+                                            link.setAttributeNS("http://www.w3.org/1999/xlink", "href", inst.website); // Use xlink:href for SVG 1.1 compatibility if needed, or just href for SVG 2
+                                            link.setAttribute("href", inst.website); // Standard href for modern browsers
+                                            link.setAttribute("target", "_blank"); // Open in new tab
+                                            link.setAttribute("fill", "#0d6efd"); // Standard link blue, or use CSS
+
+                                            // Add a title for hover effect (optional)
+                                            const linkTitle = document.createElementNS(SVG_NS, "title");
+                                            linkTitle.textContent = `Visit ${conf.conference} ${inst.year} website`;
+                                            link.appendChild(linkTitle);
+
+                                            link.appendChild(labelText); // Put the text inside the link
+                                            svg.appendChild(link); // Add the link (containing the text) to the SVG
+                                        } else {
+                                            // No website, just add the text element directly
+                                            labelText.setAttribute("fill", "#333"); // Set text color if not a link
+                                            svg.appendChild(labelText);
+                                        }
                                     }
                                 }
                                 // --- End Cycle Name Label ---
