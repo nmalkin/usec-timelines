@@ -259,7 +259,8 @@ function renderTimeline() {
 
         if (confHeight === 0) return; // Skip conferences with no cycles/height
 
-        const conferenceStartY = currentY; // Y position where this conference row starts in the SVG
+        // Add half the padding before the first bar
+        const conferenceStartY = currentY + (CONFERENCE_PADDING / 2); // Y position where this conference row starts in the SVG
         let cycleOffsetY = 0; // Vertical offset within the current conference row in the SVG
 
         conf.installments.forEach(inst => {
