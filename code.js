@@ -354,7 +354,7 @@ function renderTimeline() {
                                 // Add Bootstrap Popover attributes
                             rect.setAttribute("data-bs-toggle", "popover");
                             rect.setAttribute("data-bs-placement", "top");
-                            rect.setAttribute("data-bs-trigger", "hover focus"); // Show on hover or focus
+                            rect.setAttribute("data-bs-trigger", "hover click focus"); // Show on hover or focus
                             const title = `${conf.conference} ${inst.year}`;
                             // Format dates using the new verbose formatter
                             const formattedStartDate = formatDateVerbose(segmentStartDate);
