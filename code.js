@@ -218,7 +218,7 @@ function renderFilterControls(conferences) {
         // Create a column div to hold the form-check, ensuring proper grid behavior
         const colDiv = document.createElement('div');
         // Define responsive columns: 3 on xs, 4 on sm, 6 on md+ (making columns thinner)
-        colDiv.className = 'col-4 col-sm-3 col-md-2'; // Changed from col-6 col-sm-4 col-md-3
+        colDiv.className = 'col-4 col-sm-4 col-md-2'; // Changed from col-6 col-sm-4 col-md-3
 
         const formCheck = document.createElement('div');
         // form-check class remains for styling the input/label pair
