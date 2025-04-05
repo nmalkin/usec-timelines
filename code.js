@@ -105,6 +105,41 @@ function renderFilterControls(conferences) {
     }
     filterContainer.innerHTML = '<h5>Filter Conferences:</h5>'; // Clear previous controls but keep title
 
+    // --- Add "Select All" Checkbox ---
+    const selectAllDiv = document.createElement('div');
+    selectAllDiv.className = 'col-12 mb-2'; // Span full width, add margin below
+
+    const selectAllFormCheck = document.createElement('div');
+    selectAllFormCheck.className = 'form-check';
+
+    const selectAllInput = document.createElement('input');
+    selectAllInput.className = 'form-check-input';
+    selectAllInput.type = 'checkbox';
+    selectAllInput.id = 'filter-all';
+    selectAllInput.checked = true; // Default to checked
+
+    const selectAllLabel = document.createElement('label');
+    selectAllLabel.className = 'form-check-label select-all-label'; // Add specific class for styling
+    selectAllLabel.htmlFor = 'filter-all';
+    selectAllLabel.textContent = 'Select All / None';
+
+    selectAllFormCheck.appendChild(selectAllInput);
+    selectAllFormCheck.appendChild(selectAllLabel);
+    selectAllDiv.appendChild(selectAllFormCheck);
+    filterContainer.appendChild(selectAllDiv); // Add it before the row of conference checkboxes
+
+    // Add event listener for "Select All"
+    selectAllInput.addEventListener('change', () => {
+        const isChecked = selectAllInput.checked;
+        const conferenceCheckboxes = filterContainer.querySelectorAll('.conference-filter-checkbox');
+        conferenceCheckboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+        });
+        renderTimeline(); // Re-render after changing all checkboxes
+    });
+    // --- End "Select All" Checkbox ---
+
+
     const row = document.createElement('div');
     row.className = 'row';
     filterContainer.appendChild(row);
@@ -140,9 +175,32 @@ function renderFilterControls(conferences) {
         formCheck.appendChild(label);
         currentColumn.appendChild(formCheck);
 
-        // Add event listener to re-render timeline on change
-        input.addEventListener('change', renderTimeline);
+        // Add event listener to re-render timeline on change AND update "Select All" state
+        input.addEventListener('change', () => {
+            updateSelectAllCheckboxState();
+            renderTimeline();
+        });
     });
+
+    // Initial check in case not all are checked by default in the future
+    updateSelectAllCheckboxState();
+}
+
+/**
+ * Updates the state of the "Select All" checkbox based on individual checkbox states.
+ */
+function updateSelectAllCheckboxState() {
+    const selectAllInput = document.getElementById('filter-all');
+    if (!selectAllInput || !filterContainer) return; // Exit if elements aren't ready
+
+    const conferenceCheckboxes = filterContainer.querySelectorAll('.conference-filter-checkbox');
+    const allChecked = Array.from(conferenceCheckboxes).every(checkbox => checkbox.checked);
+    // const noneChecked = Array.from(conferenceCheckboxes).every(checkbox => !checkbox.checked); // Optional: for indeterminate state
+    // const someChecked = !allChecked && !noneChecked; // Optional: for indeterminate state
+
+    selectAllInput.checked = allChecked;
+    // Optional: Handle indeterminate state visually if desired
+    // selectAllInput.indeterminate = someChecked;
 }
 
 // --- Timeline Rendering ---

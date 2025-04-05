@@ -77,6 +77,11 @@ body {
     cursor: pointer; /* Indicate label is clickable */
 }
 
+/* Style for the "Select All / None" label */
+.select-all-label {
+    font-style: italic;
+}
+
 
 #timeline-wrapper {
   display: flex;
