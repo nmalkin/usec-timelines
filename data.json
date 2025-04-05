@@ -497,71 +497,6 @@
                 "description": "Author Notification"
               }
             ]
-          },
-          {
-            "name": "Case Studies of HCI in Practice",
-            "dates": [
-              {
-                "date": "2024-10-10",
-                "description": "Submission Deadline"
-              },
-              {
-                "date": "2024-11-28",
-                "description": "Notification"
-              }
-            ]
-          },
-          {
-            "name": "In-Person Doctoral Consortium",
-            "dates": [
-              {
-                "date": "2024-10-24",
-                "description": "Submissions Due"
-              },
-              {
-                "date": "2024-12-05",
-                "description": "Notifications"
-              }
-            ]
-          },
-          {
-            "name": "alt.CHI",
-            "dates": [
-              {
-                "date": "2024-12-05",
-                "description": "Submission Deadline"
-              },
-              {
-                "date": "2025-01-30",
-                "description": "Notification"
-              }
-            ]
-          },
-          {
-            "name": "Journal",
-            "dates": [
-              {
-                "date": "2024-12-19",
-                "description": "Submissions Due"
-              },
-              {
-                "date": "2025-01-16",
-                "description": "Notifications"
-              }
-            ]
-          },
-          {
-            "name": "Late Breaking Work",
-            "dates": [
-              {
-                "date": "2025-01-23",
-                "description": "Submission Deadline"
-              },
-              {
-                "date": "2025-02-20",
-                "description": "Notification"
-              }
-            ]
           }
         ]
       }
@@ -636,32 +571,6 @@
               {
                 "date": "2025-11-01",
                 "description": "Deadline 3"
-              }
-            ]
-          },
-          {
-            "name": "Workshop Proposals",
-            "dates": [
-              {
-                "date": "2025-04-30",
-                "description": "Submission Deadline"
-              },
-              {
-                "date": "2025-05-02",
-                "description": "Notification of Acceptance"
-              }
-            ]
-          },
-          {
-            "name": "Workshop Papers",
-            "dates": [
-              {
-                "date": "2025-05-30",
-                "description": "Submission Deadline"
-              },
-              {
-                "date": "2025-06-20",
-                "description": "Notification"
               }
             ]
           }
