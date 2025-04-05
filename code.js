@@ -408,7 +408,8 @@ function renderTimeline() {
         }
 
         if (!isLastVisible) {
-            const separatorY = currentY + confHeight + (CONFERENCE_PADDING / 2);
+            // Adjust Y position to align with the bottom border of the label div
+            const separatorY = currentY + confHeight + CONFERENCE_PADDING;
             const separatorLine = document.createElementNS(SVG_NS, "line");
             separatorLine.setAttribute("x1", 0); // Start from the very left of the SVG
             separatorLine.setAttribute("y1", separatorY);
