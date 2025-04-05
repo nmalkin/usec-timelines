@@ -207,7 +207,7 @@
         "installments": [
             {
                 "year": 2025,
-                "website": "https://www.ndss-symposium.org/ndss2025/",
+                "website": "https://www.ndss-symposium.org/ndss2025/submissions/call-for-papers/",
                 "cycles": [
                     {
                         "name": "Summer Review Cycle",
@@ -272,6 +272,86 @@
                             {
                                 "date": "2024-09-19",
                                 "description": "Author Notification"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "year": 2026,
+                "website": "https://www.ndss-symposium.org/ndss2026/submissions/call-for-papers/",
+                "cycles": [
+                    {
+                        "name": "Summer Cycle",
+                        "dates": [
+                            {
+                                "date": "2025-04-16",
+                                "description": "Title and abstract registration deadline (mandatory)"
+                            },
+                            {
+                                "date": "2025-04-23",
+                                "description": "Paper submission deadline"
+                            },
+                            {
+                                "date": "2025-05-28",
+                                "description": "Early reject/Round 2 notification and Round 1 reviews"
+                            },
+                            {
+                                "date": "2025-06-18",
+                                "description": "Author rebuttal - Start"
+                            },
+                            {
+                                "date": "2025-06-20",
+                                "description": "Author rebuttal - End"
+                            },
+                            {
+                                "date": "2025-06-18",
+                                "description": "Interactive discussion with reviewers - Start"
+                            },
+                            {
+                                "date": "2025-06-25",
+                                "description": "Interactive discussion with reviewers - End"
+                            },
+                            {
+                                "date": "2025-07-02",
+                                "description": "Author notification"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Fall Cycle",
+                        "dates": [
+                            {
+                                "date": "2025-07-30",
+                                "description": "Title and abstract registration deadline (mandatory)"
+                            },
+                            {
+                                "date": "2025-08-06",
+                                "description": "Paper submission deadline"
+                            },
+                            {
+                                "date": "2025-09-17",
+                                "description": "Early reject/Round 2 notification and Round 1 reviews"
+                            },
+                            {
+                                "date": "2025-10-08",
+                                "description": "Author rebuttal - Start"
+                            },
+                            {
+                                "date": "2025-10-10",
+                                "description": "Author rebuttal - End"
+                            },
+                            {
+                                "date": "2025-10-08",
+                                "description": "Interactive discussion with reviewers - Start"
+                            },
+                            {
+                                "date": "2025-10-15",
+                                "description": "Interactive discussion with reviewers - End"
+                            },
+                            {
+                                "date": "2025-10-22",
+                                "description": "Author notification"
                             }
                         ]
                     }
