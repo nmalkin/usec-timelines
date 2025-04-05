@@ -814,7 +814,7 @@ function renderTimeline() {
             const conferenceStartY = currentY + (CONFERENCE_PADDING / 2);
             // Pass conference-specific data to the rendering function
             const conferenceInfo = { conference: layout.conf.conference, year: layout.conf.year }; // Adjust as needed based on data structure
-            renderConferenceCycles(svg, cycleLayouts, conferenceStartY, minDate, totalTimelineDays, totalSvgTimelineWidth, ACTIVE_COLORS);
+            renderConferenceCycles(svg, cycleLayouts, conferenceStartY, minDate, totalTimelineDays, totalSvgTimelineWidth, ACTIVE_COLORS, maxDate);
             currentY += confHeight + CONFERENCE_PADDING;
         }
     });
