@@ -531,8 +531,9 @@ function renderTimelineBar(svg, segmentData) {
  * @param {number} totalTimelineDays - The total duration of the timeline in days.
  * @param {number} totalSvgTimelineWidth - The total width of the SVG.
  * @param {Array} ACTIVE_COLORS - The color palette to use.
+ * @param {Date} maxDate - The end date of the timeline.
  */
-function renderConferenceCycles(svg, cycleLayouts, conferenceStartY, minDate, totalTimelineDays, totalSvgTimelineWidth, ACTIVE_COLORS) {
+function renderConferenceCycles(svg, cycleLayouts, conferenceStartY, minDate, totalTimelineDays, totalSvgTimelineWidth, ACTIVE_COLORS, maxDate) {
     cycleLayouts.forEach(({ cycle, inst, rowIndex }) => {
         const cycleY = conferenceStartY + rowIndex * (BAR_HEIGHT + CYCLE_PADDING);
         let colorIndex = 0;
