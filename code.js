@@ -161,57 +161,87 @@ function renderTimeline() {
     const pixelsPerDay = scrollContainerWidth / initialViewDays;
     const totalSvgTimelineWidth = totalTimelineDays * pixelsPerDay;
 
-    // Use the globally fetched data
-    const conferences = conferenceData;
+    const conferences = conferenceData; // Use the globally fetched data
 
-    // --- Pre-calculate heights and cycle counts ---
-    let totalRequiredHeight = MONTH_LABEL_HEIGHT; // Start with space for month labels
+    // --- Pre-calculate Layout and Heights ---
+    let totalRequiredHeight = MONTH_LABEL_HEIGHT;
     const conferenceLayouts = conferences.map(conf => {
-        let totalCycles = 0;
-        // Ensure installments and cycles exist before trying to access length
+        const conferenceRows = []; // Tracks end X coordinate for each row: [{ endX: number }]
+        const cycleLayouts = []; // Stores layout info for each cycle: [{ cycle, inst, rowIndex, startXPixel, endXPixel, labelWidth }]
+        let maxRows = 0;
+
         if (conf.installments) {
             conf.installments.forEach(inst => {
                 if (inst.cycles) {
-                    totalCycles += inst.cycles.length;
+                    inst.cycles.forEach(cycle => {
+                        if (!cycle.dates || cycle.dates.length < 2) return; // Need at least two dates for a segment
+
+                        // Find cycle's date range
+                        let cycleMinDate = parseDate(cycle.dates[0].date).date;
+                        let cycleMaxDate = parseDate(cycle.dates[cycle.dates.length - 1].date).date;
+                        for (let i = 1; i < cycle.dates.length; i++) {
+                            const d = parseDate(cycle.dates[i].date).date;
+                            if (d < cycleMinDate) cycleMinDate = d;
+                            if (d > cycleMaxDate) cycleMaxDate = d;
+                        }
+
+                        // Calculate pixel range
+                        const startDaysOffset = diffDays(minDate, cycleMinDate);
+                        const endDaysOffset = diffDays(minDate, cycleMaxDate);
+                        const startXPixel = (Math.max(0, startDaysOffset) / totalTimelineDays) * totalSvgTimelineWidth;
+                        const endXPixel = (Math.min(totalTimelineDays, endDaysOffset) / totalTimelineDays) * totalSvgTimelineWidth;
+
+                        // Estimate label width (simple estimation)
+                        const labelText = cycle.name || "";
+                        const estimatedCharWidth = 8; // Rough estimate
+                        const labelPadding = 15; // Space left of label + space right of label
+                        const labelWidth = labelText ? (labelText.length * estimatedCharWidth + labelPadding) : 0;
+
+                        const effectiveStartX = startXPixel - labelWidth; // Where the cycle effectively starts horizontally
+
+                        // Find the first row where this cycle fits
+                        let assignedRowIndex = -1;
+                        for (let i = 0; i < conferenceRows.length; i++) {
+                            if (effectiveStartX >= conferenceRows[i].endX) {
+                                assignedRowIndex = i;
+                                conferenceRows[i].endX = endXPixel; // Update row's end
+                                break;
+                            }
+                        }
+
+                        // If no row found, add a new one
+                        if (assignedRowIndex === -1) {
+                            assignedRowIndex = conferenceRows.length;
+                            conferenceRows.push({ endX: endXPixel });
+                        }
+
+                        cycleLayouts.push({ cycle, inst, rowIndex: assignedRowIndex, startXPixel, endXPixel, labelWidth });
+                        maxRows = Math.max(maxRows, assignedRowIndex + 1);
+                    }); // End forEach cycle
                 }
             }); // End forEach inst
         } // End if (conf.installments)
-        // Calculate height based on the total cycles found for this conference
-        const confHeight = totalCycles === 0 ? 0 : (totalCycles * BAR_HEIGHT) + (Math.max(0, totalCycles - 1) * CYCLE_PADDING);
-        const layout = { conf, totalCycles, confHeight };
-        totalRequiredHeight += confHeight + (confHeight > 0 ? CONFERENCE_PADDING : 0); // Add padding only if height > 0
-        return layout;
-        totalRequiredHeight += confHeight + (confHeight > 0 ? CONFERENCE_PADDING : 0); // Add padding only if height > 0
+
+        // Calculate height based on the number of rows needed
+        const confHeight = maxRows === 0 ? 0 : (maxRows * BAR_HEIGHT) + (Math.max(0, maxRows - 1) * CYCLE_PADDING);
+        const layout = { conf, confHeight, cycleLayouts }; // Store cycleLayouts here
+        totalRequiredHeight += confHeight + (confHeight > 0 ? CONFERENCE_PADDING : 0);
         return layout;
     });
-    // Remove padding added after the last conference
-    if (conferenceLayouts.length > 0 && conferenceLayouts[conferenceLayouts.length - 1].confHeight > 0) {
-        // Ensure last conf doesn't add extra padding if its height is 0
-        if (conferenceLayouts.length > 0 && conferenceLayouts[conferenceLayouts.length - 1].confHeight === 0) {
-             // Find the last one with height > 0 to remove padding after it
-             let lastVisibleIndex = conferenceLayouts.length - 1;
-             while(lastVisibleIndex >= 0 && conferenceLayouts[lastVisibleIndex].confHeight === 0) {
-                 lastVisibleIndex--;
-             }
-             if (lastVisibleIndex < conferenceLayouts.length - 1) {
-                 // We removed padding from a zero-height one, potentially incorrectly.
-                 // Let's just ensure total height doesn't include padding if the very last item has no height.
-                 if (conferenceLayouts[conferenceLayouts.length - 1].confHeight === 0 && totalRequiredHeight > MONTH_LABEL_HEIGHT) {
-                    // This logic might be complex, let's simplify: only subtract if the last *rendered* one added padding.
-                 }
-                 // Simpler: just remove padding if the last one added it.
-                 if (conferenceLayouts.length > 0 && conferenceLayouts[conferenceLayouts.length - 1].confHeight > 0) {
-                     totalRequiredHeight -= CONFERENCE_PADDING;
-                 }
-             } else if (lastVisibleIndex === conferenceLayouts.length - 1 && conferenceLayouts[lastVisibleIndex].confHeight > 0) {
-                 // Last one has height, remove its bottom padding
-                 totalRequiredHeight -= CONFERENCE_PADDING;
-             }
-        } else if (conferenceLayouts.length > 0 && conferenceLayouts[conferenceLayouts.length - 1].confHeight > 0) {
-             totalRequiredHeight -= CONFERENCE_PADDING; // Remove padding added after the last visible conference
+
+    // Adjust total height calculation (remove padding after the last *visible* conference)
+    let lastVisibleConfHeight = 0;
+    for (let i = conferenceLayouts.length - 1; i >= 0; i--) {
+        if (conferenceLayouts[i].confHeight > 0) {
+            lastVisibleConfHeight = conferenceLayouts[i].confHeight;
+            break;
         }
     }
-    const totalSvgHeight = Math.max(MONTH_LABEL_HEIGHT, totalRequiredHeight); // Ensure minimum height for labels
+    if (lastVisibleConfHeight > 0) {
+         totalRequiredHeight -= CONFERENCE_PADDING; // Remove padding added after the last visible one
+    }
+
+    const totalSvgHeight = Math.max(MONTH_LABEL_HEIGHT, totalRequiredHeight);
 
 
     // --- Create SVG Element ---
@@ -255,148 +285,100 @@ function renderTimeline() {
     // --- Render Timeline Bars (in the SVG) ---
     let currentY = MONTH_LABEL_HEIGHT; // Start below month labels in the SVG
     conferenceLayouts.forEach((layout, confIndex) => {
-        const { conf, totalCycles, confHeight } = layout;
+        const { conf, confHeight, cycleLayouts } = layout; // Get pre-calculated layouts
 
         if (confHeight === 0) return; // Skip conferences with no cycles/height
 
-        // Add half the padding before the first bar
         const conferenceStartY = currentY + (CONFERENCE_PADDING / 2); // Y position where this conference row starts in the SVG
-        let cycleOffsetY = 0; // Vertical offset within the current conference row in the SVG
 
-        conf.installments.forEach(inst => {
-            inst.cycles.forEach(cycle => {
-                const cycleY = conferenceStartY + cycleOffsetY; // Calculate Y for this specific cycle's bars
-                let colorIndex = 0; // Reset color index for each cycle
-                let firstSegmentX = -1; // Track the starting X of the first segment for label placement
+        // Iterate through the pre-calculated cycle layouts
+        cycleLayouts.forEach(({ cycle, inst, rowIndex }) => {
+            // Calculate Y position based on the assigned row index
+            const cycleY = conferenceStartY + rowIndex * (BAR_HEIGHT + CYCLE_PADDING);
+            let colorIndex = 0; // Reset color index for each cycle
+            let firstSegmentX = -1; // Track the starting X of the first segment for label placement
 
-                // --- Add Cycle Name Label ---
-                // Find the earliest start date/position for this cycle to place the label
-                let earliestStartDate = null;
-                let earliestX = totalSvgTimelineWidth; // Initialize to max width
+            // Render segments for this cycle
+            for (let i = 0; i < cycle.dates.length - 1; i++) {
+                const startEvent = cycle.dates[i];
+                const endEvent = cycle.dates[i + 1];
 
-                if (cycle.dates && cycle.dates.length > 0) {
-                    // Sort dates just in case, although they should be sorted already
-                    // cycle.dates.sort((a, b) => parseDate(a.date).date - parseDate(b.date).date); // Adjust sorting if needed
-                    const { date: firstEventDate } = parseDate(cycle.dates[0].date); // Extract date object
-                    if (firstEventDate >= minDate) { // Ensure the first date is within the overall timeline
-                        const startDaysOffset = diffDays(minDate, firstEventDate);
-                        if (startDaysOffset >= 0) {
-                             earliestX = (startDaysOffset / totalTimelineDays) * totalSvgTimelineWidth;
-                        }
-                    }
-                    // If the first date is before minDate, the label should ideally appear at x=0,
-                    // but let's place it relative to the first *rendered* segment for simplicity.
-                    // We'll refine this inside the segment loop below.
-                }
+                const { date: segmentStartDate, isUncertain: startIsUncertain } = parseDate(startEvent.date);
+                const { date: segmentEndDate, isUncertain: endIsUncertain } = parseDate(endEvent.date);
 
+                if (segmentStartDate < segmentEndDate && segmentEndDate > minDate && segmentStartDate < maxDate) {
+                    const startDaysOffset = diffDays(minDate, segmentStartDate);
+                    const endDaysOffset = diffDays(minDate, segmentEndDate);
+                    const clampedStartDays = Math.max(0, startDaysOffset);
+                    const clampedEndDays = Math.min(totalTimelineDays, endDaysOffset);
 
-                for (let i = 0; i < cycle.dates.length - 1; i++) {
-                    const startEvent = cycle.dates[i];
-                    const endEvent = cycle.dates[i + 1];
+                    if (clampedStartDays < clampedEndDays) {
+                        const x = (clampedStartDays / totalTimelineDays) * totalSvgTimelineWidth;
+                        const width = ((clampedEndDays - clampedStartDays) / totalTimelineDays) * totalSvgTimelineWidth;
 
-                    // Parse dates and get uncertainty flags
-                    const { date: segmentStartDate, isUncertain: startIsUncertain } = parseDate(startEvent.date);
-                    const { date: segmentEndDate, isUncertain: endIsUncertain } = parseDate(endEvent.date);
+                        if (width >= 1) {
+                            // --- Track first segment's X for label placement ---
+                            if (firstSegmentX === -1) {
+                                firstSegmentX = x;
 
+                                // --- Create and add the cycle name label (potentially as a link) ---
+                                if (cycle.name) {
+                                    const labelText = document.createElementNS(SVG_NS, "text");
+                                    labelText.setAttribute("x", firstSegmentX - 5); // Position left of the first bar segment
+                                    labelText.setAttribute("y", cycleY + BAR_HEIGHT / 2); // Vertically center on the cycle's row
+                                    labelText.setAttribute("font-size", "14px");
+                                    labelText.setAttribute("text-anchor", "end");
+                                    labelText.setAttribute("dominant-baseline", "middle");
+                                    labelText.textContent = cycle.name;
 
-                    // No clamping needed, render everything relative to the absolute minDate
-                    // Only render if the segment has a positive duration and is within the overall timeline
-                    // Comparisons use the Date objects
-                    if (segmentStartDate < segmentEndDate && segmentEndDate > minDate && segmentStartDate < maxDate) {
-                        // Calculate x position and width based on the *total SVG timeline width* and *total timeline days*
-                        // Use the actual segment dates relative to the overall timeline start (minDate)
-                        const startDaysOffset = diffDays(minDate, segmentStartDate);
-                        const endDaysOffset = diffDays(minDate, segmentEndDate);
+                                    if (inst.website) {
+                                        const link = document.createElementNS(SVG_NS, "a");
+                                        link.setAttribute("class", "cycle-label-link");
+                                        link.setAttribute("href", inst.website);
+                                        link.setAttribute("target", "_blank");
 
-                        // Ensure days offsets are within the calculated range to avoid issues
-                        const clampedStartDays = Math.max(0, startDaysOffset);
-                        const clampedEndDays = Math.min(totalTimelineDays, endDaysOffset);
+                                        const linkTitle = document.createElementNS(SVG_NS, "title");
+                                        linkTitle.textContent = `Visit ${conf.conference} ${inst.year} website`;
+                                        link.appendChild(linkTitle);
 
-                        if (clampedStartDays < clampedEndDays) {
-                            const x = (clampedStartDays / totalTimelineDays) * totalSvgTimelineWidth;
-                            const width = ((clampedEndDays - clampedStartDays) / totalTimelineDays) * totalSvgTimelineWidth;
-
-                            // Ensure width is at least 1 pixel if it's supposed to be visible
-                            if (width >= 1) {
-                                // --- Track first segment's X for label placement ---
-                                if (firstSegmentX === -1) {
-                                    firstSegmentX = x;
-
-                                    // --- Create and add the cycle name label (potentially as a link) ---
-                                    if (cycle.name) { // Only add if name exists
-                                        const labelText = document.createElementNS(SVG_NS, "text");
-                                        // Position slightly left of the first segment, vertically centered
-                                        labelText.setAttribute("x", firstSegmentX - 5); // 5px padding to the left
-                                        labelText.setAttribute("y", cycleY + BAR_HEIGHT / 2);
-                                        labelText.setAttribute("font-size", "14px");
-                                        // labelText.setAttribute("fill", "var(--text-color)"); // Use CSS variable via class
-                                        labelText.setAttribute("text-anchor", "end"); // Align end of text to the x position
-                                        labelText.setAttribute("dominant-baseline", "middle"); // Vertical centering
-                                        labelText.textContent = cycle.name;
-
-                                        // Check if the installment has a website URL
-                                        // Check if the installment has a website URL
-                                        if (inst.website) {
-                                            const link = document.createElementNS(SVG_NS, "a");
-                                            link.setAttribute("class", "cycle-label-link"); // Use CSS class for styling
-                                            link.setAttributeNS("http://www.w3.org/1999/xlink", "href", inst.website); // Use xlink:href for SVG 1.1 compatibility if needed, or just href for SVG 2
-                                            link.setAttribute("href", inst.website); // Standard href for modern browsers
-                                            link.setAttribute("target", "_blank"); // Open in new tab
-                                            // link.setAttribute("fill", "var(--link-color)"); // Use CSS variable via class
-
-                                            // Add a title for hover effect (optional)
-                                            const linkTitle = document.createElementNS(SVG_NS, "title");
-                                            linkTitle.textContent = `Visit ${conf.conference} ${inst.year} website`;
-                                            link.appendChild(linkTitle);
-
-                                            link.appendChild(labelText); // Put the text inside the link
-                                            link.appendChild(labelText); // Put the text inside the link
-                                            svg.appendChild(link); // Add the link (containing the text) to the SVG
-                                        } else {
-                                            // No website, just add the text element directly
-                                            labelText.setAttribute("class", "cycle-label-text"); // Use CSS class for styling
-                                            // labelText.setAttribute("fill", "var(--text-color)"); // Use CSS variable via class
-                                            svg.appendChild(labelText);
-                                        }
+                                        link.appendChild(labelText);
+                                        svg.appendChild(link);
+                                    } else {
+                                        labelText.setAttribute("class", "cycle-label-text");
+                                        svg.appendChild(labelText);
                                     }
                                 }
-                                // --- End Cycle Name Label ---
+                            }
+                            // --- End Cycle Name Label ---
 
+                            const rect = document.createElementNS(SVG_NS, "rect");
+                            rect.setAttribute("x", x);
+                            rect.setAttribute("y", cycleY); // Use the calculated Y for the current cycle's row
+                            rect.setAttribute("width", width);
+                            rect.setAttribute("height", BAR_HEIGHT);
+                            rect.setAttribute("fill", ACTIVE_COLORS[colorIndex % ACTIVE_COLORS.length]);
 
-                                const rect = document.createElementNS(SVG_NS, "rect");
-                                rect.setAttribute("x", x);
-                                rect.setAttribute("y", cycleY); // Use the calculated Y for the current cycle
-                                rect.setAttribute("width", width); // Use calculated width
-                                rect.setAttribute("height", BAR_HEIGHT);
-                                rect.setAttribute("fill", ACTIVE_COLORS[colorIndex % ACTIVE_COLORS.length]); // Use active color palette
-
-                                // Add Bootstrap Popover attributes
+                            // Add Bootstrap Popover attributes
                             rect.setAttribute("data-bs-toggle", "popover");
                             rect.setAttribute("data-bs-placement", "top");
-                            rect.setAttribute("data-bs-trigger", "hover click focus"); // Show on hover or focus
+                            rect.setAttribute("data-bs-trigger", "hover click focus");
                             const title = `${conf.conference} ${inst.year}`;
-                            // Format dates using the new verbose formatter, passing uncertainty flags
                             const formattedStartDate = formatDateVerbose(segmentStartDate, startIsUncertain);
                             const formattedEndDate = formatDateVerbose(segmentEndDate, endIsUncertain);
-                            // Calculate duration
                             const durationDays = diffDays(segmentStartDate, segmentEndDate);
-                            // Construct the content string using a CSS class for duration formatting
                             const content = `<strong>${startEvent.description}</strong><br>${formattedStartDate}<br><br><span class="popover-duration">(${durationDays} days)</span><br><br><strong>${endEvent.description}</strong><br>${formattedEndDate}`;
                             rect.setAttribute("data-bs-title", title);
                             rect.setAttribute("data-bs-content", content);
-                            rect.setAttribute("data-bs-html", "true"); // Allow HTML in content
+                            rect.setAttribute("data-bs-html", "true");
 
-                                svg.appendChild(rect); // Add rect directly to the main SVG
-                            } // End if (width >= 1)
-                        } // End if (clampedStartDays < clampedEndDays)
-                    } // End if (segmentStartDate < segmentEndDate ...)
+                            svg.appendChild(rect);
+                        } // End if (width >= 1)
+                    } // End if (clampedStartDays < clampedEndDays)
+                } // End if (segmentStartDate < segmentEndDate ...)
 
-                    colorIndex++; // Increment color index for the *next* segment in this cycle
-                } // End for loop (cycle.dates)
-                cycleOffsetY += BAR_HEIGHT + CYCLE_PADDING; // Increment offset for the next cycle
-                // Color index is now handled per-segment inside the loop above
-            }); // End forEach cycle
-        }); // End forEach installment
+                colorIndex++; // Increment color index for the *next* segment in this cycle
+            } // End for loop (cycle.dates segments)
+        }); // End forEach cycleLayout
 
         // --- Draw Horizontal Separator Line in SVG (if not the last *visible* conference) ---
         // Find if this is the last conference with actual height
