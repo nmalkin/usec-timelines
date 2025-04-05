@@ -207,20 +207,17 @@ function renderFilterControls(conferences) {
     row.className = 'row';
     filterContainer.appendChild(row);
 
-    let currentColumn = null;
-    const conferencesPerColumn = 4;
+    // Removed column creation logic (let items flow)
+    // let currentColumn = null;
+    // const conferencesPerColumn = 4;
 
     conferences.forEach((conf, index) => {
-        // Create a new column div every `conferencesPerColumn` items or for the first item
-        if (index % conferencesPerColumn === 0) {
-            currentColumn = document.createElement('div');
-            // Use Bootstrap column classes (e.g., col-md-3 for 4 columns on medium+ screens)
-            currentColumn.className = 'col-12 col-sm-6 col-md-3'; // Adjust breakpoints as needed
-            row.appendChild(currentColumn);
-        }
+        // Removed column creation logic
+        // if (index % conferencesPerColumn === 0) { ... }
 
         const formCheck = document.createElement('div');
-        formCheck.className = 'form-check';
+        // Add col-auto to make each checkbox take minimum width and wrap
+        formCheck.className = 'form-check col-auto';
 
         const input = document.createElement('input');
         input.className = 'form-check-input conference-filter-checkbox';
@@ -238,7 +235,9 @@ function renderFilterControls(conferences) {
 
         formCheck.appendChild(input);
         formCheck.appendChild(label);
-        currentColumn.appendChild(formCheck);
+        // Append directly to the row instead of a specific column div
+        row.appendChild(formCheck);
+        // currentColumn.appendChild(formCheck); // Removed
 
         // Add event listener to re-render timeline on change AND update "Select All" state AND save state
         input.addEventListener('change', () => {
