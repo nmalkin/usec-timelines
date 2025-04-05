@@ -33,10 +33,11 @@
 
   /* Adjust popover background/text for dark mode if needed */
   .popover {
-      --bs-popover-bg: #343a40;
-      --bs-popover-header-color: #ffffff;
-      --bs-popover-body-color: #dee2e6;
-      --bs-popover-border-color: #6c757d;
+      --bs-popover-bg: #343a40; /* Dark background for body */
+      --bs-popover-header-bg: #495057; /* Slightly different dark bg for header */
+      --bs-popover-header-color: #dee2e6; /* Light text for header */
+      --bs-popover-body-color: #dee2e6; /* Light text for body */
+      --bs-popover-border-color: #6c757d; /* Dark border */
   }
   .popover .popover-arrow::before {
       border-top-color: #6c757d !important; /* Match border */
