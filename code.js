@@ -131,6 +131,18 @@ function loadFilterState() {
     return null; // Return null if no state saved or if there was an error
 }
 
+/**
+ * Removes the filter state from localStorage.
+ */
+function removeFilterState() {
+    try {
+        localStorage.removeItem(FILTER_STORAGE_KEY);
+        // console.log("Filter state removed."); // For debugging
+    } catch (e) {
+        console.error("Failed to remove filter state from localStorage:", e);
+    }
+}
+
 
 // --- Filter Controls Rendering ---
 
@@ -179,7 +191,14 @@ function renderFilterControls(conferences) {
             checkbox.checked = isChecked;
         });
         renderTimeline(); // Re-render after changing all checkboxes
-        saveFilterState(); // Save state after "Select All" change
+        // saveFilterState(); // Save state after "Select All" change // <-- REMOVED, logic moved below
+
+        // NEW logic: Remove state if "Select All" is checked, save otherwise
+        if (isChecked) {
+            removeFilterState();
+        } else {
+            saveFilterState();
+        }
     });
     // --- End "Select All" Checkbox ---
 
@@ -225,7 +244,15 @@ function renderFilterControls(conferences) {
         input.addEventListener('change', () => {
             updateSelectAllCheckboxState();
             renderTimeline();
-            saveFilterState(); // Save state after individual checkbox change
+            // saveFilterState(); // Save state after individual checkbox change // <-- REMOVED, logic moved below
+
+            // NEW logic: Check "Select All" state AFTER update, then save or remove
+            const selectAllInput = document.getElementById('filter-all');
+            if (selectAllInput && selectAllInput.checked) {
+                removeFilterState();
+            } else {
+                saveFilterState();
+            }
         });
     });
 
