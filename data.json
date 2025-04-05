@@ -3,6 +3,7 @@
     "conference": "USENIX",
     "full_name": "USENIX Security Symposium",
     "installments": [
+
       {
         "year": 2025,
         "website": "https://www.usenix.org/conference/usenixsecurity25",
@@ -29,26 +30,6 @@
               {
                 "date": "2024-12-11",
                 "description": "Author Notification"
-              },
-              {
-                "date": "2024-12-12",
-                "description": "Shepherding/Revision Period - Start"
-              },
-              {
-                "date": "2025-01-16",
-                "description": "Shepherding/Revision Period - End"
-              },
-              {
-                "date": "2025-01-16",
-                "description": "Artifacts for Availability Verification Due"
-              },
-              {
-                "date": "2025-01-23",
-                "description": "Final Notification for Shepherded/Revised Papers"
-              },
-              {
-                "date": "2025-01-30",
-                "description": "Final Paper Files Due"
               }
             ]
           },
@@ -74,26 +55,6 @@
               {
                 "date": "2025-04-30",
                 "description": "Author Notification"
-              },
-              {
-                "date": "2025-05-01",
-                "description": "Shepherding/Revision Period - Start"
-              },
-              {
-                "date": "2025-05-29",
-                "description": "Shepherding/Revision Period - End"
-              },
-              {
-                "date": "2025-05-29",
-                "description": "Artifacts for Availability Verification Due"
-              },
-              {
-                "date": "2025-06-05",
-                "description": "Final Notification for Shepherded/Revised Papers"
-              },
-              {
-                "date": "2025-06-12",
-                "description": "Final Paper Files Due"
               }
             ]
           }
@@ -135,10 +96,6 @@
               {
                 "date": "2024-09-09",
                 "description": "Author Notification"
-              },
-              {
-                "date": "2024-10-18",
-                "description": "Camera-ready Deadline"
               }
             ]
           },
@@ -168,10 +125,6 @@
               {
                 "date": "2025-03-10",
                 "description": "Author Notification"
-              },
-              {
-                "date": "2025-04-18",
-                "description": "Camera-ready Deadline"
               }
             ]
           }
@@ -295,18 +248,6 @@
               {
                 "date": "2024-06-20",
                 "description": "Author Notification"
-              },
-              {
-                "date": "2024-08-07",
-                "description": "Resubmission Deadline for Major Revision Papers and Minor Revision Decisions"
-              },
-              {
-                "date": "2024-08-29",
-                "description": "Author Notification for Major Revisions"
-              },
-              {
-                "date": "2024-09-12",
-                "description": "Camera-ready Deadline"
               }
             ]
           },
@@ -340,18 +281,6 @@
               {
                 "date": "2024-09-19",
                 "description": "Author Notification"
-              },
-              {
-                "date": "2024-10-30",
-                "description": "Resubmission Deadline for Major Revision Papers and Minor Revision Decisions"
-              },
-              {
-                "date": "2024-11-21",
-                "description": "Author Notification for Major Revisions"
-              },
-              {
-                "date": "2024-12-05",
-                "description": "Camera-ready Deadline"
               }
             ]
           }
@@ -393,10 +322,6 @@
               {
                 "date": "2025-05-12",
                 "description": "Author Notification"
-              },
-              {
-                "date": "2025-06-09",
-                "description": "Final Paper Files Due"
               }
             ]
           }
@@ -430,14 +355,6 @@
               {
                 "date": "2025-02-01",
                 "description": "Author Notification"
-              },
-              {
-                "date": "2025-03-01",
-                "description": "Revision Deadline"
-              },
-              {
-                "date": "2025-03-15",
-                "description": "Camera-ready Deadline"
               }
             ]
           },
@@ -459,14 +376,6 @@
               {
                 "date": "2025-05-01",
                 "description": "Author Notification"
-              },
-              {
-                "date": "2025-06-01",
-                "description": "Revision Deadline"
-              },
-              {
-                "date": "2025-06-15",
-                "description": "Camera-ready Deadline"
               }
             ]
           }
@@ -494,14 +403,6 @@
               {
                 "date": "2025-08-01",
                 "description": "Author Notification"
-              },
-              {
-                "date": "2025-09-01",
-                "description": "Revision Deadline"
-              },
-              {
-                "date": "2025-09-15",
-                "description": "Camera-ready Deadline"
               }
             ]
           },
@@ -523,14 +424,6 @@
               {
                 "date": "2025-11-01",
                 "description": "Author Notification"
-              },
-              {
-                "date": "2025-12-01",
-                "description": "Revision Deadline"
-              },
-              {
-                "date": "2025-12-15",
-                "description": "Camera-ready Deadline"
               }
             ]
           },
@@ -552,14 +445,6 @@
               {
                 "date": "2026-02-01",
                 "description": "Author Notification"
-              },
-              {
-                "date": "2026-03-01",
-                "description": "Revision Deadline"
-              },
-              {
-                "date": "2026-03-15",
-                "description": "Camera-ready Deadline"
               }
             ]
           },
@@ -581,14 +466,6 @@
               {
                 "date": "2026-05-01",
                 "description": "Author Notification"
-              },
-              {
-                "date": "2026-06-01",
-                "description": "Revision Deadline"
-              },
-              {
-                "date": "2026-06-15",
-                "description": "Camera-ready Deadline"
               }
             ]
           }
@@ -708,10 +585,6 @@
               {
                 "date": "2025-06-13",
                 "description": "Notification of Acceptance"
-              },
-              {
-                "date": "2025-06-27",
-                "description": "Final Versions Due"
               }
             ]
           },
@@ -725,10 +598,6 @@
               {
                 "date": "2025-06-18",
                 "description": "Notification of Acceptance"
-              },
-              {
-                "date": "2025-07-09",
-                "description": "Camera-ready Submissions Due"
               }
             ]
           },
@@ -780,10 +649,6 @@
               {
                 "date": "2025-05-02",
                 "description": "Notification of Acceptance"
-              },
-              {
-                "date": "2025-05-25",
-                "description": "Camera-ready Version of Workshop Description"
               }
             ]
           },
@@ -797,10 +662,6 @@
               {
                 "date": "2025-06-20",
                 "description": "Notification"
-              },
-              {
-                "date": "2025-06-29",
-                "description": "Camera-ready Deadline"
               }
             ]
           }
@@ -830,22 +691,6 @@
               {
                 "date": "2025-06-16",
                 "description": "Author Notification"
-              },
-              {
-                "date": "2025-06-17",
-                "description": "Revision Period - Start"
-              },
-              {
-                "date": "2025-07-07",
-                "description": "Revision Period - End"
-              },
-              {
-                "date": "2025-07-14",
-                "description": "Revision Author Notification (for Shepherded Papers)"
-              },
-              {
-                "date": "2025-08-04",
-                "description": "Camera-ready Submission for all papers"
               }
             ]
           }
