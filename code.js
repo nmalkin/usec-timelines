@@ -566,7 +566,7 @@ function renderConferenceCycles(svg, cycleLayouts, conferenceStartY, minDate, to
                         }
 
                         // Prepare popover content
-                        const popoverTitle = `${inst.conference} ${inst.year}`; // Assuming inst has conference/year
+                        const popoverTitle = `${conferenceName} ${inst.year}`; // Use passed conference name
                         const formattedStartDate = formatDateVerbose(segmentStartDate, startIsUncertain);
                         const formattedEndDate = formatDateVerbose(segmentEndDate, endIsUncertain);
                         const durationDays = diffDays(segmentStartDate, segmentEndDate);
@@ -815,7 +815,7 @@ function renderTimeline() {
             const conferenceStartY = currentY + (CONFERENCE_PADDING / 2);
             // Pass conference-specific data to the rendering function
             const conferenceInfo = { conference: layout.conf.conference, year: layout.conf.year }; // Adjust as needed based on data structure
-            renderConferenceCycles(svg, cycleLayouts, conferenceStartY, minDate, totalTimelineDays, totalSvgTimelineWidth, ACTIVE_COLORS, maxDate);
+            renderConferenceCycles(svg, cycleLayouts, conferenceStartY, minDate, totalTimelineDays, totalSvgTimelineWidth, ACTIVE_COLORS, maxDate, layout.conf.conference);
             currentY += confHeight + CONFERENCE_PADDING;
         }
     });
