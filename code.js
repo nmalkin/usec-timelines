@@ -90,6 +90,46 @@ const getTodaysDate = getTodaysDateReal;
 let conferenceData = null;
 // Global variable to store filter controls container
 let filterContainer = null;
+// localStorage key for filter state
+const FILTER_STORAGE_KEY = 'conferenceFilterState';
+
+
+// --- LocalStorage Helpers ---
+
+/**
+ * Saves the current state of conference filter checkboxes to localStorage.
+ */
+function saveFilterState() {
+    if (!filterContainer) return;
+    const state = {};
+    const conferenceCheckboxes = filterContainer.querySelectorAll('.conference-filter-checkbox');
+    conferenceCheckboxes.forEach(checkbox => {
+        state[checkbox.value] = checkbox.checked;
+    });
+    try {
+        localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(state));
+        // console.log("Filter state saved:", state); // For debugging
+    } catch (e) {
+        console.error("Failed to save filter state to localStorage:", e);
+    }
+}
+
+/**
+ * Loads the filter state from localStorage.
+ * @returns {object | null} The saved state object or null if none exists/error.
+ */
+function loadFilterState() {
+    try {
+        const savedState = localStorage.getItem(FILTER_STORAGE_KEY);
+        if (savedState) {
+            // console.log("Filter state loaded:", JSON.parse(savedState)); // For debugging
+            return JSON.parse(savedState);
+        }
+    } catch (e) {
+        console.error("Failed to load or parse filter state from localStorage:", e);
+    }
+    return null; // Return null if no state saved or if there was an error
+}
 
 
 // --- Filter Controls Rendering ---
@@ -105,6 +145,9 @@ function renderFilterControls(conferences) {
     }
     filterContainer.innerHTML = '<h5>Filter Conferences:</h5>'; // Clear previous controls but keep title
 
+    // Load saved filter state
+    const savedFilterState = loadFilterState();
+
     // --- Add "Select All" Checkbox ---
     const selectAllDiv = document.createElement('div');
     selectAllDiv.className = 'col-12 mb-2'; // Span full width, add margin below
@@ -116,7 +159,7 @@ function renderFilterControls(conferences) {
     selectAllInput.className = 'form-check-input';
     selectAllInput.type = 'checkbox';
     selectAllInput.id = 'filter-all';
-    selectAllInput.checked = true; // Default to checked
+    // selectAllInput.checked = true; // DO NOT default to checked; state determined by individual boxes after load
 
     const selectAllLabel = document.createElement('label');
     selectAllLabel.className = 'form-check-label select-all-label'; // Add specific class for styling
@@ -136,6 +179,7 @@ function renderFilterControls(conferences) {
             checkbox.checked = isChecked;
         });
         renderTimeline(); // Re-render after changing all checkboxes
+        saveFilterState(); // Save state after "Select All" change
     });
     // --- End "Select All" Checkbox ---
 
@@ -164,7 +208,9 @@ function renderFilterControls(conferences) {
         input.type = 'checkbox';
         input.value = conf.conference; // Use conference name as value
         input.id = `filter-${conf.conference.replace(/\s+/g, '-')}`; // Create a unique ID
-        input.checked = true; // Default to checked
+        // Set checked state based on loaded state, default to true if not found
+        input.checked = savedFilterState ? (savedFilterState[conf.conference] ?? true) : true;
+
 
         const label = document.createElement('label');
         label.className = 'form-check-label';
@@ -175,10 +221,11 @@ function renderFilterControls(conferences) {
         formCheck.appendChild(label);
         currentColumn.appendChild(formCheck);
 
-        // Add event listener to re-render timeline on change AND update "Select All" state
+        // Add event listener to re-render timeline on change AND update "Select All" state AND save state
         input.addEventListener('change', () => {
             updateSelectAllCheckboxState();
             renderTimeline();
+            saveFilterState(); // Save state after individual checkbox change
         });
     });
 
