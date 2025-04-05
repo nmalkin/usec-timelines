@@ -287,6 +287,35 @@ function updateSelectAllCheckboxState() {
     // selectAllInput.indeterminate = !allChecked && !noneChecked;
 }
 
+/**
+ * Finds the earliest start date of any cycle for a conference that begins on or after today.
+ * @param {object} conf - The conference object.
+ * @param {Date} today - The current date (UTC).
+ * @returns {Date | null} The earliest future start date, or null if none exists.
+ */
+function findNextCycleStartDate(conf, today) {
+    let nextStartDate = null;
+
+    conf.installments?.forEach(inst => {
+        inst.cycles?.forEach(cycle => {
+            if (cycle.dates && cycle.dates.length > 0) {
+                // Assuming dates are pre-sorted, the first date is the cycle start
+                const { date: cycleStartDate } = parseDate(cycle.dates[0].date);
+
+                // Check if the cycle starts on or after today
+                if (cycleStartDate >= today) {
+                    // If this is the first future start date found, or if it's earlier than the current earliest
+                    if (nextStartDate === null || cycleStartDate < nextStartDate) {
+                        nextStartDate = cycleStartDate;
+                    }
+                }
+            }
+        });
+    });
+
+    return nextStartDate;
+}
+
 
 // --- SVG Element Creation Helper ---
 
@@ -766,7 +795,27 @@ function renderTimeline() {
     // --- Filter Data ---
     const checkedFilters = Array.from(filterContainer.querySelectorAll('.conference-filter-checkbox:checked'));
     const visibleConferenceNames = new Set(checkedFilters.map(input => input.value));
-    const conferencesToRender = conferenceData.filter(conf => visibleConferenceNames.has(conf.conference));
+    let conferencesToRender = conferenceData.filter(conf => visibleConferenceNames.has(conf.conference));
+
+    // --- Sort Conferences for Timeline View ---
+    const today = getTodaysDate(); // Get today's date once for sorting
+    conferencesToRender.sort((confA, confB) => {
+        const nextStartA = findNextCycleStartDate(confA, today);
+        const nextStartB = findNextCycleStartDate(confB, today);
+
+        // Handle cases where one or both have no future cycles
+        if (nextStartA === null && nextStartB === null) {
+            return 0; // Keep original relative order if neither has future dates
+        } else if (nextStartA === null) {
+            return 1; // Place conferences with no future dates last
+        } else if (nextStartB === null) {
+            return -1; // Place conferences with future dates first
+        } else {
+            // Both have future dates, sort by date
+            return nextStartA - nextStartB;
+        }
+    });
+
 
     // --- Handle Empty State ---
     if (conferencesToRender.length === 0) {
@@ -783,7 +832,7 @@ function renderTimeline() {
     scrollContainer.innerHTML = '';
 
     // --- Prepare Rendering Context ---
-    const today = getTodaysDate();
+    // const today = getTodaysDate(); // Already calculated for sorting
     const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     const ACTIVE_COLORS = isDarkMode ? DARK_COLORS : LIGHT_COLORS;
     const scrollContainerWidth = scrollContainer.clientWidth;
