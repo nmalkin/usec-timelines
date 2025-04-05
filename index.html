@@ -9,10 +9,28 @@
     <!-- Data will be loaded from data.json -->
   </head>
   <body>
-    <div id="filter-container" class="container-fluid mt-3 mb-3 p-3 border rounded">
-        <h5>Filter Conferences:</h5>
-        <!-- Filter checkboxes will be rendered here by JavaScript -->
+    <div class="container-fluid mt-3 mb-3">
+        <div class="row align-items-start"> <!-- Use align-items-start to align tops -->
+            <!-- Header Column -->
+            <div class="col-lg-7 col-md-6 mb-3 mb-md-0"> <!-- Add bottom margin for small screens -->
+                <h1>Conference Timeline</h1>
+                <p class="lead">Visualizing Academic Deadlines</p>
+                <p>
+                    This timeline provides an overview of important dates for various academic conferences.
+                    Use the filters to select the conferences you are interested in. Hover over bars for details.
+                </p>
+            </div>
+
+            <!-- Filter Column -->
+            <div class="col-lg-5 col-md-6">
+                <div id="filter-container" class="p-3 border rounded h-100"> <!-- Use h-100 if you want filter box to match header height -->
+                    <h5>Filter Conferences:</h5>
+                    <!-- Filter checkboxes will be rendered here by JavaScript -->
+                </div>
+            </div>
+        </div>
     </div>
+
 
     <!-- Changed container structure -->
     <div id="timeline-wrapper" class="container-fluid mt-3">
