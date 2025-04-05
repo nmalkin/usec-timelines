@@ -5,8 +5,10 @@
     "installments": [
       {
         "year": 2025,
+        "website": "https://www.usenix.org/conference/usenixsecurity25",
         "cycles": [
           {
+            "name": "Cycle 1",
             "dates": [
               {
                 "date": "2024-09-04",
@@ -14,7 +16,7 @@
               },
               {
                 "date": "2024-10-15",
-                "description": "Early Reject Notifications"
+                "description": "Early Rejection Notification"
               },
               {
                 "date": "2024-11-18",
@@ -26,7 +28,7 @@
               },
               {
                 "date": "2024-12-11",
-                "description": "Notifications to Authors"
+                "description": "Author Notification"
               },
               {
                 "date": "2024-12-12",
@@ -51,6 +53,7 @@
             ]
           },
           {
+            "name": "Cycle 2",
             "dates": [
               {
                 "date": "2025-01-22",
@@ -58,7 +61,7 @@
               },
               {
                 "date": "2025-03-04",
-                "description": "Early Reject Notifications"
+                "description": "Early Rejection Notification"
               },
               {
                 "date": "2025-04-07",
@@ -70,7 +73,7 @@
               },
               {
                 "date": "2025-04-30",
-                "description": "Main Notification to Authors"
+                "description": "Author Notification"
               },
               {
                 "date": "2025-05-01",
@@ -104,8 +107,10 @@
     "installments": [
       {
         "year": 2025,
+        "website": "https://www.ieee-security.org/TC/SP2025/",
         "cycles": [
           {
+            "name": "First Deadline",
             "dates": [
               {
                 "date": "2024-06-06",
@@ -113,7 +118,7 @@
               },
               {
                 "date": "2024-07-22",
-                "description": "Early-reject Notifications"
+                "description": "Early Rejection Notification"
               },
               {
                 "date": "2024-08-19",
@@ -125,11 +130,11 @@
               },
               {
                 "date": "2024-08-26",
-                "description": "Rebuttal Text Due"
+                "description": "Rebuttal Deadline"
               },
               {
                 "date": "2024-09-09",
-                "description": "Acceptance Notifications"
+                "description": "Author Notification"
               },
               {
                 "date": "2024-10-18",
@@ -138,6 +143,7 @@
             ]
           },
           {
+            "name": "Second Deadline",
             "dates": [
               {
                 "date": "2024-11-14",
@@ -145,7 +151,7 @@
               },
               {
                 "date": "2025-01-20",
-                "description": "Early-reject Notifications"
+                "description": "Early Rejection Notification"
               },
               {
                 "date": "2025-02-17",
@@ -157,11 +163,11 @@
               },
               {
                 "date": "2025-02-24",
-                "description": "Rebuttal Text Due"
+                "description": "Rebuttal Deadline"
               },
               {
                 "date": "2025-03-10",
-                "description": "Acceptance Notifications"
+                "description": "Author Notification"
               },
               {
                 "date": "2025-04-18",
@@ -179,8 +185,10 @@
     "installments": [
       {
         "year": 2025,
+        "website": "https://www.sigsac.org/ccs/CCS2025/",
         "cycles": [
           {
+            "name": "First Review Cycle",
             "dates": [
               {
                 "date": "2025-01-02",
@@ -192,15 +200,15 @@
               },
               {
                 "date": "2025-02-10",
-                "description": "Early-rejection Papers Notification"
+                "description": "Early Rejection Notification"
               },
               {
                 "date": "2025-03-03",
-                "description": "Author Rebuttal Period - Start"
+                "description": "Rebuttal Period - Start"
               },
               {
                 "date": "2025-03-06",
-                "description": "Author Rebuttal Period - End"
+                "description": "Rebuttal Period - End"
               },
               {
                 "date": "2025-03-06",
@@ -208,11 +216,12 @@
               },
               {
                 "date": "2025-03-28",
-                "description": "Final Author Notification"
+                "description": "Author Notification"
               }
             ]
           },
           {
+            "name": "Second Review Cycle",
             "dates": [
               {
                 "date": "2025-04-07",
@@ -224,15 +233,15 @@
               },
               {
                 "date": "2025-05-16",
-                "description": "Early-rejection Papers Notification"
+                "description": "Early Rejection Notification"
               },
               {
                 "date": "2025-06-05",
-                "description": "Author Rebuttal Period - Start"
+                "description": "Rebuttal Period - Start"
               },
               {
                 "date": "2025-06-10",
-                "description": "Author Rebuttal Period - End"
+                "description": "Rebuttal Period - End"
               },
               {
                 "date": "2025-06-10",
@@ -240,7 +249,7 @@
               },
               {
                 "date": "2025-07-01",
-                "description": "Author Notifications"
+                "description": "Author Notification"
               }
             ]
           }
@@ -254,8 +263,10 @@
     "installments": [
       {
         "year": 2025,
+        "website": "https://www.ndss-symposium.org/ndss2025/",
         "cycles": [
           {
+            "name": "Summer Review Cycle",
             "dates": [
               {
                 "date": "2024-04-17",
@@ -263,15 +274,15 @@
               },
               {
                 "date": "2024-05-21",
-                "description": "Early reject/Round 2 Notifications and Round 1 Reviews"
+                "description": "Early Rejection Notification"
               },
               {
                 "date": "2024-06-10",
-                "description": "Author Rebuttal Period - Start"
+                "description": "Rebuttal Period - Start"
               },
               {
                 "date": "2024-06-13",
-                "description": "Author Rebuttal Period - End"
+                "description": "Rebuttal Period - End"
               },
               {
                 "date": "2024-06-10",
@@ -283,7 +294,7 @@
               },
               {
                 "date": "2024-06-20",
-                "description": "Author Notifications"
+                "description": "Author Notification"
               },
               {
                 "date": "2024-08-07",
@@ -300,6 +311,7 @@
             ]
           },
           {
+            "name": "Fall Review Cycle",
             "dates": [
               {
                 "date": "2024-07-10",
@@ -307,15 +319,15 @@
               },
               {
                 "date": "2024-08-20",
-                "description": "Early reject/Round 2 Notifications and Round 1 Reviews"
+                "description": "Early Rejection Notification"
               },
               {
                 "date": "2024-09-09",
-                "description": "Author Rebuttal Period - Start"
+                "description": "Rebuttal Period - Start"
               },
               {
                 "date": "2024-09-13",
-                "description": "Author Rebuttal Period - End"
+                "description": "Rebuttal Period - End"
               },
               {
                 "date": "2024-09-09",
@@ -327,7 +339,7 @@
               },
               {
                 "date": "2024-09-19",
-                "description": "Author Notifications"
+                "description": "Author Notification"
               },
               {
                 "date": "2024-10-30",
@@ -353,12 +365,14 @@
     "installments": [
       {
         "year": 2025,
+        "website": "https://www.usenix.org/conference/soups2025/",
         "cycles": [
           {
+            "name": "Papers",
             "dates": [
               {
                 "date": "2025-02-06",
-                "description": "Mandatory Paper Registration Deadline"
+                "description": "Paper Submission Deadline"
               },
               {
                 "date": "2025-02-13",
@@ -378,11 +392,11 @@
               },
               {
                 "date": "2025-05-12",
-                "description": "Paper Notifications"
+                "description": "Author Notification"
               },
               {
                 "date": "2025-06-09",
-                "description": "Final Papers Files Due"
+                "description": "Final Paper Files Due"
               }
             ]
           }
@@ -396,8 +410,10 @@
     "installments": [
       {
         "year": 2025,
+        "website": "https://petsymposium.org/",
         "cycles": [
           {
+            "name": "Issue 3",
             "dates": [
               {
                 "date": "2024-11-30",
@@ -426,6 +442,7 @@
             ]
           },
           {
+            "name": "Issue 4",
             "dates": [
               {
                 "date": "2025-02-28",
@@ -457,8 +474,10 @@
       },
       {
         "year": 2026,
+        "website": "https://petsymposium.org/",
         "cycles": [
           {
+            "name": "Issue 1",
             "dates": [
               {
                 "date": "2025-05-31",
@@ -487,6 +506,7 @@
             ]
           },
           {
+            "name": "Issue 2",
             "dates": [
               {
                 "date": "2025-08-31",
@@ -515,6 +535,7 @@
             ]
           },
           {
+            "name": "Issue 3",
             "dates": [
               {
                 "date": "2025-11-30",
@@ -543,6 +564,7 @@
             ]
           },
           {
+            "name": "Issue 4",
             "dates": [
               {
                 "date": "2026-02-28",
@@ -580,8 +602,10 @@
     "installments": [
       {
         "year": 2025,
+        "website": "https://chi2025.acm.org/",
         "cycles": [
           {
+            "name": "Papers",
             "dates": [
               {
                 "date": "2024-09-05",
@@ -589,15 +613,16 @@
               },
               {
                 "date": "2024-09-12",
-                "description": "Full Papers Submission Deadline"
+                "description": "Full Paper Submission Deadline"
               },
               {
                 "date": "2025-01-16",
-                "description": "Notification of Acceptance"
+                "description": "Author Notification"
               }
             ]
           },
           {
+            "name": "Case Studies of HCI in Practice",
             "dates": [
               {
                 "date": "2024-10-10",
@@ -610,6 +635,7 @@
             ]
           },
           {
+            "name": "In-Person Doctoral Consortium",
             "dates": [
               {
                 "date": "2024-10-24",
@@ -622,6 +648,7 @@
             ]
           },
           {
+            "name": "alt.CHI",
             "dates": [
               {
                 "date": "2024-12-05",
@@ -634,6 +661,7 @@
             ]
           },
           {
+            "name": "Journal",
             "dates": [
               {
                 "date": "2024-12-19",
@@ -646,6 +674,7 @@
             ]
           },
           {
+            "name": "Late Breaking Work",
             "dates": [
               {
                 "date": "2025-01-23",
@@ -667,8 +696,10 @@
     "installments": [
       {
         "year": 2025,
+        "website": "https://cscw.acm.org/2025/",
         "cycles": [
           {
+            "name": "Doctoral Consortium",
             "dates": [
               {
                 "date": "2025-05-09",
@@ -685,6 +716,7 @@
             ]
           },
           {
+            "name": "Posters",
             "dates": [
               {
                 "date": "2025-05-14",
@@ -701,6 +733,7 @@
             ]
           },
           {
+            "name": "Full Papers",
             "dates": [
               {
                 "date": "2025-05-13",
@@ -718,8 +751,10 @@
     "installments": [
       {
         "year": 2025,
+        "website": "https://ubicomp.hosting.acm.org/ubicompiswc2025_wp/",
         "cycles": [
           {
+            "name": "New Submissions",
             "dates": [
               {
                 "date": "2025-02-01",
@@ -736,6 +771,7 @@
             ]
           },
           {
+            "name": "Workshop Proposals",
             "dates": [
               {
                 "date": "2025-04-30",
@@ -752,6 +788,7 @@
             ]
           },
           {
+            "name": "Workshop Papers",
             "dates": [
               {
                 "date": "2025-05-30",
@@ -777,8 +814,10 @@
     "installments": [
       {
         "year": 2025,
+        "website": "https://eurousec2025.cis.strath.ac.uk/",
         "cycles": [
           {
+            "name": "Papers",
             "dates": [
               {
                 "date": "2025-05-05",
@@ -790,7 +829,7 @@
               },
               {
                 "date": "2025-06-16",
-                "description": "Author's Notification"
+                "description": "Author Notification"
               },
               {
                 "date": "2025-06-17",
