@@ -60,6 +60,7 @@ body {
   /* padding: 1rem; */ /* Already added p-3 class in HTML */
   /* margin-bottom: 1rem; */ /* Already added mb-3 class in HTML */
   background-color: var(--label-background); /* Match label background */
+  font-size: 80%; /* Reduce font size for all content within the filter container */
 }
 
 #filter-container h5 {
