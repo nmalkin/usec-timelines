@@ -245,6 +245,28 @@ function renderTimeline() {
             inst.cycles.forEach(cycle => {
                 const cycleY = conferenceStartY + cycleOffsetY; // Calculate Y for this specific cycle's bars
                 let colorIndex = 0; // Reset color index for each cycle
+                let firstSegmentX = -1; // Track the starting X of the first segment for label placement
+
+                // --- Add Cycle Name Label ---
+                // Find the earliest start date/position for this cycle to place the label
+                let earliestStartDate = null;
+                let earliestX = totalSvgTimelineWidth; // Initialize to max width
+
+                if (cycle.dates && cycle.dates.length > 0) {
+                    // Sort dates just in case, although they should be sorted already
+                    // cycle.dates.sort((a, b) => parseDate(a.date) - parseDate(b.date)); // Already sorted globally
+                    const firstEventDate = parseDate(cycle.dates[0].date);
+                    if (firstEventDate >= minDate) { // Ensure the first date is within the overall timeline
+                        const startDaysOffset = diffDays(minDate, firstEventDate);
+                        if (startDaysOffset >= 0) {
+                             earliestX = (startDaysOffset / totalTimelineDays) * totalSvgTimelineWidth;
+                        }
+                    }
+                    // If the first date is before minDate, the label should ideally appear at x=0,
+                    // but let's place it relative to the first *rendered* segment for simplicity.
+                    // We'll refine this inside the segment loop below.
+                }
+
 
                 for (let i = 0; i < cycle.dates.length - 1; i++) {
                     const startEvent = cycle.dates[i];
@@ -271,14 +293,35 @@ function renderTimeline() {
 
                             // Ensure width is at least 1 pixel if it's supposed to be visible
                             if (width >= 1) {
+                                // --- Track first segment's X for label placement ---
+                                if (firstSegmentX === -1) {
+                                    firstSegmentX = x;
+
+                                    // --- Create and add the cycle name label ---
+                                    if (cycle.name) { // Only add if name exists
+                                        const labelText = document.createElementNS(SVG_NS, "text");
+                                        // Position slightly left of the first segment, vertically centered
+                                        labelText.setAttribute("x", firstSegmentX - 5); // 5px padding to the left
+                                        labelText.setAttribute("y", cycleY + BAR_HEIGHT / 2);
+                                        labelText.setAttribute("font-size", "10px");
+                                        labelText.setAttribute("fill", "#333"); // Dark gray text
+                                        labelText.setAttribute("text-anchor", "end"); // Align end of text to the x position
+                                        labelText.setAttribute("dominant-baseline", "middle"); // Vertical centering
+                                        labelText.textContent = cycle.name;
+                                        svg.appendChild(labelText);
+                                    }
+                                }
+                                // --- End Cycle Name Label ---
+
+
                                 const rect = document.createElementNS(SVG_NS, "rect");
                                 rect.setAttribute("x", x);
                                 rect.setAttribute("y", cycleY); // Use the calculated Y for the current cycle
                                 rect.setAttribute("width", width); // Use calculated width
-                            rect.setAttribute("height", BAR_HEIGHT);
-                            rect.setAttribute("fill", COLORS[colorIndex % COLORS.length]);
+                                rect.setAttribute("height", BAR_HEIGHT);
+                                rect.setAttribute("fill", COLORS[colorIndex % COLORS.length]);
 
-                            // Add Bootstrap Popover attributes
+                                // Add Bootstrap Popover attributes
                             rect.setAttribute("data-bs-toggle", "popover");
                             rect.setAttribute("data-bs-placement", "top");
                             rect.setAttribute("data-bs-trigger", "hover focus"); // Show on hover or focus
