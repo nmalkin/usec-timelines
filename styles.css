@@ -1,11 +1,58 @@
 /* CSS Variables */
 :root {
-  /* --label-width: 120px; */ /* Width is now auto */
+  /* Light Mode Defaults */
+  --background-color: #ffffff;
+  --text-color: #212529;
+  --muted-text-color: #555555;
+  --link-color: #0d6efd;
+  --border-color-light: #e0e0e0;
+  --border-color-medium: #cccccc;
+  --border-color-heavy: #aaaaaa;
+  --label-background: #ffffff;
+  --today-marker-color: #333333;
+
+  /* Dimensions */
   --bar-height: 30px;
   --cycle-padding: 5px;
   --conference-padding: 10px;
   --month-label-height: 20px;
 }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #212529; /* Bootstrap dark bg */
+    --text-color: #dee2e6;      /* Bootstrap dark text */
+    --muted-text-color: #adb5bd; /* Bootstrap secondary text */
+    --link-color: #6ea8fe;      /* Lighter blue for links */
+    --border-color-light: #495057; /* Darker borders */
+    --border-color-medium: #6c757d;
+    --border-color-heavy: #adb5bd;
+    --label-background: #2b3035; /* Slightly lighter dark bg */
+    --today-marker-color: #f8f9fa; /* Light color for today marker */
+  }
+
+  /* Adjust popover background/text for dark mode if needed */
+  .popover {
+      --bs-popover-bg: #343a40;
+      --bs-popover-header-color: #ffffff;
+      --bs-popover-body-color: #dee2e6;
+      --bs-popover-border-color: #6c757d;
+  }
+  .popover .popover-arrow::before {
+      border-top-color: #6c757d !important; /* Match border */
+  }
+  .popover .popover-arrow::after {
+       border-top-color: #343a40 !important; /* Match background */
+  }
+  /* Adjust arrow colors for other placements if necessary */
+
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
 
 #timeline-wrapper {
   display: flex;
@@ -19,12 +66,12 @@
   padding-top: var(--month-label-height); /* Align with SVG content */
   position: sticky; /* Keep labels visible */
   left: 0;          /* Stick to the left edge */
-  background-color: white; /* Prevent timeline showing through */
+  background-color: var(--label-background); /* Use variable */
   z-index: 10;      /* Ensure labels are above the SVG lines */
   /* Height needs to match the SVG height dynamically or be large enough */
   /* height: calc(100vh - 40px); */ /* Let content define height */
   overflow-y: hidden; /* Prevent vertical scrollbar on labels */
-  border-right: 1px solid #ccc; /* Separator */
+  border-right: 1px solid var(--border-color-medium); /* Use variable */
 }
 
 .conference-label-item {
@@ -35,7 +82,8 @@
     font-weight: bold;
     white-space: nowrap;
     box-sizing: border-box; /* Include padding in height */
-    border-bottom: 1px solid #eee; /* Optional separator between labels */
+    border-bottom: 1px solid var(--border-color-light); /* Use variable */
+    color: var(--text-color); /* Ensure label text color adapts */
 }
  /* Add padding below the last label to match CONFERENCE_PADDING */
 #timeline-labels > div:last-child {
@@ -61,4 +109,35 @@
 .popover-duration {
   font-style: italic;
   font-size: 0.9em;
+  color: var(--muted-text-color); /* Use muted color */
+}
+
+/* SVG Text elements need explicit fill */
+.timeline-svg text {
+  fill: var(--text-color);
+}
+
+.timeline-svg .month-label {
+  fill: var(--muted-text-color);
+}
+
+.timeline-svg .cycle-label-link {
+  fill: var(--link-color);
+}
+
+.timeline-svg .cycle-label-text {
+    fill: var(--text-color); /* Default text color if not a link */
+}
+
+/* SVG Lines */
+.timeline-svg .month-marker-line {
+    stroke: var(--border-color-light);
+}
+
+.timeline-svg .separator-line {
+    stroke: var(--border-color-medium);
+}
+
+.timeline-svg .today-marker-line {
+    stroke: var(--today-marker-color);
 }

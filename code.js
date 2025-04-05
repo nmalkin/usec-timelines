@@ -3,12 +3,14 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 const BAR_HEIGHT = 30; // Height of each timeline bar
 const CYCLE_PADDING = 5; // Vertical space between cycle bars within a conference
 const CONFERENCE_PADDING = 10; // Vertical space below each conference row
-// const LABEL_WIDTH = 120; // No longer needed, width is auto
 const MONTH_LABEL_HEIGHT = 20; // Space for month labels at the top of the SVG
-const COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
 const SMALL_BREAKPOINT = 768; // Bootstrap's 'md' breakpoint (approx)
-const TODAY_MARKER_COLOR = "#333333"; // Darker color for today marker
+// const TODAY_MARKER_COLOR = "#333333"; // Now handled by CSS variable
 const TODAY_MARKER_WIDTH = 2; // Thicker line for today marker
+
+// Color Palettes
+const LIGHT_COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
+const DARK_COLORS = ["#6baed6", "#fd8d3c", "#74c476", "#ef6548", "#ad49f3", "#d59f84", "#f7b6d2", "#bdbdbd", "#dadaeb", "#63d0d0"]; // Brighter/Pastel versions for dark bg
 
 // --- Date Helpers ---
 
@@ -97,6 +99,10 @@ function renderTimeline() {
         console.error("Timeline layout containers not found!");
         return;
     }
+
+    // --- Determine Color Scheme ---
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const ACTIVE_COLORS = isDarkMode ? DARK_COLORS : LIGHT_COLORS;
     labelContainer.innerHTML = ''; // Clear previous labels
     scrollContainer.innerHTML = ''; // Clear previous SVG
 
@@ -304,18 +310,20 @@ function renderTimeline() {
                                         labelText.setAttribute("x", firstSegmentX - 5); // 5px padding to the left
                                         labelText.setAttribute("y", cycleY + BAR_HEIGHT / 2);
                                         labelText.setAttribute("font-size", "14px");
-                                        // labelText.setAttribute("fill", "#333"); // Link color will override unless specified
+                                        // labelText.setAttribute("fill", "var(--text-color)"); // Use CSS variable via class
                                         labelText.setAttribute("text-anchor", "end"); // Align end of text to the x position
                                         labelText.setAttribute("dominant-baseline", "middle"); // Vertical centering
                                         labelText.textContent = cycle.name;
 
                                         // Check if the installment has a website URL
+                                        // Check if the installment has a website URL
                                         if (inst.website) {
                                             const link = document.createElementNS(SVG_NS, "a");
+                                            link.setAttribute("class", "cycle-label-link"); // Use CSS class for styling
                                             link.setAttributeNS("http://www.w3.org/1999/xlink", "href", inst.website); // Use xlink:href for SVG 1.1 compatibility if needed, or just href for SVG 2
                                             link.setAttribute("href", inst.website); // Standard href for modern browsers
                                             link.setAttribute("target", "_blank"); // Open in new tab
-                                            link.setAttribute("fill", "#0d6efd"); // Standard link blue, or use CSS
+                                            // link.setAttribute("fill", "var(--link-color)"); // Use CSS variable via class
 
                                             // Add a title for hover effect (optional)
                                             const linkTitle = document.createElementNS(SVG_NS, "title");
@@ -323,10 +331,12 @@ function renderTimeline() {
                                             link.appendChild(linkTitle);
 
                                             link.appendChild(labelText); // Put the text inside the link
+                                            link.appendChild(labelText); // Put the text inside the link
                                             svg.appendChild(link); // Add the link (containing the text) to the SVG
                                         } else {
                                             // No website, just add the text element directly
-                                            labelText.setAttribute("fill", "#333"); // Set text color if not a link
+                                            labelText.setAttribute("class", "cycle-label-text"); // Use CSS class for styling
+                                            // labelText.setAttribute("fill", "var(--text-color)"); // Use CSS variable via class
                                             svg.appendChild(labelText);
                                         }
                                     }
@@ -339,7 +349,7 @@ function renderTimeline() {
                                 rect.setAttribute("y", cycleY); // Use the calculated Y for the current cycle
                                 rect.setAttribute("width", width); // Use calculated width
                                 rect.setAttribute("height", BAR_HEIGHT);
-                                rect.setAttribute("fill", COLORS[colorIndex % COLORS.length]);
+                                rect.setAttribute("fill", ACTIVE_COLORS[colorIndex % ACTIVE_COLORS.length]); // Use active color palette
 
                                 // Add Bootstrap Popover attributes
                             rect.setAttribute("data-bs-toggle", "popover");
@@ -386,8 +396,9 @@ function renderTimeline() {
             separatorLine.setAttribute("y1", separatorY);
             separatorLine.setAttribute("x2", totalSvgTimelineWidth); // Extend to the full SVG width
             separatorLine.setAttribute("y2", separatorY);
-            separatorLine.setAttribute("stroke", "#cccccc"); // Light gray color
+            // separatorLine.setAttribute("stroke", "var(--border-color-medium)"); // Use CSS variable via class
             separatorLine.setAttribute("stroke-width", "1");
+            separatorLine.setAttribute("class", "separator-line"); // Use CSS class
             svg.appendChild(separatorLine);
         }
 
@@ -415,9 +426,10 @@ function renderTimeline() {
             line.setAttribute("y1", 0); // Start from the very top
             line.setAttribute("x2", xPos);
             line.setAttribute("y2", totalSvgHeight); // Extend to the bottom
-            line.setAttribute("stroke", "#e0e0e0"); // Light gray
+            // line.setAttribute("stroke", "var(--border-color-light)"); // Use CSS variable via class
             line.setAttribute("stroke-width", "1");
             line.setAttribute("shape-rendering", "crispEdges"); // Make thin lines sharp
+            line.setAttribute("class", "month-marker-line"); // Use CSS class
             monthGroup.appendChild(line);
 
             // Month label - Position within the top margin
@@ -425,8 +437,9 @@ function renderTimeline() {
             label.setAttribute("x", xPos + 3); // Slight offset from the line
             label.setAttribute("y", MONTH_LABEL_HEIGHT - 7); // Position towards the bottom of the label area
             label.setAttribute("font-size", "10px");
-            label.setAttribute("fill", "#555"); // Slightly darker text
+            // label.setAttribute("fill", "var(--muted-text-color)"); // Use CSS variable via class
             label.setAttribute("dominant-baseline", "middle"); // Align text vertically
+            label.setAttribute("class", "month-label"); // Use CSS class
             label.textContent = `${currentMonth.toLocaleString('default', { month: 'short', timeZone: 'UTC' })} ${currentMonth.getUTCFullYear()}`;
             monthGroup.appendChild(label);
         }
@@ -445,9 +458,10 @@ function renderTimeline() {
         todayLine.setAttribute("y1", 0); // Start from the very top
         todayLine.setAttribute("x2", todayXPos);
         todayLine.setAttribute("y2", totalSvgHeight); // Extend to the bottom
-        todayLine.setAttribute("stroke", TODAY_MARKER_COLOR);
+        // todayLine.setAttribute("stroke", "var(--today-marker-color)"); // Use CSS variable via class
         todayLine.setAttribute("stroke-width", TODAY_MARKER_WIDTH);
         todayLine.setAttribute("shape-rendering", "crispEdges");
+        todayLine.setAttribute("class", "today-marker-line"); // Use CSS class
         // Add a simple title for accessibility/hover info
         const titleElem = document.createElementNS(SVG_NS, "title");
         titleElem.textContent = `Today (${today.toISOString().split('T')[0]})`;
@@ -519,3 +533,6 @@ async function loadAndRenderTimeline() {
 document.addEventListener('DOMContentLoaded', loadAndRenderTimeline);
 // Re-render on resize using the already loaded data
 window.addEventListener('resize', renderTimeline);
+
+// Re-render if the color scheme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderTimeline);
