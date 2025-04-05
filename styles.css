@@ -54,6 +54,29 @@ body {
   color: var(--text-color);
 }
 
+#filter-container {
+  /* Add some basic styling */
+  /* border: 1px solid var(--border-color-medium); */ /* Already added border class in HTML */
+  /* padding: 1rem; */ /* Already added p-3 class in HTML */
+  /* margin-bottom: 1rem; */ /* Already added mb-3 class in HTML */
+  background-color: var(--label-background); /* Match label background */
+}
+
+#filter-container h5 {
+    margin-bottom: 0.75rem; /* Space below title */
+}
+
+#filter-container .form-check {
+    margin-bottom: 0.5rem; /* Space between checkboxes */
+    white-space: nowrap; /* Prevent labels from wrapping */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis if label is too long */
+}
+
+#filter-container .form-check-label {
+    cursor: pointer; /* Indicate label is clickable */
+}
+
 
 #timeline-wrapper {
   display: flex;

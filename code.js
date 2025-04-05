@@ -88,11 +88,67 @@ const getTodaysDate = getTodaysDateReal;
 
 // Global variable to store fetched conference data
 let conferenceData = null;
+// Global variable to store filter controls container
+let filterContainer = null;
+
+
+// --- Filter Controls Rendering ---
+
+/**
+ * Renders the filter checkboxes for conferences.
+ * @param {Array} conferences - The conference data array.
+ */
+function renderFilterControls(conferences) {
+    if (!filterContainer) {
+        console.error("Filter container not found!");
+        return;
+    }
+    filterContainer.innerHTML = '<h5>Filter Conferences:</h5>'; // Clear previous controls but keep title
+
+    const row = document.createElement('div');
+    row.className = 'row';
+    filterContainer.appendChild(row);
+
+    let currentColumn = null;
+    const conferencesPerColumn = 4;
+
+    conferences.forEach((conf, index) => {
+        // Create a new column div every `conferencesPerColumn` items or for the first item
+        if (index % conferencesPerColumn === 0) {
+            currentColumn = document.createElement('div');
+            // Use Bootstrap column classes (e.g., col-md-3 for 4 columns on medium+ screens)
+            currentColumn.className = 'col-12 col-sm-6 col-md-3'; // Adjust breakpoints as needed
+            row.appendChild(currentColumn);
+        }
+
+        const formCheck = document.createElement('div');
+        formCheck.className = 'form-check';
+
+        const input = document.createElement('input');
+        input.className = 'form-check-input conference-filter-checkbox';
+        input.type = 'checkbox';
+        input.value = conf.conference; // Use conference name as value
+        input.id = `filter-${conf.conference.replace(/\s+/g, '-')}`; // Create a unique ID
+        input.checked = true; // Default to checked
+
+        const label = document.createElement('label');
+        label.className = 'form-check-label';
+        label.htmlFor = input.id;
+        label.textContent = conf.conference;
+
+        formCheck.appendChild(input);
+        formCheck.appendChild(label);
+        currentColumn.appendChild(formCheck);
+
+        // Add event listener to re-render timeline on change
+        input.addEventListener('change', renderTimeline);
+    });
+}
 
 // --- Timeline Rendering ---
 
 /**
- * Renders the entire conference timeline using the globally stored data.
+ * Renders the entire conference timeline based on the current filter selection.
  */
 function renderTimeline() {
     if (!conferenceData) {
@@ -105,6 +161,29 @@ function renderTimeline() {
         if (scrollContainer) scrollContainer.innerHTML = '<p>Loading timeline data...</p>';
         return;
     }
+
+    // --- Get Filtered Data ---
+    const checkedFilters = filterContainer ? Array.from(filterContainer.querySelectorAll('.conference-filter-checkbox:checked')) : [];
+    const visibleConferenceNames = new Set(checkedFilters.map(input => input.value));
+    const conferencesToRender = conferenceData.filter(conf => visibleConferenceNames.has(conf.conference));
+    // console.log("Rendering conferences:", Array.from(visibleConferenceNames)); // For debugging
+
+    if (conferencesToRender.length === 0) {
+        // Handle case where no conferences are selected
+        const labelContainer = document.getElementById('timeline-labels');
+        const scrollContainer = document.getElementById('timeline-scroll-container');
+        if (labelContainer) labelContainer.innerHTML = '';
+        if (scrollContainer) scrollContainer.innerHTML = '<p class="p-3">No conferences selected. Check some boxes above to see the timeline.</p>';
+        // Ensure wrapper height doesn't collapse completely
+        const wrapper = document.getElementById('timeline-wrapper');
+        if (wrapper) wrapper.style.minHeight = '50px'; // Adjust as needed
+        return;
+    } else {
+         // Reset minHeight if conferences are visible
+        const wrapper = document.getElementById('timeline-wrapper');
+        if (wrapper) wrapper.style.minHeight = '';
+    }
+
 
     const labelContainer = document.getElementById('timeline-labels');
     const scrollContainer = document.getElementById('timeline-scroll-container');
@@ -129,7 +208,8 @@ function renderTimeline() {
     let minDate = new Date(8640000000000000); // Max possible date
     let maxDate = new Date(-8640000000000000); // Min possible date
 
-    conferenceData.forEach(conf => {
+    // Use filtered data to determine date range
+    conferencesToRender.forEach(conf => {
         conf.installments?.forEach(inst => {
             inst.cycles?.forEach(cycle => {
                 cycle.dates?.forEach(event => {
@@ -161,7 +241,9 @@ function renderTimeline() {
     const pixelsPerDay = scrollContainerWidth / initialViewDays;
     const totalSvgTimelineWidth = totalTimelineDays * pixelsPerDay;
 
-    const conferences = conferenceData; // Use the globally fetched data
+    // Use filtered data for layout calculation
+    // const conferences = conferenceData; // Use the globally fetched data
+    const conferences = conferencesToRender; // Use the filtered data
 
     // --- Pre-calculate Layout and Heights ---
     let totalRequiredHeight = MONTH_LABEL_HEIGHT;
@@ -522,7 +604,9 @@ async function loadAndRenderTimeline() {
         // --- End sorting ---
 
         console.log("Timeline data loaded successfully.");
-        renderTimeline(); // Initial render after data is loaded
+        filterContainer = document.getElementById('filter-container'); // Store container reference
+        renderFilterControls(conferenceData); // Render filters first
+        renderTimeline(); // Initial render after data is loaded and filters are present
     } catch (error) {
         console.error("Failed to load timeline data:", error);
         // Display an error message to the user
