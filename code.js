@@ -203,11 +203,11 @@ function renderFilterControls(conferences) {
     // --- End "Select All" Checkbox ---
 
 
-    // const row = document.createElement('div'); // Removed the explicit row container
-    // row.className = 'row';
-    // filterContainer.appendChild(row); // Removed
+    const conferenceRow = document.createElement('div'); // Re-introduce the row container
+    conferenceRow.className = 'row g-2'; // Add row class and gutter spacing (e.g., g-2)
+    filterContainer.appendChild(conferenceRow); // Append the row to the filter container
 
-    // Removed column creation logic (let items flow)
+    // Removed column creation logic (let items flow) - No longer true, using grid columns
     // let currentColumn = null;
     // const conferencesPerColumn = 4;
 
@@ -215,9 +215,15 @@ function renderFilterControls(conferences) {
         // Removed column creation logic
         // if (index % conferencesPerColumn === 0) { ... }
 
+        // Create a column div to hold the form-check, ensuring proper grid behavior
+        const colDiv = document.createElement('div');
+        // Define responsive columns: 2 on xs, 3 on sm, 4 on md+
+        colDiv.className = 'col-6 col-sm-4 col-md-3';
+
         const formCheck = document.createElement('div');
-        // Use inline-block and margins for layout instead of col-auto in a row
-        formCheck.className = 'form-check d-inline-block me-3 mb-1'; // Adjust margins as needed
+        // form-check class remains for styling the input/label pair
+        formCheck.className = 'form-check';
+        // formCheck.className = 'form-check d-inline-block me-3 mb-1'; // Removed inline-block styling
 
         const input = document.createElement('input');
         input.className = 'form-check-input conference-filter-checkbox';
@@ -235,8 +241,11 @@ function renderFilterControls(conferences) {
 
         formCheck.appendChild(input);
         formCheck.appendChild(label);
-        // Append directly to the filter container
-        filterContainer.appendChild(formCheck);
+        // Append the formCheck to the column div
+        colDiv.appendChild(formCheck);
+        // Append the column div to the conference row
+        conferenceRow.appendChild(colDiv);
+        // filterContainer.appendChild(formCheck); // Removed
         // row.appendChild(formCheck); // Removed
         // currentColumn.appendChild(formCheck); // Removed
 

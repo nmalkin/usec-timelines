@@ -69,9 +69,11 @@ body {
 
 #filter-container .form-check {
     margin-bottom: 0.5rem; /* Space between checkboxes */
-    white-space: nowrap; /* Prevent labels from wrapping */
+    /* white-space: nowrap; */ /* Removed - let text wrap within columns if needed */
     overflow: hidden; /* Hide overflow */
     text-overflow: ellipsis; /* Add ellipsis if label is too long */
+    /* Ensure the form-check itself doesn't add extra margin causing misalignment within the column */
+    margin-right: 0 !important; /* Override potential Bootstrap margins if needed */
 }
 
 #filter-container .form-check-label {
