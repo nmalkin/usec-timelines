@@ -55,10 +55,6 @@ body {
 }
 
 #filter-container {
-  /* Add some basic styling */
-  /* border: 1px solid var(--border-color-medium); */ /* Already added border class in HTML */
-  /* padding: 1rem; */ /* Already added p-3 class in HTML */
-  /* margin-bottom: 1rem; */ /* Already added mb-3 class in HTML */
   background-color: var(--label-background); /* Match label background */
   font-size: 80%; /* Reduce font size for all content within the filter container */
 }
@@ -69,10 +65,8 @@ body {
 
 #filter-container .form-check {
     margin-bottom: 0.5rem; /* Space between checkboxes */
-    /* white-space: nowrap; */ /* Removed - let text wrap within columns if needed */
     overflow: hidden; /* Hide overflow */
     text-overflow: ellipsis; /* Add ellipsis if label is too long */
-    /* Ensure the form-check itself doesn't add extra margin causing misalignment within the column */
     margin-right: 0 !important; /* Override potential Bootstrap margins if needed */
 }
 
@@ -100,8 +94,6 @@ body {
   left: 0;          /* Stick to the left edge */
   background-color: var(--label-background); /* Use variable */
   z-index: 10;      /* Ensure labels are above the SVG lines */
-  /* Height needs to match the SVG height dynamically or be large enough */
-  /* height: calc(100vh - 40px); */ /* Let content define height */
   overflow-y: hidden; /* Prevent vertical scrollbar on labels */
   border-right: 1px solid var(--border-color-medium); /* Use variable */
 }
@@ -117,19 +109,12 @@ body {
     border-bottom: 1px solid var(--border-color-light); /* Use variable */
     color: var(--text-color); /* Ensure label text color adapts */
 }
- /* Add padding below the last label to match CONFERENCE_PADDING */
-#timeline-labels > div:last-child {
-    /* This might be tricky if last conf has 0 height, JS needs to handle */
-}
-
 
 #timeline-scroll-container {
   flex: 1 1 auto; /* Grow, shrink, automatic base width */
   overflow-x: auto; /* Enable horizontal scrolling */
   overflow-y: hidden; /* Prevent vertical scrollbar on SVG container */
   position: relative; /* Needed for absolute positioning of SVG if required */
-  /* Height needs to match label container or be managed */
-  /* height: calc(100vh - 40px); */ /* Let content define height */
 }
 
 .timeline-svg {

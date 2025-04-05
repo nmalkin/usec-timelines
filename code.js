@@ -5,10 +5,9 @@ const CYCLE_PADDING = 5; // Vertical space between cycle bars within a conferenc
 const CONFERENCE_PADDING = 10; // Vertical space below each conference row
 const MONTH_LABEL_HEIGHT = 20; // Space for month labels at the top of the SVG
 const SMALL_BREAKPOINT = 768; // Bootstrap's 'md' breakpoint (approx)
-// const TODAY_MARKER_COLOR = "#333333"; // Now handled by CSS variable
 const TODAY_MARKER_WIDTH = 2; // Thicker line for today marker
 
-// Color Palettes
+// Color Palettes (Consider moving to CSS variables if more complex theming is needed)
 const LIGHT_COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
 const DARK_COLORS = ["#6baed6", "#fd8d3c", "#74c476", "#ef6548", "#ad49f3", "#d59f84", "#f7b6d2", "#bdbdbd", "#dadaeb", "#63d0d0"]; // Brighter/Pastel versions for dark bg
 
@@ -55,7 +54,8 @@ function getTodaysDateReal() {
  * @returns {Date} A fixed date (2024-09-01).
  */
 function getTodaysDateTest() {
-    return parseDate("2024-09-01");
+    // Note: Using parseDate ensures it's treated as UTC
+    return parseDate("2024-09-01").date;
 }
 
 /**
@@ -83,11 +83,11 @@ function formatDateVerbose(date, isUncertain) {
 }
 
 
-// Use the test date for now
-const getTodaysDate = getTodaysDateReal;
+// --- Global State ---
+// Choose which date function to use (real or test)
+const getTodaysDate = getTodaysDateReal; // Or use getTodaysDateTest for debugging
 
-// Global variable to store fetched conference data
-let conferenceData = null;
+let conferenceData = null; // Stores the fetched conference data
 // Global variable to store filter controls container
 let filterContainer = null;
 // localStorage key for filter state
@@ -108,7 +108,6 @@ function saveFilterState() {
     });
     try {
         localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(state));
-        // console.log("Filter state saved:", state); // For debugging
     } catch (e) {
         console.error("Failed to save filter state to localStorage:", e);
     }
@@ -122,7 +121,6 @@ function loadFilterState() {
     try {
         const savedState = localStorage.getItem(FILTER_STORAGE_KEY);
         if (savedState) {
-            // console.log("Filter state loaded:", JSON.parse(savedState)); // For debugging
             return JSON.parse(savedState);
         }
     } catch (e) {
@@ -137,7 +135,6 @@ function loadFilterState() {
 function removeFilterState() {
     try {
         localStorage.removeItem(FILTER_STORAGE_KEY);
-        // console.log("Filter state removed."); // For debugging
     } catch (e) {
         console.error("Failed to remove filter state from localStorage:", e);
     }
@@ -147,20 +144,10 @@ function removeFilterState() {
 // --- Filter Controls Rendering ---
 
 /**
- * Renders the filter checkboxes for conferences.
- * @param {Array} conferences - The conference data array.
+ * Creates the "Select All / None" checkbox and adds its event listener.
+ * @returns {HTMLElement} The div element containing the checkbox.
  */
-function renderFilterControls(conferences) {
-    if (!filterContainer) {
-        console.error("Filter container not found!");
-        return;
-    }
-    filterContainer.innerHTML = '<h5>Filter Conferences:</h5>'; // Clear previous controls but keep title
-
-    // Load saved filter state
-    const savedFilterState = loadFilterState();
-
-    // --- Add "Select All" Checkbox ---
+function createSelectAllCheckbox() {
     const selectAllDiv = document.createElement('div');
     selectAllDiv.className = 'col-12 mb-2'; // Span full width, add margin below
 
@@ -171,17 +158,15 @@ function renderFilterControls(conferences) {
     selectAllInput.className = 'form-check-input';
     selectAllInput.type = 'checkbox';
     selectAllInput.id = 'filter-all';
-    // selectAllInput.checked = true; // DO NOT default to checked; state determined by individual boxes after load
 
     const selectAllLabel = document.createElement('label');
-    selectAllLabel.className = 'form-check-label select-all-label'; // Add specific class for styling
+    selectAllLabel.className = 'form-check-label select-all-label';
     selectAllLabel.htmlFor = 'filter-all';
     selectAllLabel.textContent = 'Select All / None';
 
     selectAllFormCheck.appendChild(selectAllInput);
     selectAllFormCheck.appendChild(selectAllLabel);
     selectAllDiv.appendChild(selectAllFormCheck);
-    filterContainer.appendChild(selectAllDiv); // Add it before the row of conference checkboxes
 
     // Add event listener for "Select All"
     selectAllInput.addEventListener('change', () => {
@@ -191,170 +176,151 @@ function renderFilterControls(conferences) {
             checkbox.checked = isChecked;
         });
         renderTimeline(); // Re-render after changing all checkboxes
-        // saveFilterState(); // Save state after "Select All" change // <-- REMOVED, logic moved below
 
-        // NEW logic: Remove state if "Select All" is checked, save otherwise
+        // Remove state if "Select All" is checked (meaning all are selected), save otherwise
         if (isChecked) {
             removeFilterState();
         } else {
             saveFilterState();
         }
     });
-    // --- End "Select All" Checkbox ---
 
+    return selectAllDiv;
+}
 
-    const conferenceRow = document.createElement('div'); // Re-introduce the row container
-    conferenceRow.className = 'row g-2'; // Add row class and gutter spacing (e.g., g-2)
-    filterContainer.appendChild(conferenceRow); // Append the row to the filter container
+/**
+ * Creates a single conference filter checkbox element within a grid column.
+ * @param {object} conf - The conference object.
+ * @param {object | null} savedFilterState - The loaded filter state from localStorage.
+ * @returns {HTMLElement} The column div element containing the checkbox.
+ */
+function createConferenceFilterCheckbox(conf, savedFilterState) {
+    const colDiv = document.createElement('div');
+    // Define responsive columns: 3 on xs, 2 on sm+
+    colDiv.className = 'col-3 col-sm-2 col-md-2';
 
-    // Removed column creation logic (let items flow) - No longer true, using grid columns
-    // let currentColumn = null;
-    // const conferencesPerColumn = 4;
+    const formCheck = document.createElement('div');
+    formCheck.className = 'form-check';
 
-    conferences.forEach((conf, index) => {
-        // Removed column creation logic
-        // if (index % conferencesPerColumn === 0) { ... }
+    const input = document.createElement('input');
+    input.className = 'form-check-input conference-filter-checkbox';
+    input.type = 'checkbox';
+    input.value = conf.conference; // Use conference name as value
+    input.id = `filter-${conf.conference.replace(/\s+/g, '-')}`; // Create a unique ID
+    // Set checked state based on loaded state, default to true if no state exists
+    input.checked = savedFilterState ? (savedFilterState[conf.conference] ?? true) : true;
 
-        // Create a column div to hold the form-check, ensuring proper grid behavior
-        const colDiv = document.createElement('div');
-        // Define responsive columns: 4 on xs, 6 on sm, 6 on md+
-        colDiv.className = 'col-3 col-sm-2 col-md-2'; // Changed from col-4 col-sm-4 col-md-2
+    const label = document.createElement('label');
+    label.className = 'form-check-label';
+    label.htmlFor = input.id;
+    label.textContent = conf.conference;
 
-        const formCheck = document.createElement('div');
-        // form-check class remains for styling the input/label pair
-        formCheck.className = 'form-check';
-        // formCheck.className = 'form-check d-inline-block me-3 mb-1'; // Removed inline-block styling
+    formCheck.appendChild(input);
+    formCheck.appendChild(label);
+    colDiv.appendChild(formCheck);
 
-        const input = document.createElement('input');
-        input.className = 'form-check-input conference-filter-checkbox';
-        input.type = 'checkbox';
-        input.value = conf.conference; // Use conference name as value
-        input.id = `filter-${conf.conference.replace(/\s+/g, '-')}`; // Create a unique ID
-        // Set checked state based on loaded state, default to true if not found
-        input.checked = savedFilterState ? (savedFilterState[conf.conference] ?? true) : true;
+    // Add event listener to re-render timeline, update "Select All", and save state
+    input.addEventListener('change', () => {
+        updateSelectAllCheckboxState();
+        renderTimeline();
 
-
-        const label = document.createElement('label');
-        label.className = 'form-check-label';
-        label.htmlFor = input.id;
-        label.textContent = conf.conference;
-
-        formCheck.appendChild(input);
-        formCheck.appendChild(label);
-        // Append the formCheck to the column div
-        colDiv.appendChild(formCheck);
-        // Append the column div to the conference row
-        conferenceRow.appendChild(colDiv);
-        // filterContainer.appendChild(formCheck); // Removed
-        // row.appendChild(formCheck); // Removed
-        // currentColumn.appendChild(formCheck); // Removed
-
-        // Add event listener to re-render timeline on change AND update "Select All" state AND save state
-        input.addEventListener('change', () => {
-            updateSelectAllCheckboxState();
-            renderTimeline();
-            // saveFilterState(); // Save state after individual checkbox change // <-- REMOVED, logic moved below
-
-            // NEW logic: Check "Select All" state AFTER update, then save or remove
-            const selectAllInput = document.getElementById('filter-all');
-            if (selectAllInput && selectAllInput.checked) {
-                removeFilterState();
-            } else {
-                saveFilterState();
-            }
-        });
+        // Check "Select All" state AFTER update, then save or remove state
+        const selectAllInput = document.getElementById('filter-all');
+        if (selectAllInput && selectAllInput.checked) {
+            removeFilterState(); // If all are checked now, remove specific state
+        } else {
+            saveFilterState(); // Otherwise, save the current (partial) state
+        }
     });
 
-    // Initial check in case not all are checked by default in the future
+    return colDiv;
+}
+
+/**
+ * Renders the filter checkboxes for conferences into the filter container.
+ * @param {Array} conferences - The conference data array.
+ */
+function renderFilterControls(conferences) {
+    if (!filterContainer) {
+        console.error("Filter container not found!");
+        return;
+    }
+    filterContainer.innerHTML = '<h5>Filter Conferences:</h5>'; // Clear previous controls but keep title
+
+    const savedFilterState = loadFilterState();
+
+    // Add "Select All" checkbox
+    const selectAllCheckbox = createSelectAllCheckbox();
+    filterContainer.appendChild(selectAllCheckbox);
+
+    // Add row for conference checkboxes
+    const conferenceRow = document.createElement('div');
+    conferenceRow.className = 'row g-2'; // Add row class and gutter spacing
+    filterContainer.appendChild(conferenceRow);
+
+    // Add individual conference checkboxes
+    conferences.forEach(conf => {
+        const checkboxElement = createConferenceFilterCheckbox(conf, savedFilterState);
+        conferenceRow.appendChild(checkboxElement);
+    });
+
+    // Set the initial state of the "Select All" checkbox after rendering individuals
     updateSelectAllCheckboxState();
 }
 
 /**
- * Updates the state of the "Select All" checkbox based on individual checkbox states.
+ * Updates the checked state of the "Select All" checkbox based on individual checkbox states.
  */
 function updateSelectAllCheckboxState() {
     const selectAllInput = document.getElementById('filter-all');
     if (!selectAllInput || !filterContainer) return; // Exit if elements aren't ready
 
     const conferenceCheckboxes = filterContainer.querySelectorAll('.conference-filter-checkbox');
+    if (conferenceCheckboxes.length === 0) {
+        selectAllInput.checked = false; // No checkboxes, so not "all" are checked
+        return;
+    }
     const allChecked = Array.from(conferenceCheckboxes).every(checkbox => checkbox.checked);
-    // const noneChecked = Array.from(conferenceCheckboxes).every(checkbox => !checkbox.checked); // Optional: for indeterminate state
-    // const someChecked = !allChecked && !noneChecked; // Optional: for indeterminate state
-
     selectAllInput.checked = allChecked;
     // Optional: Handle indeterminate state visually if desired
-    // selectAllInput.indeterminate = someChecked;
+    // const noneChecked = Array.from(conferenceCheckboxes).every(checkbox => !checkbox.checked);
+    // selectAllInput.indeterminate = !allChecked && !noneChecked;
 }
 
-// --- Timeline Rendering ---
+
+// --- SVG Element Creation Helper ---
 
 /**
- * Renders the entire conference timeline based on the current filter selection.
+ * Creates an SVG element with specified attributes.
+ * @param {string} tagName - The type of SVG element (e.g., 'rect', 'line', 'text').
+ * @param {object} attributes - An object mapping attribute names to values.
+ * @returns {SVGElement} The created SVG element.
  */
-function renderTimeline() {
-    if (!conferenceData) {
-        console.log("Timeline data not loaded yet.");
-        // Optionally display a loading message
-        const container = document.getElementById('timeline-container');
-        if (container) container.innerHTML = '<p>Loading timeline data...</p>';
-        // Optionally display a loading message in the scroll container
-        const scrollContainer = document.getElementById('timeline-scroll-container');
-        if (scrollContainer) scrollContainer.innerHTML = '<p>Loading timeline data...</p>';
-        return;
+function createSvgElement(tagName, attributes) {
+    const element = document.createElementNS(SVG_NS, tagName);
+    for (const key in attributes) {
+        element.setAttribute(key, attributes[key]);
     }
-
-    // --- Get Filtered Data ---
-    const checkedFilters = filterContainer ? Array.from(filterContainer.querySelectorAll('.conference-filter-checkbox:checked')) : [];
-    const visibleConferenceNames = new Set(checkedFilters.map(input => input.value));
-    const conferencesToRender = conferenceData.filter(conf => visibleConferenceNames.has(conf.conference));
-    // console.log("Rendering conferences:", Array.from(visibleConferenceNames)); // For debugging
-
-    if (conferencesToRender.length === 0) {
-        // Handle case where no conferences are selected
-        const labelContainer = document.getElementById('timeline-labels');
-        const scrollContainer = document.getElementById('timeline-scroll-container');
-        if (labelContainer) labelContainer.innerHTML = '';
-        if (scrollContainer) scrollContainer.innerHTML = '<p class="p-3">No conferences selected. Check some boxes above to see the timeline.</p>';
-        // Ensure wrapper height doesn't collapse completely
-        const wrapper = document.getElementById('timeline-wrapper');
-        if (wrapper) wrapper.style.minHeight = '50px'; // Adjust as needed
-        return;
-    } else {
-         // Reset minHeight if conferences are visible
-        const wrapper = document.getElementById('timeline-wrapper');
-        if (wrapper) wrapper.style.minHeight = '';
-    }
+    return element;
+}
 
 
-    const labelContainer = document.getElementById('timeline-labels');
-    const scrollContainer = document.getElementById('timeline-scroll-container');
-    const wrapper = document.getElementById('timeline-wrapper'); // Get the main wrapper
+// --- Timeline Rendering Logic ---
 
-    if (!labelContainer || !scrollContainer || !wrapper) {
-        console.error("Timeline layout containers not found!");
-        return;
-    }
-
-    // --- Determine Color Scheme ---
-    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const ACTIVE_COLORS = isDarkMode ? DARK_COLORS : LIGHT_COLORS;
-    labelContainer.innerHTML = ''; // Clear previous labels
-    scrollContainer.innerHTML = ''; // Clear previous SVG
-
-    const today = getTodaysDate();
-    const isSmallScreen = window.innerWidth < SMALL_BREAKPOINT; // Check screen size based on window, not container
-    const timelineDurationMonths = isSmallScreen ? 3 : 12;
-
-    // --- Determine overall date range from data ---
+/**
+ * Calculates the overall date range for the timeline based on filtered data.
+ * @param {Array} conferencesToRender - The filtered list of conferences.
+ * @returns {{minDate: Date, maxDate: Date, totalTimelineDays: number}}
+ */
+function calculateTimelineDateRange(conferencesToRender) {
     let minDate = new Date(8640000000000000); // Max possible date
     let maxDate = new Date(-8640000000000000); // Min possible date
 
-    // Use filtered data to determine date range
     conferencesToRender.forEach(conf => {
         conf.installments?.forEach(inst => {
             inst.cycles?.forEach(cycle => {
                 cycle.dates?.forEach(event => {
-                    const { date: d } = parseDate(event.date); // Extract only the date object
+                    const { date: d } = parseDate(event.date);
                     if (d < minDate) minDate = d;
                     if (d > maxDate) maxDate = d;
                 });
@@ -362,249 +328,279 @@ function renderTimeline() {
         });
     });
 
-    // Add some padding to the date range (e.g., 1 month before/after)
+    // Add padding (1 month before/after) and align to month start
     minDate.setUTCMonth(minDate.getUTCMonth() - 1);
-    minDate.setUTCDate(1); // Start from beginning of the month
+    minDate.setUTCDate(1);
     maxDate.setUTCMonth(maxDate.getUTCMonth() + 1);
-    maxDate.setUTCDate(1); // Extend into the next month for buffer
+    maxDate.setUTCDate(1);
 
     const totalTimelineDays = diffDays(minDate, maxDate);
+    return { minDate, maxDate, totalTimelineDays };
+}
 
-    // --- Calculate SVG dimensions ---
-    // Width available for the scrollable timeline area
-    const scrollContainerWidth = scrollContainer.clientWidth;
+/**
+ * Calculates the required dimensions for the SVG timeline.
+ * @param {number} totalTimelineDays - The total duration of the timeline in days.
+ * @param {Date} today - The current date.
+ * @param {number} scrollContainerWidth - The width of the scrollable container.
+ * @returns {{totalSvgTimelineWidth: number, pixelsPerDay: number}}
+ */
+function calculateSvgDimensions(totalTimelineDays, today, scrollContainerWidth) {
+    const isSmallScreen = window.innerWidth < SMALL_BREAKPOINT;
+    const timelineDurationMonths = isSmallScreen ? 3 : 12; // Initial visible duration
 
-    // Total width needed for the SVG to represent the entire date range
-    // We base the pixels-per-day on the desired *initial* view (1yr or 3mo)
+    // Calculate pixels-per-day based on the desired initial view
     const initialViewEndDate = new Date(today);
     initialViewEndDate.setUTCMonth(initialViewEndDate.getUTCMonth() + timelineDurationMonths);
     const initialViewDays = diffDays(today, initialViewEndDate);
-    const pixelsPerDay = scrollContainerWidth / initialViewDays;
+
+    // Avoid division by zero if initial view is 0 days (shouldn't happen with month padding)
+    const pixelsPerDay = initialViewDays > 0 ? scrollContainerWidth / initialViewDays : 1;
     const totalSvgTimelineWidth = totalTimelineDays * pixelsPerDay;
 
-    // Use filtered data for layout calculation
-    // const conferences = conferenceData; // Use the globally fetched data
-    const conferences = conferencesToRender; // Use the filtered data
+    return { totalSvgTimelineWidth, pixelsPerDay };
+}
 
-    // --- Pre-calculate Layout and Heights ---
+/**
+ * Pre-calculates the layout (Y position, height, row assignments) for each conference and its cycles.
+ * @param {Array} conferences - The list of conferences to lay out.
+ * @param {Date} minDate - The start date of the timeline.
+ * @param {number} totalTimelineDays - The total duration of the timeline in days.
+ * @param {number} totalSvgTimelineWidth - The total width of the SVG.
+ * @returns {{conferenceLayouts: Array, totalSvgHeight: number}}
+ */
+function calculateConferenceLayouts(conferences, minDate, totalTimelineDays, totalSvgTimelineWidth) {
     let totalRequiredHeight = MONTH_LABEL_HEIGHT;
     const conferenceLayouts = conferences.map(conf => {
         const conferenceRows = []; // Tracks end X coordinate for each row: [{ endX: number }]
-        const cycleLayouts = []; // Stores layout info for each cycle: [{ cycle, inst, rowIndex, startXPixel, endXPixel, labelWidth }]
+        const cycleLayouts = []; // Stores layout info for each cycle
         let maxRows = 0;
 
-        if (conf.installments) {
-            conf.installments.forEach(inst => {
-                if (inst.cycles) {
-                    inst.cycles.forEach(cycle => {
-                        if (!cycle.dates || cycle.dates.length < 2) return; // Need at least two dates for a segment
+        conf.installments?.forEach(inst => {
+            inst.cycles?.forEach(cycle => {
+                if (!cycle.dates || cycle.dates.length < 2) return;
 
-                        // Find cycle's date range
-                        let cycleMinDate = parseDate(cycle.dates[0].date).date;
-                        let cycleMaxDate = parseDate(cycle.dates[cycle.dates.length - 1].date).date;
-                        for (let i = 1; i < cycle.dates.length; i++) {
-                            const d = parseDate(cycle.dates[i].date).date;
-                            if (d < cycleMinDate) cycleMinDate = d;
-                            if (d > cycleMaxDate) cycleMaxDate = d;
-                        }
-
-                        // Calculate pixel range
-                        const startDaysOffset = diffDays(minDate, cycleMinDate);
-                        const endDaysOffset = diffDays(minDate, cycleMaxDate);
-                        const startXPixel = (Math.max(0, startDaysOffset) / totalTimelineDays) * totalSvgTimelineWidth;
-                        const endXPixel = (Math.min(totalTimelineDays, endDaysOffset) / totalTimelineDays) * totalSvgTimelineWidth;
-
-                        // Estimate label width (simple estimation)
-                        const labelText = cycle.name || "";
-                        const estimatedCharWidth = 8; // Rough estimate
-                        const labelPadding = 15; // Space left of label + space right of label
-                        const labelWidth = labelText ? (labelText.length * estimatedCharWidth + labelPadding) : 0;
-
-                        const effectiveStartX = startXPixel - labelWidth; // Where the cycle effectively starts horizontally
-
-                        // Find the first row where this cycle fits
-                        let assignedRowIndex = -1;
-                        for (let i = 0; i < conferenceRows.length; i++) {
-                            if (effectiveStartX >= conferenceRows[i].endX) {
-                                assignedRowIndex = i;
-                                conferenceRows[i].endX = endXPixel; // Update row's end
-                                break;
-                            }
-                        }
-
-                        // If no row found, add a new one
-                        if (assignedRowIndex === -1) {
-                            assignedRowIndex = conferenceRows.length;
-                            conferenceRows.push({ endX: endXPixel });
-                        }
-
-                        cycleLayouts.push({ cycle, inst, rowIndex: assignedRowIndex, startXPixel, endXPixel, labelWidth });
-                        maxRows = Math.max(maxRows, assignedRowIndex + 1);
-                    }); // End forEach cycle
+                let cycleMinDate = parseDate(cycle.dates[0].date).date;
+                let cycleMaxDate = parseDate(cycle.dates[cycle.dates.length - 1].date).date;
+                // Ensure correct min/max if dates aren't pre-sorted (though they should be)
+                for (let i = 1; i < cycle.dates.length; i++) {
+                    const d = parseDate(cycle.dates[i].date).date;
+                    if (d < cycleMinDate) cycleMinDate = d;
+                    if (d > cycleMaxDate) cycleMaxDate = d;
                 }
-            }); // End forEach inst
-        } // End if (conf.installments)
 
-        // Calculate height based on the number of rows needed
+                const startDaysOffset = diffDays(minDate, cycleMinDate);
+                const endDaysOffset = diffDays(minDate, cycleMaxDate);
+                const startXPixel = (Math.max(0, startDaysOffset) / totalTimelineDays) * totalSvgTimelineWidth;
+                const endXPixel = (Math.min(totalTimelineDays, endDaysOffset) / totalTimelineDays) * totalSvgTimelineWidth;
+
+                // Estimate label width (simple estimation, could be improved)
+                const labelText = cycle.name || "";
+                const estimatedCharWidth = 8; // Rough estimate
+                const labelPadding = 15; // Space left + right of label
+                const labelWidth = labelText ? (labelText.length * estimatedCharWidth + labelPadding) : 0;
+                const effectiveStartX = startXPixel - labelWidth; // Consider label space for overlap check
+
+                // Find the first row where this cycle fits without overlapping horizontally
+                let assignedRowIndex = -1;
+                for (let i = 0; i < conferenceRows.length; i++) {
+                    if (effectiveStartX >= conferenceRows[i].endX) {
+                        assignedRowIndex = i;
+                        conferenceRows[i].endX = endXPixel; // Update row's end
+                        break;
+                    }
+                }
+
+                // If no suitable row found, add a new one
+                if (assignedRowIndex === -1) {
+                    assignedRowIndex = conferenceRows.length;
+                    conferenceRows.push({ endX: endXPixel });
+                }
+
+                cycleLayouts.push({ cycle, inst, rowIndex: assignedRowIndex, startXPixel, endXPixel, labelWidth });
+                maxRows = Math.max(maxRows, assignedRowIndex + 1);
+            });
+        });
+
+        // Calculate conference height based on the number of rows needed
         const confHeight = maxRows === 0 ? 0 : (maxRows * BAR_HEIGHT) + (Math.max(0, maxRows - 1) * CYCLE_PADDING);
-        const layout = { conf, confHeight, cycleLayouts }; // Store cycleLayouts here
+        const layout = { conf, confHeight, cycleLayouts };
         totalRequiredHeight += confHeight + (confHeight > 0 ? CONFERENCE_PADDING : 0);
         return layout;
     });
 
-    // Adjust total height calculation (remove padding after the last *visible* conference)
-    let lastVisibleConfHeight = 0;
+    // Adjust total height: remove padding added after the *last visible* conference
     for (let i = conferenceLayouts.length - 1; i >= 0; i--) {
         if (conferenceLayouts[i].confHeight > 0) {
-            lastVisibleConfHeight = conferenceLayouts[i].confHeight;
+            totalRequiredHeight -= CONFERENCE_PADDING; // Remove the last padding
             break;
         }
     }
-    if (lastVisibleConfHeight > 0) {
-         totalRequiredHeight -= CONFERENCE_PADDING; // Remove padding added after the last visible one
-    }
 
-    const totalSvgHeight = Math.max(MONTH_LABEL_HEIGHT, totalRequiredHeight);
+    const totalSvgHeight = Math.max(MONTH_LABEL_HEIGHT, totalRequiredHeight); // Ensure minimum height for month labels
+    return { conferenceLayouts, totalSvgHeight };
+}
 
-
-    // --- Create SVG Element ---
-    const svg = document.createElementNS(SVG_NS, "svg");
-    svg.setAttribute("class", "timeline-svg");
-    svg.setAttribute("width", totalSvgTimelineWidth); // SVG width is the total scrollable timeline width
-    svg.setAttribute("height", totalSvgHeight);
-    scrollContainer.appendChild(svg); // Append SVG to the scrollable container
-
-    // --- Set container heights explicitly ---
-    // Let the container height be determined by the content (labels / SVG)
-    // const containerHeight = `${totalSvgHeight}px`;
-    // labelContainer.style.height = containerHeight; // Removed
-    // scrollContainer.style.height = containerHeight; // Removed
-
-
-    // --- Render Labels (in the dedicated label container) ---
-    let currentLabelY = 0; // Y position within the label container
+/**
+ * Renders the conference name labels in the left-hand pane.
+ * @param {Array} conferenceLayouts - Pre-calculated layout information.
+ * @param {HTMLElement} labelContainer - The container element for labels.
+ */
+function renderConferenceLabels(conferenceLayouts, labelContainer) {
+    labelContainer.innerHTML = ''; // Clear previous labels
     conferenceLayouts.forEach((layout) => {
         const { conf, confHeight } = layout;
-
-        if (confHeight === 0) return; // Skip conferences with no cycles/height
+        if (confHeight === 0) return; // Skip conferences with no visible cycles
 
         const labelDiv = document.createElement("div");
         labelDiv.classList.add("conference-label-item");
-        // Set the dynamic height for this label based on its content rows in the SVG
+        // Set the dynamic height CSS variable for this label
         labelDiv.style.setProperty('--dynamic-conf-height', `${confHeight + CONFERENCE_PADDING}px`);
-        // Adjust vertical alignment if needed, align-items: center should work
         labelDiv.textContent = conf.conference;
-
-        // Add separator padding logic here if needed, or rely on CSS border
         labelContainer.appendChild(labelDiv);
-
-        // Add padding below this label to push the next one down
-        // The height style now includes the padding space
-        // currentLabelY += confHeight + CONFERENCE_PADDING; // Track Y if needed for absolute positioning (not used here)
     });
-     // Adjust padding for the last label item if necessary via CSS or JS
+}
 
+/**
+ * Renders the cycle name label (potentially as a link) in the SVG.
+ * @param {SVGElement} svg - The main SVG element.
+ * @param {object} cycleData - Data for the cycle ({ cycle, inst }).
+ * @param {number} x - The calculated X position for the label anchor.
+ * @param {number} y - The calculated Y position for the label.
+ */
+function renderCycleLabel(svg, cycleData, x, y) {
+    const { cycle, inst } = cycleData;
+    if (!cycle.name) return; // No label to render
 
-    // --- Render Timeline Bars (in the SVG) ---
-    let currentY = MONTH_LABEL_HEIGHT; // Start below month labels in the SVG
+    const labelText = createSvgElement("text", {
+        x: x - 5, // Position left of the first bar segment
+        y: y + BAR_HEIGHT / 2, // Vertically center on the cycle's row
+        "font-size": "14px",
+        "text-anchor": "end",
+        "dominant-baseline": "middle"
+    });
+    labelText.textContent = cycle.name;
+
+    if (inst.website) {
+        const link = createSvgElement("a", {
+            class: "cycle-label-link",
+            href: inst.website,
+            target: "_blank"
+        });
+        const linkTitle = createSvgElement("title", {});
+        linkTitle.textContent = `Visit ${inst.conference} ${inst.year} website`; // Assuming inst has conference/year
+        link.appendChild(linkTitle);
+        link.appendChild(labelText);
+        svg.appendChild(link);
+    } else {
+        labelText.setAttribute("class", "cycle-label-text");
+        svg.appendChild(labelText);
+    }
+}
+
+/**
+ * Renders a single timeline bar (rect) for a cycle segment in the SVG.
+ * @param {SVGElement} svg - The main SVG element.
+ * @param {object} segmentData - Data for the segment ({ x, y, width, color, popoverContent }).
+ */
+function renderTimelineBar(svg, segmentData) {
+    const { x, y, width, color, popoverTitle, popoverContent } = segmentData;
+
+    const rect = createSvgElement("rect", {
+        x: x,
+        y: y,
+        width: width,
+        height: BAR_HEIGHT,
+        fill: color,
+        "data-bs-toggle": "popover",
+        "data-bs-placement": "top",
+        "data-bs-trigger": "hover click focus",
+        "data-bs-title": popoverTitle,
+        "data-bs-content": popoverContent,
+        "data-bs-html": "true"
+    });
+    svg.appendChild(rect);
+}
+
+/**
+ * Renders all cycle bars and their labels for a given conference.
+ * @param {SVGElement} svg - The main SVG element.
+ * @param {Array} cycleLayouts - Pre-calculated layouts for the cycles of one conference.
+ * @param {number} conferenceStartY - The Y position where this conference starts in the SVG.
+ * @param {Date} minDate - The start date of the timeline.
+ * @param {number} totalTimelineDays - The total duration of the timeline in days.
+ * @param {number} totalSvgTimelineWidth - The total width of the SVG.
+ * @param {Array} ACTIVE_COLORS - The color palette to use.
+ */
+function renderConferenceCycles(svg, cycleLayouts, conferenceStartY, minDate, totalTimelineDays, totalSvgTimelineWidth, ACTIVE_COLORS) {
+    cycleLayouts.forEach(({ cycle, inst, rowIndex }) => {
+        const cycleY = conferenceStartY + rowIndex * (BAR_HEIGHT + CYCLE_PADDING);
+        let colorIndex = 0;
+        let firstSegmentX = -1; // Track start X for label placement
+
+        for (let i = 0; i < cycle.dates.length - 1; i++) {
+            const startEvent = cycle.dates[i];
+            const endEvent = cycle.dates[i + 1];
+            const { date: segmentStartDate, isUncertain: startIsUncertain } = parseDate(startEvent.date);
+            const { date: segmentEndDate, isUncertain: endIsUncertain } = parseDate(endEvent.date);
+
+            // Check if segment is valid and within the overall timeline bounds
+            if (segmentStartDate < segmentEndDate && segmentEndDate > minDate && segmentStartDate < maxDate) {
+                const startDaysOffset = diffDays(minDate, segmentStartDate);
+                const endDaysOffset = diffDays(minDate, segmentEndDate);
+                const clampedStartDays = Math.max(0, startDaysOffset);
+                const clampedEndDays = Math.min(totalTimelineDays, endDaysOffset);
+
+                if (clampedStartDays < clampedEndDays) {
+                    const x = (clampedStartDays / totalTimelineDays) * totalSvgTimelineWidth;
+                    const width = ((clampedEndDays - clampedStartDays) / totalTimelineDays) * totalSvgTimelineWidth;
+
+                    if (width >= 1) { // Only render if width is at least 1 pixel
+                        // Render label before the first segment
+                        if (firstSegmentX === -1) {
+                            firstSegmentX = x;
+                            // Pass necessary data for label creation
+                            renderCycleLabel(svg, { cycle, inst, conference: inst.conference, year: inst.year }, firstSegmentX, cycleY);
+                        }
+
+                        // Prepare popover content
+                        const popoverTitle = `${inst.conference} ${inst.year}`; // Assuming inst has conference/year
+                        const formattedStartDate = formatDateVerbose(segmentStartDate, startIsUncertain);
+                        const formattedEndDate = formatDateVerbose(segmentEndDate, endIsUncertain);
+                        const durationDays = diffDays(segmentStartDate, segmentEndDate);
+                        const popoverContent = `<strong>${startEvent.description}</strong><br>${formattedStartDate}<br><br><span class="popover-duration">(${durationDays} days)</span><br><br><strong>${endEvent.description}</strong><br>${formattedEndDate}`;
+
+                        // Render the bar
+                        renderTimelineBar(svg, {
+                            x: x,
+                            y: cycleY,
+                            width: width,
+                            color: ACTIVE_COLORS[colorIndex % ACTIVE_COLORS.length],
+                            popoverTitle: popoverTitle,
+                            popoverContent: popoverContent
+                        });
+                    }
+                }
+            }
+            colorIndex++; // Use next color for the next segment
+        }
+    });
+}
+
+/**
+ * Renders the horizontal separator lines between conferences in the SVG.
+ * @param {SVGElement} svg - The main SVG element.
+ * @param {Array} conferenceLayouts - Pre-calculated layout information.
+ * @param {number} totalSvgTimelineWidth - The total width of the SVG.
+ * @param {number} initialYOffset - The starting Y offset (MONTH_LABEL_HEIGHT).
+ */
+function renderSeparatorLines(svg, conferenceLayouts, totalSvgTimelineWidth, initialYOffset) {
+    let currentY = initialYOffset;
     conferenceLayouts.forEach((layout, confIndex) => {
-        const { conf, confHeight, cycleLayouts } = layout; // Get pre-calculated layouts
+        const { confHeight } = layout;
+        if (confHeight === 0) return; // Skip if no height
 
-        if (confHeight === 0) return; // Skip conferences with no cycles/height
-
-        const conferenceStartY = currentY + (CONFERENCE_PADDING / 2); // Y position where this conference row starts in the SVG
-
-        // Iterate through the pre-calculated cycle layouts
-        cycleLayouts.forEach(({ cycle, inst, rowIndex }) => {
-            // Calculate Y position based on the assigned row index
-            const cycleY = conferenceStartY + rowIndex * (BAR_HEIGHT + CYCLE_PADDING);
-            let colorIndex = 0; // Reset color index for each cycle
-            let firstSegmentX = -1; // Track the starting X of the first segment for label placement
-
-            // Render segments for this cycle
-            for (let i = 0; i < cycle.dates.length - 1; i++) {
-                const startEvent = cycle.dates[i];
-                const endEvent = cycle.dates[i + 1];
-
-                const { date: segmentStartDate, isUncertain: startIsUncertain } = parseDate(startEvent.date);
-                const { date: segmentEndDate, isUncertain: endIsUncertain } = parseDate(endEvent.date);
-
-                if (segmentStartDate < segmentEndDate && segmentEndDate > minDate && segmentStartDate < maxDate) {
-                    const startDaysOffset = diffDays(minDate, segmentStartDate);
-                    const endDaysOffset = diffDays(minDate, segmentEndDate);
-                    const clampedStartDays = Math.max(0, startDaysOffset);
-                    const clampedEndDays = Math.min(totalTimelineDays, endDaysOffset);
-
-                    if (clampedStartDays < clampedEndDays) {
-                        const x = (clampedStartDays / totalTimelineDays) * totalSvgTimelineWidth;
-                        const width = ((clampedEndDays - clampedStartDays) / totalTimelineDays) * totalSvgTimelineWidth;
-
-                        if (width >= 1) {
-                            // --- Track first segment's X for label placement ---
-                            if (firstSegmentX === -1) {
-                                firstSegmentX = x;
-
-                                // --- Create and add the cycle name label (potentially as a link) ---
-                                if (cycle.name) {
-                                    const labelText = document.createElementNS(SVG_NS, "text");
-                                    labelText.setAttribute("x", firstSegmentX - 5); // Position left of the first bar segment
-                                    labelText.setAttribute("y", cycleY + BAR_HEIGHT / 2); // Vertically center on the cycle's row
-                                    labelText.setAttribute("font-size", "14px");
-                                    labelText.setAttribute("text-anchor", "end");
-                                    labelText.setAttribute("dominant-baseline", "middle");
-                                    labelText.textContent = cycle.name;
-
-                                    if (inst.website) {
-                                        const link = document.createElementNS(SVG_NS, "a");
-                                        link.setAttribute("class", "cycle-label-link");
-                                        link.setAttribute("href", inst.website);
-                                        link.setAttribute("target", "_blank");
-
-                                        const linkTitle = document.createElementNS(SVG_NS, "title");
-                                        linkTitle.textContent = `Visit ${conf.conference} ${inst.year} website`;
-                                        link.appendChild(linkTitle);
-
-                                        link.appendChild(labelText);
-                                        svg.appendChild(link);
-                                    } else {
-                                        labelText.setAttribute("class", "cycle-label-text");
-                                        svg.appendChild(labelText);
-                                    }
-                                }
-                            }
-                            // --- End Cycle Name Label ---
-
-                            const rect = document.createElementNS(SVG_NS, "rect");
-                            rect.setAttribute("x", x);
-                            rect.setAttribute("y", cycleY); // Use the calculated Y for the current cycle's row
-                            rect.setAttribute("width", width);
-                            rect.setAttribute("height", BAR_HEIGHT);
-                            rect.setAttribute("fill", ACTIVE_COLORS[colorIndex % ACTIVE_COLORS.length]);
-
-                            // Add Bootstrap Popover attributes
-                            rect.setAttribute("data-bs-toggle", "popover");
-                            rect.setAttribute("data-bs-placement", "top");
-                            rect.setAttribute("data-bs-trigger", "hover click focus");
-                            const title = `${conf.conference} ${inst.year}`;
-                            const formattedStartDate = formatDateVerbose(segmentStartDate, startIsUncertain);
-                            const formattedEndDate = formatDateVerbose(segmentEndDate, endIsUncertain);
-                            const durationDays = diffDays(segmentStartDate, segmentEndDate);
-                            const content = `<strong>${startEvent.description}</strong><br>${formattedStartDate}<br><br><span class="popover-duration">(${durationDays} days)</span><br><br><strong>${endEvent.description}</strong><br>${formattedEndDate}`;
-                            rect.setAttribute("data-bs-title", title);
-                            rect.setAttribute("data-bs-content", content);
-                            rect.setAttribute("data-bs-html", "true");
-
-                            svg.appendChild(rect);
-                        } // End if (width >= 1)
-                    } // End if (clampedStartDays < clampedEndDays)
-                } // End if (segmentStartDate < segmentEndDate ...)
-
-                colorIndex++; // Increment color index for the *next* segment in this cycle
-            } // End for loop (cycle.dates segments)
-        }); // End forEach cycleLayout
-
-        // --- Draw Horizontal Separator Line in SVG (if not the last *visible* conference) ---
-        // Find if this is the last conference with actual height
+        // Check if this is the last *visible* conference
         let isLastVisible = true;
         for (let k = confIndex + 1; k < conferenceLayouts.length; k++) {
             if (conferenceLayouts[k].confHeight > 0) {
@@ -614,109 +610,246 @@ function renderTimeline() {
         }
 
         if (!isLastVisible) {
-            // Adjust Y position to align with the bottom border of the label div
-            const separatorY = currentY + confHeight + CONFERENCE_PADDING - 0.5;
-            const separatorLine = document.createElementNS(SVG_NS, "line");
-            separatorLine.setAttribute("x1", 0); // Start from the very left of the SVG
-            separatorLine.setAttribute("y1", separatorY);
-            separatorLine.setAttribute("x2", totalSvgTimelineWidth); // Extend to the full SVG width
-            separatorLine.setAttribute("y2", separatorY);
-            // separatorLine.setAttribute("stroke", "var(--border-color-medium)"); // Use CSS variable via class
-            separatorLine.setAttribute("stroke-width", "1");
-            separatorLine.setAttribute("class", "separator-line"); // Use CSS class
+            // Calculate Y position for the line (aligned with bottom border of label)
+            const separatorY = currentY + confHeight + CONFERENCE_PADDING - 0.5; // -0.5 for crispness
+            const separatorLine = createSvgElement("line", {
+                x1: 0,
+                y1: separatorY,
+                x2: totalSvgTimelineWidth,
+                y2: separatorY,
+                "stroke-width": "1",
+                class: "separator-line" // Style via CSS
+            });
             svg.appendChild(separatorLine);
         }
 
+        currentY += confHeight + CONFERENCE_PADDING; // Update Y for the next potential line
+    });
+}
 
-        currentY += confHeight + CONFERENCE_PADDING; // Update Y for the next conference row
-    }); // End forEach conferenceLayout
-
-
-    // --- Render Month Markers (across the entire SVG width) ---
-    const monthGroup = document.createElementNS(SVG_NS, "g");
+/**
+ * Renders the vertical month marker lines and labels in the SVG.
+ * @param {SVGElement} svg - The main SVG element.
+ * @param {Date} minDate - The start date of the timeline.
+ * @param {Date} maxDate - The end date of the timeline.
+ * @param {number} totalTimelineDays - The total duration of the timeline in days.
+ * @param {number} totalSvgTimelineWidth - The total width of the SVG.
+ * @param {number} totalSvgHeight - The total height of the SVG.
+ */
+function renderMonthMarkers(svg, minDate, maxDate, totalTimelineDays, totalSvgTimelineWidth, totalSvgHeight) {
+    const monthGroup = createSvgElement("g", {}); // Group markers for clarity
     svg.appendChild(monthGroup);
-    let currentMonth = new Date(Date.UTC(minDate.getUTCFullYear(), minDate.getUTCMonth(), 1)); // Start from the first day of the overall start month
+
+    let currentMonth = new Date(Date.UTC(minDate.getUTCFullYear(), minDate.getUTCMonth(), 1));
 
     while (currentMonth <= maxDate) {
         const daysFromStart = diffDays(minDate, currentMonth);
 
-        // Only draw markers if they fall within the calculated total timeline duration
         if (daysFromStart >= 0 && daysFromStart <= totalTimelineDays) {
-            // Calculate x position based on the total SVG timeline width
             const xPos = (daysFromStart / totalTimelineDays) * totalSvgTimelineWidth;
 
             // Vertical line
-            const line = document.createElementNS(SVG_NS, "line");
-            line.setAttribute("x1", xPos);
-            line.setAttribute("y1", 0); // Start from the very top
-            line.setAttribute("x2", xPos);
-            line.setAttribute("y2", totalSvgHeight); // Extend to the bottom
-            // line.setAttribute("stroke", "var(--border-color-light)"); // Use CSS variable via class
-            line.setAttribute("stroke-width", "1");
-            line.setAttribute("shape-rendering", "crispEdges"); // Make thin lines sharp
-            line.setAttribute("class", "month-marker-line"); // Use CSS class
+            const line = createSvgElement("line", {
+                x1: xPos,
+                y1: 0, // Start from top
+                x2: xPos,
+                y2: totalSvgHeight, // Extend to bottom
+                "stroke-width": "1",
+                "shape-rendering": "crispEdges",
+                class: "month-marker-line" // Style via CSS
+            });
             monthGroup.appendChild(line);
 
-            // Month label - Position within the top margin
-            const label = document.createElementNS(SVG_NS, "text");
-            label.setAttribute("x", xPos + 3); // Slight offset from the line
-            label.setAttribute("y", MONTH_LABEL_HEIGHT - 7); // Position towards the bottom of the label area
-            label.setAttribute("font-size", "10px");
-            // label.setAttribute("fill", "var(--muted-text-color)"); // Use CSS variable via class
-            label.setAttribute("dominant-baseline", "middle"); // Align text vertically
-            label.setAttribute("class", "month-label"); // Use CSS class
+            // Month label
+            const label = createSvgElement("text", {
+                x: xPos + 3, // Slight offset
+                y: MONTH_LABEL_HEIGHT - 7, // Position in label area
+                "font-size": "10px",
+                "dominant-baseline": "middle",
+                class: "month-label" // Style via CSS
+            });
             label.textContent = `${currentMonth.toLocaleString('default', { month: 'short', timeZone: 'UTC' })} ${currentMonth.getUTCFullYear()}`;
             monthGroup.appendChild(label);
         }
 
         // Move to the next month
         currentMonth.setUTCMonth(currentMonth.getUTCMonth() + 1);
-        currentMonth.setUTCDate(1); // Ensure we are on the 1st for the next iteration
+        currentMonth.setUTCDate(1); // Ensure start of month
     }
+}
 
-    // --- Render "Today" Marker ---
+/**
+ * Renders the "Today" marker line in the SVG.
+ * @param {SVGElement} svg - The main SVG element.
+ * @param {Date} minDate - The start date of the timeline.
+ * @param {Date} today - The current date.
+ * @param {number} totalTimelineDays - The total duration of the timeline in days.
+ * @param {number} totalSvgTimelineWidth - The total width of the SVG.
+ * @param {number} totalSvgHeight - The total height of the SVG.
+ */
+function renderTodayMarker(svg, minDate, today, totalTimelineDays, totalSvgTimelineWidth, totalSvgHeight) {
     const daysFromStartToToday = diffDays(minDate, today);
     if (daysFromStartToToday >= 0 && daysFromStartToToday <= totalTimelineDays) {
         const todayXPos = (daysFromStartToToday / totalTimelineDays) * totalSvgTimelineWidth;
-        const todayLine = document.createElementNS(SVG_NS, "line");
-        todayLine.setAttribute("x1", todayXPos);
-        todayLine.setAttribute("y1", 0); // Start from the very top
-        todayLine.setAttribute("x2", todayXPos);
-        todayLine.setAttribute("y2", totalSvgHeight); // Extend to the bottom
-        // todayLine.setAttribute("stroke", "var(--today-marker-color)"); // Use CSS variable via class
-        todayLine.setAttribute("stroke-width", TODAY_MARKER_WIDTH);
-        todayLine.setAttribute("shape-rendering", "crispEdges");
-        todayLine.setAttribute("class", "today-marker-line"); // Use CSS class
-        // Add a simple title for accessibility/hover info
-        const titleElem = document.createElementNS(SVG_NS, "title");
+        const todayLine = createSvgElement("line", {
+            x1: todayXPos,
+            y1: 0,
+            x2: todayXPos,
+            y2: totalSvgHeight,
+            "stroke-width": TODAY_MARKER_WIDTH,
+            "shape-rendering": "crispEdges",
+            class: "today-marker-line" // Style via CSS
+        });
+
+        // Add a title for hover info
+        const titleElem = createSvgElement("title", {});
         titleElem.textContent = `Today (${today.toISOString().split('T')[0]})`;
         todayLine.appendChild(titleElem);
 
-        svg.appendChild(todayLine); // Add after month markers, but before popover elements potentially
+        svg.appendChild(todayLine);
     }
+}
 
-
-    // --- Set Initial Scroll Position ---
-    // Calculate the scroll offset needed to place 'today' at the beginning of the scroll container
-    const scrollOffset = (daysFromStartToToday / totalTimelineDays) * totalSvgTimelineWidth;
-    // Ensure scroll offset is not negative and not beyond the max scroll width
-    const maxScrollLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth;
-    scrollContainer.scrollLeft = Math.max(0, Math.min(scrollOffset, maxScrollLeft));
-
-
-    // --- Initialize Popovers ---
-    const popoverTriggerList = [].slice.call(svg.querySelectorAll('[data-bs-toggle="popover"]')); // Query within the SVG
-    popoverTriggerList.map(function (popoverTriggerEl) {
-        // Ensure popovers are created relative to the body or a fixed container
-        // to avoid issues with SVG transforms or clipping if the SVG moves.
-        // Default Bootstrap behavior might be sufficient, but keep an eye on placement.
-        return new bootstrap.Popover(popoverTriggerEl, {
+/**
+ * Initializes Bootstrap popovers for elements within the SVG.
+ * @param {SVGElement} svg - The main SVG element containing popover triggers.
+ */
+function initializePopovers(svg) {
+    const popoverTriggerList = Array.from(svg.querySelectorAll('[data-bs-toggle="popover"]'));
+    popoverTriggerList.forEach(popoverTriggerEl => {
+        new bootstrap.Popover(popoverTriggerEl, {
             container: 'body' // Render popover in body to avoid SVG clipping issues
         });
     });
 }
 
+/**
+ * Sets the initial horizontal scroll position of the timeline container.
+ * @param {HTMLElement} scrollContainer - The scrollable container element.
+ * @param {Date} minDate - The start date of the timeline.
+ * @param {Date} today - The current date.
+ * @param {number} totalTimelineDays - The total duration of the timeline in days.
+ * @param {number} totalSvgTimelineWidth - The total width of the SVG.
+ */
+function setInitialScrollPosition(scrollContainer, minDate, today, totalTimelineDays, totalSvgTimelineWidth) {
+    const daysFromStartToToday = diffDays(minDate, today);
+    // Calculate the scroll offset to place 'today' near the left edge
+    const scrollOffset = (daysFromStartToToday / totalTimelineDays) * totalSvgTimelineWidth;
+
+    // Ensure scroll offset is within valid bounds
+    const maxScrollLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+    scrollContainer.scrollLeft = Math.max(0, Math.min(scrollOffset, maxScrollLeft));
+}
+
+
+/**
+ * Main function to render the entire conference timeline.
+ */
+function renderTimeline() {
+    if (!conferenceData) {
+        // Data not loaded yet, maybe show loading state (handled in loadAndRenderTimeline)
+        return;
+    }
+
+    // --- Get DOM Elements ---
+    const labelContainer = document.getElementById('timeline-labels');
+    const scrollContainer = document.getElementById('timeline-scroll-container');
+    const wrapper = document.getElementById('timeline-wrapper');
+
+    if (!labelContainer || !scrollContainer || !wrapper || !filterContainer) {
+        console.error("Timeline layout or filter containers not found!");
+        return;
+    }
+
+    // --- Filter Data ---
+    const checkedFilters = Array.from(filterContainer.querySelectorAll('.conference-filter-checkbox:checked'));
+    const visibleConferenceNames = new Set(checkedFilters.map(input => input.value));
+    const conferencesToRender = conferenceData.filter(conf => visibleConferenceNames.has(conf.conference));
+
+    // --- Handle Empty State ---
+    if (conferencesToRender.length === 0) {
+        labelContainer.innerHTML = '';
+        scrollContainer.innerHTML = '<p class="p-3">No conferences selected. Check some boxes above to see the timeline.</p>';
+        wrapper.style.minHeight = '50px'; // Prevent collapse
+        return;
+    } else {
+        wrapper.style.minHeight = ''; // Reset minHeight
+    }
+
+    // --- Clear Previous Render ---
+    labelContainer.innerHTML = '';
+    scrollContainer.innerHTML = '';
+
+    // --- Prepare Rendering Context ---
+    const today = getTodaysDate();
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const ACTIVE_COLORS = isDarkMode ? DARK_COLORS : LIGHT_COLORS;
+    const scrollContainerWidth = scrollContainer.clientWidth;
+
+    // --- Calculations ---
+    const { minDate, maxDate, totalTimelineDays } = calculateTimelineDateRange(conferencesToRender);
+    const { totalSvgTimelineWidth } = calculateSvgDimensions(totalTimelineDays, today, scrollContainerWidth);
+    const { conferenceLayouts, totalSvgHeight } = calculateConferenceLayouts(conferencesToRender, minDate, totalTimelineDays, totalSvgTimelineWidth);
+
+    // --- Create SVG Element ---
+    const svg = createSvgElement("svg", {
+        class: "timeline-svg",
+        width: totalSvgTimelineWidth,
+        height: totalSvgHeight
+    });
+    scrollContainer.appendChild(svg);
+
+    // --- Render Components ---
+    renderConferenceLabels(conferenceLayouts, labelContainer);
+
+    // Render SVG content
+    renderMonthMarkers(svg, minDate, maxDate, totalTimelineDays, totalSvgTimelineWidth, totalSvgHeight);
+    renderSeparatorLines(svg, conferenceLayouts, totalSvgTimelineWidth, MONTH_LABEL_HEIGHT);
+
+    let currentY = MONTH_LABEL_HEIGHT; // Start below month labels
+    conferenceLayouts.forEach((layout) => {
+        const { confHeight, cycleLayouts } = layout;
+        if (confHeight > 0) {
+            const conferenceStartY = currentY + (CONFERENCE_PADDING / 2);
+            // Pass conference-specific data to the rendering function
+            const conferenceInfo = { conference: layout.conf.conference, year: layout.conf.year }; // Adjust as needed based on data structure
+            renderConferenceCycles(svg, cycleLayouts, conferenceStartY, minDate, totalTimelineDays, totalSvgTimelineWidth, ACTIVE_COLORS);
+            currentY += confHeight + CONFERENCE_PADDING;
+        }
+    });
+
+    renderTodayMarker(svg, minDate, today, totalTimelineDays, totalSvgTimelineWidth, totalSvgHeight);
+
+    // --- Final Steps ---
+    setInitialScrollPosition(scrollContainer, minDate, today, totalTimelineDays, totalSvgTimelineWidth);
+    initializePopovers(svg);
+}
+
+
 // --- Data Fetching and Initialization ---
+
+/**
+ * Sorts cycle dates chronologically within the conference data.
+ * Modifies the global `conferenceData` object in place.
+ */
+function sortConferenceDataDates() {
+    if (!conferenceData) return;
+
+    conferenceData.forEach(conf => {
+        conf.installments?.forEach(inst => {
+            inst.cycles?.forEach(cycle => {
+                if (cycle.dates && cycle.dates.length > 1) {
+                    // Sort based on the actual date object, ignoring uncertainty for sorting
+                    cycle.dates.sort((a, b) => parseDate(a.date).date - parseDate(b.date).date);
+                }
+            });
+        });
+    });
+}
+
+/**
+ * Fetches conference data, sorts it, renders filters, and performs the initial timeline render.
+ */
 async function loadAndRenderTimeline() {
     try {
         const response = await fetch('data.json');
@@ -725,42 +858,35 @@ async function loadAndRenderTimeline() {
         }
         conferenceData = await response.json();
 
-        // --- Sort cycle dates chronologically ---
-        if (conferenceData) {
-            conferenceData.forEach(conf => {
-                if (conf.installments) {
-                    conf.installments.forEach(inst => {
-                        if (inst.cycles) {
-                            inst.cycles.forEach(cycle => {
-                                if (cycle.dates && cycle.dates.length > 1) {
-                                    // Sort based on the actual date object, ignoring uncertainty for sorting
-                                    cycle.dates.sort((a, b) => parseDate(a.date).date - parseDate(b.date).date);
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        }
-        // --- End sorting ---
+        sortConferenceDataDates(); // Sort dates after fetching
 
-        console.log("Timeline data loaded successfully.");
-        filterContainer = document.getElementById('filter-container'); // Store container reference
+        filterContainer = document.getElementById('filter-container'); // Store container reference globally
+        if (!filterContainer) {
+            throw new Error("Filter container element not found in the DOM.");
+        }
+
         renderFilterControls(conferenceData); // Render filters first
         renderTimeline(); // Initial render after data is loaded and filters are present
+
     } catch (error) {
-        console.error("Failed to load timeline data:", error);
-        // Display an error message to the user
-        const container = document.getElementById('timeline-container');
-        if (container) container.innerHTML = '<p>Error loading timeline data. Please try again later.</p>';
+        console.error("Failed to load or initialize timeline:", error);
+        // Display a user-friendly error message
+        const scrollContainer = document.getElementById('timeline-scroll-container');
+        if (scrollContainer) {
+            scrollContainer.innerHTML = '<p class="p-3 text-danger">Error loading timeline data. Please try refreshing the page.</p>';
+        } else {
+            // Fallback if even the scroll container isn't found
+            document.body.insertAdjacentHTML('beforeend', '<p class="p-3 text-danger">Error loading timeline data.</p>');
+        }
     }
 }
 
 
 // --- Event Listeners ---
 document.addEventListener('DOMContentLoaded', loadAndRenderTimeline);
-// Re-render on resize using the already loaded data
+
+// Re-render on resize (debouncing could be added for performance if needed)
 window.addEventListener('resize', renderTimeline);
 
-// Re-render if the color scheme changes
+// Re-render if the system color scheme changes
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderTimeline);
