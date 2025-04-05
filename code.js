@@ -203,9 +203,9 @@ function renderFilterControls(conferences) {
     // --- End "Select All" Checkbox ---
 
 
-    const row = document.createElement('div');
-    row.className = 'row';
-    filterContainer.appendChild(row);
+    // const row = document.createElement('div'); // Removed the explicit row container
+    // row.className = 'row';
+    // filterContainer.appendChild(row); // Removed
 
     // Removed column creation logic (let items flow)
     // let currentColumn = null;
@@ -216,8 +216,8 @@ function renderFilterControls(conferences) {
         // if (index % conferencesPerColumn === 0) { ... }
 
         const formCheck = document.createElement('div');
-        // Add col-auto to make each checkbox take minimum width and wrap
-        formCheck.className = 'form-check col-auto';
+        // Use inline-block and margins for layout instead of col-auto in a row
+        formCheck.className = 'form-check d-inline-block me-3 mb-1'; // Adjust margins as needed
 
         const input = document.createElement('input');
         input.className = 'form-check-input conference-filter-checkbox';
@@ -235,8 +235,9 @@ function renderFilterControls(conferences) {
 
         formCheck.appendChild(input);
         formCheck.appendChild(label);
-        // Append directly to the row instead of a specific column div
-        row.appendChild(formCheck);
+        // Append directly to the filter container
+        filterContainer.appendChild(formCheck);
+        // row.appendChild(formCheck); // Removed
         // currentColumn.appendChild(formCheck); // Removed
 
         // Add event listener to re-render timeline on change AND update "Select All" state AND save state
