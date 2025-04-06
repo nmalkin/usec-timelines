@@ -1,0 +1,63 @@
+{
+    "id": "usenix",
+    "conference": "USENIX",
+    "full_name": "USENIX Security Symposium",
+    "installments": [
+        {
+            "year": 2025,
+            "website": "https://www.usenix.org/conference/usenixsecurity25/call-for-papers",
+            "cycles": [
+                {
+                    "name": "Cycle 1",
+                    "dates": [
+                        {
+                            "date": "2024-09-04",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2024-10-15",
+                            "description": "Early Rejection Notification"
+                        },
+                        {
+                            "date": "2024-11-18",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2024-11-25",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2024-12-11",
+                            "description": "Author Notification"
+                        }
+                    ]
+                },
+                {
+                    "name": "Cycle 2",
+                    "dates": [
+                        {
+                            "date": "2025-01-22",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2025-03-04",
+                            "description": "Early Rejection Notification"
+                        },
+                        {
+                            "date": "2025-04-07",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2025-04-14",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2025-04-30",
+                            "description": "Author Notification"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

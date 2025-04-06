@@ -1,0 +1,52 @@
+{
+    "id": "imwut",
+    "conference": "IMWUT",
+    "full_name": "ACM International Joint Conference on Pervasive and Ubiquitous Computing",
+    "installments": [
+        {
+            "year": 2025,
+            "website": "https://dl.acm.org/journal/imwut/how-to-submit",
+            "cycles": [
+                {
+                    "name": "Issue 1",
+                    "dates": [
+                        {
+                            "date": "2025-02-01",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2025-03-29?",
+                            "description": "Author Notification"
+                        }
+                    ]
+                },
+                {
+                    "name": "Issue 2",
+                    "dates": [
+                        {
+                            "date": "2025-05-01",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2025-06-26?",
+                            "description": "Author Notification"
+                        }
+                    ]
+                },
+                {
+                    "name": "Issue 3",
+                    "dates": [
+                        {
+                            "date": "2025-11-01",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2026-01-03?",
+                            "description": "Author Notification"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

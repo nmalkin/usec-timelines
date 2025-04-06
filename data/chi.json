@@ -1,0 +1,30 @@
+{
+    "id": "chi",
+    "conference": "CHI",
+    "full_name": "ACM CHI Conference on Human Factors in Computing Systems",
+    "installments": [
+        {
+            "year": 2025,
+            "website": "https://chi2025.acm.org/",
+            "cycles": [
+                {
+                    "name": "Papers",
+                    "dates": [
+                        {
+                            "date": "2024-09-05",
+                            "description": "Abstract/Metadata Deadline"
+                        },
+                        {
+                            "date": "2024-09-12",
+                            "description": "Full Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2025-01-16",
+                            "description": "Author Notification"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -899,18 +899,43 @@ function sortConferenceDataDates() {
 }
 
 /**
- * Fetches conference data, sorts it, renders filters, and performs the initial timeline render.
+ * Fetches the conference index, then fetches individual conference data files in parallel,
+ * sorts the combined data, renders filters, and performs the initial timeline render.
  */
 async function loadAndRenderTimeline() {
     try {
-        const response = await fetch('data.json');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        // 1. Fetch the index of conference IDs
+        const indexResponse = await fetch('data/index.json');
+        if (!indexResponse.ok) {
+            throw new Error(`HTTP error fetching index! status: ${indexResponse.status}`);
         }
-        conferenceData = await response.json();
+        const conferenceIds = await indexResponse.json();
 
-        sortConferenceDataDates(); // Sort dates after fetching
+        // 2. Create fetch promises for each conference data file
+        const fetchPromises = conferenceIds.map(id =>
+            fetch(`data/${id}.json`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error fetching ${id}.json! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .catch(error => {
+                    console.error(`Failed to load data for conference ID: ${id}`, error);
+                    return null; // Return null for failed fetches to avoid breaking Promise.all
+                })
+        );
 
+        // 3. Fetch all conference data in parallel
+        const results = await Promise.all(fetchPromises);
+
+        // 4. Filter out any null results (failed fetches) and assign to global variable
+        conferenceData = results.filter(data => data !== null);
+
+        // 5. Sort dates within the loaded data
+        sortConferenceDataDates();
+
+        // 6. Get filter container and render controls
         filterContainer = document.getElementById('filter-container'); // Store container reference globally
         if (!filterContainer) {
             throw new Error("Filter container element not found in the DOM.");

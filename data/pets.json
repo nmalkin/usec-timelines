@@ -1,0 +1,145 @@
+{
+    "id": "pets",
+    "conference": "PETS",
+    "full_name": "Privacy Enhancing Technologies Symposium",
+    "installments": [
+        {
+            "year": 2025,
+            "website": "https://petsymposium.org/",
+            "cycles": [
+                {
+                    "name": "Issue 3",
+                    "dates": [
+                        {
+                            "date": "2024-11-30",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2025-01-14",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2025-01-17",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2025-02-01",
+                            "description": "Author Notification"
+                        }
+                    ]
+                },
+                {
+                    "name": "Issue 4",
+                    "dates": [
+                        {
+                            "date": "2025-02-28",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2025-04-15",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2025-04-18",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2025-05-01",
+                            "description": "Author Notification"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "year": 2026,
+            "website": "https://petsymposium.org/",
+            "cycles": [
+                {
+                    "name": "Issue 1",
+                    "dates": [
+                        {
+                            "date": "2025-05-31",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2025-07-11",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2025-07-17",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2025-08-01",
+                            "description": "Author Notification"
+                        }
+                    ]
+                },
+                {
+                    "name": "Issue 2",
+                    "dates": [
+                        {
+                            "date": "2025-08-31",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2025-10-10",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2025-10-16",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2025-11-01",
+                            "description": "Author Notification"
+                        }
+                    ]
+                },
+                {
+                    "name": "Issue 3",
+                    "dates": [
+                        {
+                            "date": "2025-11-30",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2026-01-12",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2026-01-19",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2026-02-01",
+                            "description": "Author Notification"
+                        }
+                    ]
+                },
+                {
+                    "name": "Issue 4",
+                    "dates": [
+                        {
+                            "date": "2026-02-28",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2026-04-10",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2026-04-16",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2026-05-01",
+                            "description": "Author Notification"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

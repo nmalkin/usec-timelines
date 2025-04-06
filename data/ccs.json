@@ -1,0 +1,71 @@
+{
+    "id": "ccs",
+    "conference": "CCS",
+    "full_name": "ACM Conference on Computer and Communications Security",
+    "installments": [
+        {
+            "year": 2025,
+            "website": "https://www.sigsac.org/ccs/CCS2025/call-for-papers/#:~:text=of%20your%20communication.-,Important%20Dates,-First%20Review%20Cycle",
+            "cycles": [
+                {
+                    "name": "First Review Cycle",
+                    "dates": [
+                        {
+                            "date": "2025-01-02",
+                            "description": "Mandatory Abstract Submission Deadline"
+                        },
+                        {
+                            "date": "2025-01-09",
+                            "description": "Full Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2025-02-10",
+                            "description": "Early Rejection Notification"
+                        },
+                        {
+                            "date": "2025-03-03",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2025-03-06",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2025-03-28",
+                            "description": "Author Notification"
+                        }
+                    ]
+                },
+                {
+                    "name": "Second Review Cycle",
+                    "dates": [
+                        {
+                            "date": "2025-04-07",
+                            "description": "Mandatory Abstract Submission Deadline"
+                        },
+                        {
+                            "date": "2025-04-14",
+                            "description": "Full Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2025-05-16",
+                            "description": "Early Rejection Notification"
+                        },
+                        {
+                            "date": "2025-06-05",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2025-06-10",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2025-07-01",
+                            "description": "Author Notification"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

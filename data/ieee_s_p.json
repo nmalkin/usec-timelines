@@ -1,0 +1,71 @@
+{
+    "id": "ieee_s_p",
+    "conference": "IEEE S&P",
+    "full_name": "IEEE Symposium on Security and Privacy",
+    "installments": [
+        {
+            "year": 2025,
+            "website": "https://www.ieee-security.org/TC/SP2025/cfpapers.html",
+            "cycles": [
+                {
+                    "name": "First Deadline",
+                    "dates": [
+                        {
+                            "date": "2024-06-06",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2024-07-22",
+                            "description": "Early Rejection Notification"
+                        },
+                        {
+                            "date": "2024-08-19",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2024-08-30",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2024-08-26",
+                            "description": "Rebuttal Deadline"
+                        },
+                        {
+                            "date": "2024-09-09",
+                            "description": "Author Notification"
+                        }
+                    ]
+                },
+                {
+                    "name": "Second Deadline",
+                    "dates": [
+                        {
+                            "date": "2024-11-14",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2025-01-20",
+                            "description": "Early Rejection Notification"
+                        },
+                        {
+                            "date": "2025-02-17",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2025-02-28",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2025-02-24",
+                            "description": "Rebuttal Deadline"
+                        },
+                        {
+                            "date": "2025-03-10",
+                            "description": "Author Notification"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,87 @@
+{
+    "id": "cscw",
+    "conference": "CSCW",
+    "full_name": "ACM Conference on Computer-Supported Cooperative Work and Social Computing",
+    "installments": [
+        {
+            "year": 2025,
+            "website": "https://cscw.acm.org/2025/index.php/submit-papers/",
+            "cycles": [
+                {
+                    "name": "Full Papers",
+                    "dates": [
+                        {
+                            "date": "2024-07-02",
+                            "description": "Submission Deadline"
+                        },
+                        {
+                            "date": "2024-10-09",
+                            "description": "Notification"
+                        },
+                        {
+                            "date": "2024-10-29",
+                            "description": "Resubmission of Minor Revision Papers"
+                        },
+                        {
+                            "date": "2024-11-13",
+                            "description": "Notification"
+                        },
+                        {
+                            "date": "2024-12-10",
+                            "description": "Resubmission of Major Revision Papers"
+                        },
+                        {
+                            "date": "2025-02-12",
+                            "description": "Notification"
+                        },
+                        {
+                            "date": "2025-03-04",
+                            "description": "Resubmission of Minor Revision After Major Revisions"
+                        },
+                        {
+                            "date": "2025-03-26",
+                            "description": "Notification"
+                        }
+                    ]
+                },
+                {
+                    "name": "Full Papers (Oct Cycle)",
+                    "dates": [
+                        {
+                            "date": "2024-10-29",
+                            "description": "Submission Deadline"
+                        },
+                        {
+                            "date": "2025-02-12",
+                            "description": "Notification"
+                        },
+                        {
+                            "date": "2025-03-04",
+                            "description": "Resubmission of Minor Revision Papers"
+                        },
+                        {
+                            "date": "2025-03-26",
+                            "description": "Notification"
+                        },
+                        {
+                            "date": "2025-04-15",
+                            "description": "Resubmission of Major Revision Papers"
+                        },
+                        {
+                            "date": "2025-06-11",
+                            "description": "Notification"
+                        },
+                        {
+                            "date": "2025-07-01",
+                            "description": "Resubmission of Minor Revision After Major Revisions"
+                        },
+                        {
+                            "date": "2025-08-06",
+                            "description": "Notification"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
