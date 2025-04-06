@@ -34,7 +34,16 @@ If everything matches, output "OK" and nothing else.
 
 If some of the dates are incorrect, output the JSON with the corrected dates.
 
-If the JSON is missing some dates, please add them to the JSON but DO NOT add any dates that come after the Author Notification (or whatever similar thing it is named). So, for example, the camera-ready due date should NOT be added.
+If a date matches but has a slightly different name in the original, respect the original and treat this data as correct/unchanged.
+
+If the JSON is missing some dates, please add them to the JSON but IT IS VERY IMPORTANT that you follow these rules:
+- DO NOT add any dates that come after the Author Notification (or whatever similar thing it is named).
+    - So, for example, the camera-ready due date should NOT be added.
+- When adding dates, pay attention to how the dates are listed in the original JSON and try to match that as closely as possible
+    - The description of the date should match the equivalent date from prior cycles/years
+        - e.g., if it's called "Author Notification," use that instead of what you find in the page
+    - The date should be formatted as YYYY-MM-DD
+
 
 """
 
