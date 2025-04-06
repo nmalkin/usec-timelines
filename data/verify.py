@@ -23,9 +23,6 @@ DATA_DIR = SCRIPT_DIR
 SOURCE_DIR = BASE_DIR / "source"
 PROMPTS_DIR = BASE_DIR / "prompts"
 
-# The base prompt to prepend to the markdownified HTML content
-BASE_PROMPT = "PLACEHOLDER"
-
 
 def load_conference_data(conference_id):
     """Loads the JSON data for a specific conference."""
@@ -150,6 +147,38 @@ def handle_prompts():
 
     for html_path in html_files:
         try:
+            # Extract year and conference ID from path
+            # Assumes path structure like source/<year>/<conf_id>.html
+            year_str = html_path.parent.name
+            conference_id = html_path.stem
+            try:
+                year = int(year_str)
+            except ValueError:
+                print(f"Warning: Could not parse year from path '{html_path}'. Skipping.", file=sys.stderr)
+                continue
+
+            # Load conference data
+            conf_data = load_conference_data(conference_id)
+            if not conf_data:
+                print(f"Warning: Could not load data for '{conference_id}'. Skipping prompt generation for {html_path}.", file=sys.stderr)
+                failure_count += 1
+                continue
+
+            # Find the specific installment for the year
+            installment_data = None
+            for inst in conf_data.get("installments", []):
+                if inst.get("year") == year:
+                    installment_data = inst
+                    break
+
+            if not installment_data:
+                print(f"Warning: No installment found for year {year} in '{conference_id}'. Skipping prompt generation for {html_path}.", file=sys.stderr)
+                # failure_count += 1 # Don't count missing data as failure, just skip.
+                continue
+
+            # Format the installment data as JSON string
+            json_string = json.dumps(installment_data, indent=2)
+
             # Determine output path relative to SOURCE_DIR, then join with PROMPTS_DIR
             relative_path = html_path.relative_to(SOURCE_DIR)
             output_path = PROMPTS_DIR / relative_path.with_suffix(".txt")
@@ -161,11 +190,12 @@ def handle_prompts():
             with open(html_path, 'r', encoding='utf-8') as f_html:
                 html_content = f_html.read()
 
-            # Convert to Markdown
-            markdown_content = markdownify.markdownify(html_content, heading_style="ATX")
+            # Convert HTML to Markdown
+            markdown_input = markdownify.markdownify(html_content, heading_style="ATX")
 
-            # Combine prompt and markdown
-            full_content = f"{BASE_PROMPT}\n\n{markdown_content}"
+            # Construct the final prompt content
+            prompt_header = "Please verify the following JSON based on the information that comes after it:"
+            full_content = f"{prompt_header}\n\n<json>\n{json_string}\n</json>\n\n<input>\n{markdown_input}\n</input>"
 
             # Write to output file
             with open(output_path, 'w', encoding='utf-8') as f_txt:
