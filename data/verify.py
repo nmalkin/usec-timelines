@@ -49,14 +49,18 @@ If the JSON is missing some dates, please add them to the JSON but IT IS VERY IM
 
 """
 
+
 def load_conference_data(conference_id):
     """Loads the JSON data for a specific conference."""
     json_path = DATA_DIR / f"{conference_id}.json"
     if not json_path.exists():
-        print(f"Error: Data file not found for conference '{conference_id}' at {json_path}", file=sys.stderr)
+        print(
+            f"Error: Data file not found for conference '{conference_id}' at {json_path}",
+            file=sys.stderr,
+        )
         return None
     try:
-        with open(json_path, 'r', encoding='utf-8') as f:
+        with open(json_path, "r", encoding="utf-8") as f:
             return json.load(f)
     except json.JSONDecodeError:
         print(f"Error: Could not decode JSON from {json_path}", file=sys.stderr)
@@ -89,7 +93,7 @@ def download_and_save(url, output_path):
         response.raise_for_status()  # Raise an exception for bad status codes (4xx or 5xx)
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write(response.text)
         print(f"Successfully downloaded '{url}' to '{output_path}'")
         return True
@@ -113,12 +117,15 @@ def handle_download(conference_id, year) -> bool | None:
     """
     data = load_conference_data(conference_id)
     if not data:
-        return False # Error message already printed
+        return False  # Error message already printed
 
     website_url = find_website_for_year(data, year)
     if not website_url:
-        print(f"Info: No website found for conference '{conference_id}' year {year}. Skipping download.", file=sys.stderr)
-        return None # Indicate skipped
+        print(
+            f"Info: No website found for conference '{conference_id}' year {year}. Skipping download.",
+            file=sys.stderr,
+        )
+        return None  # Indicate skipped
 
     output_dir = SOURCE_DIR / str(year)
     output_file = output_dir / f"{conference_id}.html"
@@ -134,7 +141,7 @@ def handle_download_all(year):
         return 1
 
     try:
-        with open(index_path, 'r', encoding='utf-8') as f:
+        with open(index_path, "r", encoding="utf-8") as f:
             all_conference_ids = json.load(f)
     except (json.JSONDecodeError, IOError) as e:
         print(f"Error reading or parsing {index_path}: {e}", file=sys.stderr)
@@ -142,18 +149,20 @@ def handle_download_all(year):
 
     success_count = 0
     failure_count = 0
-    skipped_count = 0 # Count conferences skipped because no website was listed
+    skipped_count = 0  # Count conferences skipped because no website was listed
 
-    print(f"Attempting to download sources for {len(all_conference_ids)} conferences for year {year}...")
+    print(
+        f"Attempting to download sources for {len(all_conference_ids)} conferences for year {year}..."
+    )
 
     for conf_id in all_conference_ids:
         result = handle_download(conf_id, year)
         if result is True:
             success_count += 1
         elif result is False:
-            failure_count += 1 # Actual download or file error.
+            failure_count += 1  # Actual download or file error.
         elif result is None:
-            skipped_count += 1 # No website listed, skipped.
+            skipped_count += 1  # No website listed, skipped.
 
     print("\nDownload Summary:")
     print(f"  Successfully downloaded: {success_count}")
@@ -166,15 +175,21 @@ def handle_download_all(year):
 def handle_prompts():
     """Generates prompt files from downloaded source HTML."""
     if not SOURCE_DIR.is_dir():
-        print(f"Error: Source directory '{SOURCE_DIR}' not found. Run the 'download' command first?", file=sys.stderr)
+        print(
+            f"Error: Source directory '{SOURCE_DIR}' not found. Run the 'download' command first?",
+            file=sys.stderr,
+        )
         return 1
 
     # Find HTML files directly within year-specific subdirectories
     html_files = [p for p in SOURCE_DIR.glob("*/*.html") if p.parent.name.isdigit()]
 
     if not html_files:
-        print(f"Info: No HTML source files found in year subdirectories within '{SOURCE_DIR}'.", file=sys.stderr)
-        return 0 # Not an error, just nothing to do
+        print(
+            f"Info: No HTML source files found in year subdirectories within '{SOURCE_DIR}'.",
+            file=sys.stderr,
+        )
+        return 0  # Not an error, just nothing to do
 
     print(f"Found {len(html_files)} HTML source files. Generating prompts...")
 
@@ -186,7 +201,7 @@ def handle_prompts():
             # Extract year and conference ID from path (structure: source/<year>/<conf_id>.html)
             year_str = html_path.parent.name
             conference_id = html_path.stem
-            year = int(year_str) # Already filtered for digit parent dirs
+            year = int(year_str)  # Already filtered for digit parent dirs
 
             # Load conference data
             conf_data = load_conference_data(conference_id)
@@ -199,7 +214,10 @@ def handle_prompts():
             installment_data = find_installment_for_year(conf_data, year)
 
             if not installment_data:
-                print(f"Info: No installment data found for year {year} in '{conference_id}'. Skipping prompt generation for {html_path}.", file=sys.stderr)
+                print(
+                    f"Info: No installment data found for year {year} in '{conference_id}'. Skipping prompt generation for {html_path}.",
+                    file=sys.stderr,
+                )
                 continue
 
             # Format the specific installment data as JSON string
@@ -213,7 +231,7 @@ def handle_prompts():
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
             # Read HTML content
-            with open(html_path, 'r', encoding='utf-8') as f_html:
+            with open(html_path, "r", encoding="utf-8") as f_html:
                 html_content = f_html.read()
 
             # Convert HTML to Markdown
@@ -223,7 +241,7 @@ def handle_prompts():
             full_content = f"{BASE_PROMPT}\n\n<json>\n{json_string}\n</json>\n\n<input>\n{markdown_input}\n</input>"
 
             # Write to output file
-            with open(output_path, 'w', encoding='utf-8') as f_txt:
+            with open(output_path, "w", encoding="utf-8") as f_txt:
                 f_txt.write(full_content)
 
             print(f"Generated prompt: '{output_path}'")
@@ -244,12 +262,12 @@ def confirm_action(prompt_message, options=DEFAULT_CONFIRM_OPTIONS):
     """Asks the user for confirmation (Yes/No/Abort)."""
     while True:
         response = input(f"{prompt_message} {options}: ").lower().strip()
-        if response.startswith('y'):
-            return 'yes'
-        elif response.startswith('n') or response == '': # Default to No
-            return 'no'
-        elif response.startswith('a'):
-            return 'abort'
+        if response.startswith("y"):
+            return "yes"
+        elif response.startswith("n") or response == "":  # Default to No
+            return "no"
+        elif response.startswith("a"):
+            return "abort"
         else:
             print("Invalid input. Please enter 'y', 'n', or 'a'.")
 
@@ -259,14 +277,16 @@ def handle_llm(year):
     year_str = str(year)
     prompts_year_dir = PROMPTS_DIR / year_str
     if not prompts_year_dir.is_dir():
-        print(f"Error: Prompts directory '{prompts_year_dir}' not found.", file=sys.stderr)
+        print(
+            f"Error: Prompts directory '{prompts_year_dir}' not found.", file=sys.stderr
+        )
         print("Did you run the 'prompts' command first?", file=sys.stderr)
         return 1
 
     prompt_files = sorted(list(prompts_year_dir.glob("*.txt")))
     if not prompt_files:
         print(f"No prompt files (.txt) found in '{prompts_year_dir}'.", file=sys.stderr)
-        return 0 # Not an error, just nothing to do
+        return 0  # Not an error, just nothing to do
 
     print(f"Found {len(prompt_files)} prompt files for year {year}.")
 
@@ -274,15 +294,21 @@ def handle_llm(year):
     try:
         # User might need to configure llm beforehand (e.g., `llm keys set openai`)
         # or specify a model alias they've set up.
-        model = llm.get_model() # Attempts to get default or alias "llm"
+        model = llm.get_model()  # Attempts to get default or alias "llm"
         print(f"Using LLM model: {model.model_id}")
     except llm.UnknownModelError:
         print("Error: Default LLM model not found or configured.", file=sys.stderr)
-        print("Please ensure the 'llm' CLI tool is installed, configured with API keys,", file=sys.stderr)
-        print("and potentially set a default model or alias (e.g., `llm models default gpt-4`).", file=sys.stderr)
+        print(
+            "Please ensure the 'llm' CLI tool is installed, configured with API keys,",
+            file=sys.stderr,
+        )
+        print(
+            "and potentially set a default model or alias (e.g., `llm models default gpt-4`).",
+            file=sys.stderr,
+        )
         print("See: https://llm.datasette.io/en/stable/setup.html", file=sys.stderr)
         return 1
-    except Exception as e: # Catch other potential init errors
+    except Exception as e:  # Catch other potential init errors
         print(f"Error initializing LLM model: {e}", file=sys.stderr)
         return 1
 
@@ -297,24 +323,24 @@ def handle_llm(year):
         print(f"\n--- Processing: {conference_id} ({year}) ---")
 
         confirmation = confirm_action(f"Run LLM for {conference_id} {year}?")
-        if confirmation == 'abort':
+        if confirmation == "abort":
             print("Aborting script.")
             sys.exit(1)
-        elif confirmation == 'no':
+        elif confirmation == "no":
             print("Skipping.")
             skipped_count += 1
             continue
         # If 'yes', proceed
 
         try:
-            with open(prompt_path, 'r', encoding='utf-8') as f:
+            with open(prompt_path, "r", encoding="utf-8") as f:
                 prompt_content = f.read()
 
             # Send prompt to LLM
             print("Sending prompt to LLM...")
             response = model.prompt(prompt_content)
             response_text = response.text().strip()
-            print(f"LLM Response received.") # Keep output concise
+            print("LLM Response received.")
 
             if response_text == OK_RESPONSE:
                 print(f"Verification OK for {conference_id} {year}.")
@@ -323,9 +349,9 @@ def handle_llm(year):
                 # Attempt to parse response as JSON, cleaning potential markdown fences
                 try:
                     if response_text.startswith("```json"):
-                        response_text = response_text[len("```json"):].strip()
+                        response_text = response_text[len("```json") :].strip()
                     if response_text.endswith("```"):
-                        response_text = response_text[:-len("```")].strip()
+                        response_text = response_text[: -len("```")].strip()
 
                     llm_json_data = json.loads(response_text)
 
@@ -333,38 +359,53 @@ def handle_llm(year):
                     original_data_path = DATA_DIR / f"{conference_id}.json"
                     original_conf_data = load_conference_data(conference_id)
                     if not original_conf_data:
-                        print(f"Error: Cannot load original data file {original_data_path} to apply changes.", file=sys.stderr)
+                        print(
+                            f"Error: Cannot load original data file {original_data_path} to apply changes.",
+                            file=sys.stderr,
+                        )
                         error_count += 1
-                        continue # Skip to next prompt file
+                        continue  # Skip to next prompt file
 
                     # Find the original installment index and data
                     original_installment_index = -1
                     original_installment_data = None
-                    for i, inst in enumerate(original_conf_data.get("installments", [])):
+                    for i, inst in enumerate(
+                        original_conf_data.get("installments", [])
+                    ):
                         if inst.get("year") == year:
                             original_installment_index = i
                             original_installment_data = inst
                             break
 
                     if original_installment_index == -1:
-                        print(f"Error: Cannot find original installment for year {year} in {original_data_path}.", file=sys.stderr)
+                        print(
+                            f"Error: Cannot find original installment for year {year} in {original_data_path}.",
+                            file=sys.stderr,
+                        )
                         error_count += 1
-                        continue # Skip to next prompt file
+                        continue  # Skip to next prompt file
 
                     # Compare LLM data with original installment data
                     if llm_json_data == original_installment_data:
-                        print(f"Verification OK (LLM JSON matches existing data) for {conference_id} {year}.")
+                        print(
+                            f"Verification OK (LLM JSON matches existing data) for {conference_id} {year}."
+                        )
                         verified_count += 1
                     else:
                         # Data differs, show diff and ask to save
                         print("LLM proposed changes (JSON differs from original):")
-                        original_json_str = json.dumps(original_installment_data, indent=2, sort_keys=True).splitlines()
-                        llm_json_str = json.dumps(llm_json_data, indent=2, sort_keys=True).splitlines()
+                        original_json_str = json.dumps(
+                            original_installment_data, indent=2, sort_keys=True
+                        ).splitlines()
+                        llm_json_str = json.dumps(
+                            llm_json_data, indent=2, sort_keys=True
+                        ).splitlines()
                         diff = difflib.unified_diff(
-                            original_json_str, llm_json_str,
+                            original_json_str,
+                            llm_json_str,
                             fromfile=f"Original {conference_id} {year}",
                             tofile=f"LLM Proposed {conference_id} {year}",
-                            lineterm=""
+                            lineterm="",
                         )
                         diff_lines = list(diff)
 
@@ -372,48 +413,72 @@ def handle_llm(year):
                             for line in diff_lines:
                                 print(line)
                         else:
-                             print("(Objects differ but no textual difference found - check data types or ordering?)")
-                        print("\n") # Add newline after diff
+                            print(
+                                "(Objects differ but no textual difference found - check data types or ordering?)"
+                            )
+                        print("\n")  # Add newline after diff
 
                         # Confirm before saving
-                        save_confirmation = confirm_action(f"Apply proposed changes for {conference_id} {year} to '{original_data_path.name}'?")
-                        if save_confirmation == 'abort':
+                        save_confirmation = confirm_action(
+                            f"Apply proposed changes for {conference_id} {year} to '{original_data_path.name}'?"
+                        )
+                        if save_confirmation == "abort":
                             print("Aborting script.")
                             sys.exit(1)
-                        elif save_confirmation == 'yes':
+                        elif save_confirmation == "yes":
                             # Replace the old installment with the new one
-                            original_conf_data["installments"][original_installment_index] = llm_json_data
+                            original_conf_data["installments"][
+                                original_installment_index
+                            ] = llm_json_data
 
                             # Save the updated data
                             try:
-                                with open(original_data_path, 'w', encoding='utf-8') as f:
-                                    json.dump(original_conf_data, f, indent=2, ensure_ascii=False)
-                                    f.write("\n") # Add trailing newline
+                                with open(
+                                    original_data_path, "w", encoding="utf-8"
+                                ) as f:
+                                    json.dump(
+                                        original_conf_data,
+                                        f,
+                                        indent=2,
+                                        ensure_ascii=False,
+                                    )
+                                    f.write("\n")  # Add trailing newline
                                 print(f"Successfully updated '{original_data_path}'.")
                                 updated_count += 1
                             except IOError as e:
-                                print(f"Error writing updated file {original_data_path}: {e}", file=sys.stderr)
+                                print(
+                                    f"Error writing updated file {original_data_path}: {e}",
+                                    file=sys.stderr,
+                                )
                                 error_count += 1
-                        else: # 'no'
+                        else:  # 'no'
                             print("Changes discarded.")
                             skipped_count += 1
 
                 except json.JSONDecodeError:
-                    print(f"Error: LLM response for {conference_id} {year} was not '{OK_RESPONSE}' and could not be parsed as JSON.", file=sys.stderr)
+                    print(
+                        f"Error: LLM response for {conference_id} {year} was not '{OK_RESPONSE}' and could not be parsed as JSON.",
+                        file=sys.stderr,
+                    )
                     print("LLM Raw Output:")
                     print("-" * 20)
                     print(response_text)
                     print("-" * 20)
                     error_count += 1
-                except Exception as e: # Catch other potential errors during diff/save
-                     print(f"An unexpected error occurred processing the LLM response for {conference_id} {year}: {e}", file=sys.stderr)
-                     error_count += 1
+                except Exception as e:  # Catch other potential errors during diff/save
+                    print(
+                        f"An unexpected error occurred processing the LLM response for {conference_id} {year}: {e}",
+                        file=sys.stderr,
+                    )
+                    error_count += 1
 
-        except Exception as e: # Catch errors during LLM call or file reading
-            print(f"Error during processing for {prompt_path.name}: {e}", file=sys.stderr)
+        except Exception as e:  # Catch errors during LLM call or file reading
+            print(
+                f"Error during processing for {prompt_path.name}: {e}", file=sys.stderr
+            )
             error_count += 1
 
-        processed_count += 1 # Increment regardless of skip/error within the loop
+        processed_count += 1  # Increment regardless of skip/error within the loop
 
     print("\nLLM Processing Summary:")
     print(f"  Prompts processed: {processed_count}")
@@ -428,32 +493,34 @@ def handle_llm(year):
 def main():
     """Main function to parse arguments and dispatch commands."""
     parser = argparse.ArgumentParser(description="Verify conference data.")
-    subparsers = parser.add_subparsers(dest="command", required=True, help="Sub-command help")
+    subparsers = parser.add_subparsers(
+        dest="command", required=True, help="Sub-command help"
+    )
 
     # Download subcommand
-    parser_download = subparsers.add_parser("download", help="Download conference website source.")
+    parser_download = subparsers.add_parser(
+        "download", help="Download conference website source."
+    )
     parser_download.add_argument(
         "conference_id",
         type=str,
-        help="The ID of the conference (e.g., 'chi') or '_all' to download all conferences."
+        help="The ID of the conference (e.g., 'chi') or '_all' to download all conferences.",
     )
     parser_download.add_argument(
-        "year",
-        type=int,
-        help="The year of the conference installment."
+        "year", type=int, help="The year of the conference installment."
     )
 
     # Prompts subcommand
-    parser_prompts = subparsers.add_parser("prompts", help="Generate prompt files from downloaded source HTML.")
+    subparsers.add_parser(
+        "prompts", help="Generate prompt files from downloaded source HTML."
+    )
     # No arguments needed for prompts subcommand
 
     # LLM subcommand
-    parser_llm = subparsers.add_parser("llm", help="Verify/update data using LLM and generated prompts.")
-    parser_llm.add_argument(
-        "year",
-        type=int,
-        help="The year to process prompts for."
+    parser_llm = subparsers.add_parser(
+        "llm", help="Verify/update data using LLM and generated prompts."
     )
+    parser_llm.add_argument("year", type=int, help="The year to process prompts for.")
 
     args = parser.parse_args()
 
