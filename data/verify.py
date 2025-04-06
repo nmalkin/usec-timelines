@@ -299,7 +299,8 @@ def handle_llm(year):
             # Send prompt to LLM
             print("Sending prompt to LLM...")
             response = model.prompt(prompt_content)
-            response_text = response.text.strip()
+            # Call the text() method to get the response string
+            response_text = response.text().strip()
             print("LLM Response received.")
 
             if response_text == "OK":
@@ -386,11 +387,11 @@ def handle_llm(year):
                      print(f"An unexpected error occurred processing the LLM response: {e}", file=sys.stderr)
                      error_count += 1
 
-        except llm.LLMError as e:
-            print(f"LLM API Error for {prompt_path.name}: {e}", file=sys.stderr)
-            error_count += 1
+        # Catching a general Exception for LLM API errors as llm.LLMError might not exist
+        # or cover all cases (like network issues, specific model provider errors).
+        # The more specific errors inside the 'try' block handle JSON parsing etc.
         except Exception as e:
-            print(f"Error processing {prompt_path.name}: {e}", file=sys.stderr)
+            print(f"Error during LLM processing or file handling for {prompt_path.name}: {e}", file=sys.stderr)
             error_count += 1
 
         processed_count += 1 # Increment even if skipped after confirmation prompt
