@@ -339,26 +339,29 @@ def handle_llm(year):
                         error_count += 1
                         continue
 
-                    # *** Always compare content using diff ***
-                    original_json_str = json.dumps(original_installment_data, indent=2, sort_keys=True).splitlines()
-                    llm_json_str = json.dumps(llm_json_data, indent=2, sort_keys=True).splitlines()
-                    diff = difflib.unified_diff(
-                        original_json_str, llm_json_str,
+                    # *** Compare Python dictionaries directly ***
+                    if llm_json_data == original_installment_data:
+                        print(f"Verification OK (LLM JSON matches existing data) for {conference_id} {year}.")
+                        verified_count += 1
+                    else:
+                        # *** Data is different, show diff based on sorted strings and ask to save ***
+                        print("LLM proposed changes (JSON differs from original):")
+                        original_json_str = json.dumps(original_installment_data, indent=2, sort_keys=True).splitlines()
+                        llm_json_str = json.dumps(llm_json_data, indent=2, sort_keys=True).splitlines()
+                        diff = difflib.unified_diff(
+                            original_json_str, llm_json_str,
                             fromfile=f"Original {conference_id} {year}",
                             tofile=f"LLM Proposed {conference_id} {year}",
                             lineterm=""
                         )
-                    diff_lines = list(diff)
+                        diff_lines = list(diff) # Generate diff lines for display
 
-                    # *** Check if the diff found any changes ***
-                    if not diff_lines:
-                        print(f"Verification OK (No textual difference found) for {conference_id} {year}.")
-                        verified_count += 1
-                    else:
-                        # *** Diff found changes, print them and ask to save ***
-                        print("LLM proposed changes:")
-                        for line in diff_lines:
-                            print(line)
+                        # Print the diff if it's not empty (it shouldn't be if dicts differed, but check anyway)
+                        if diff_lines:
+                            for line in diff_lines:
+                                print(line)
+                        else:
+                             print("(Objects differ but no textual difference found by diff - check data types?)")
                         print("\n") # Add newline after diff
 
                         # Confirm before saving
