@@ -1,5 +1,6 @@
 [
     {
+        "id": "usenix",
         "conference": "USENIX",
         "full_name": "USENIX Security Symposium",
         "installments": [
@@ -62,6 +63,7 @@
         ]
     },
     {
+        "id": "ieee_s_p",
         "conference": "IEEE S&P",
         "full_name": "IEEE Symposium on Security and Privacy",
         "installments": [
@@ -132,6 +134,7 @@
         ]
     },
     {
+        "id": "ccs",
         "conference": "CCS",
         "full_name": "ACM Conference on Computer and Communications Security",
         "installments": [
@@ -202,6 +205,7 @@
         ]
     },
     {
+        "id": "ndss",
         "conference": "NDSS",
         "full_name": "Network and Distributed System Security Symposium",
         "installments": [
@@ -360,6 +364,7 @@
         ]
     },
     {
+        "id": "soups",
         "conference": "SOUPS",
         "full_name": "Symposium on Usable Privacy and Security",
         "installments": [
@@ -401,6 +406,7 @@
         ]
     },
     {
+        "id": "pets",
         "conference": "PETS",
         "full_name": "Privacy Enhancing Technologies Symposium",
         "installments": [
@@ -545,6 +551,7 @@
         ]
     },
     {
+        "id": "chi",
         "conference": "CHI",
         "full_name": "ACM CHI Conference on Human Factors in Computing Systems",
         "installments": [
@@ -574,6 +581,7 @@
         ]
     },
     {
+        "id": "cscw",
         "conference": "CSCW",
         "full_name": "ACM Conference on Computer-Supported Cooperative Work and Social Computing",
         "installments": [
@@ -660,6 +668,7 @@
         ]
     },
     {
+        "id": "imwut",
         "conference": "IMWUT",
         "full_name": "ACM International Joint Conference on Pervasive and Ubiquitous Computing",
         "installments": [
@@ -711,6 +720,7 @@
         ]
     },
     {
+        "id": "eurousec",
         "conference": "EuroUSEC",
         "full_name": "European Symposium on Usable Security",
         "installments": [
