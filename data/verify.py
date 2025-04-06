@@ -301,7 +301,7 @@ def handle_llm(year):
             response = model.prompt(prompt_content)
             # Call the text() method to get the response string
             response_text = response.text().strip()
-            print("LLM Response received.")
+            print(f"LLM Response received: {response_text}")
 
             if response_text == "OK":
                 print(f"Verification OK for {conference_id} {year}.")
