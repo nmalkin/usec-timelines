@@ -29,10 +29,10 @@ PROMPTS_DIR = SCRIPT_DIR / "prompts"
 OK_RESPONSE = "OK"
 DEFAULT_CONFIRM_OPTIONS = "[y/N/a(bort)]"
 
-BASE_PROMPT = """
+BASE_PROMPT = f"""
 The following JSON contains important dates for a conference, plus some metadata. Please verify the correctness of the dates in the JSON based on the content that comes after it.
 
-If everything matches, output "OK_RESPONSE" and nothing else.
+If everything matches, output "{OK_RESPONSE}" and nothing else.
 
 If some of the dates are incorrect, output the JSON with the corrected dates. Use the exact same JSON structure as the input.
 
