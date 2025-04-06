@@ -228,10 +228,18 @@ def handle_prompts():
     return 1 if failure_count > 0 else 0
 
 
-def confirm_action(prompt_message):
-    """Asks the user for confirmation."""
-    response = input(f"{prompt_message} [y/N]: ").lower().strip()
-    return response == 'y' or response == 'yes'
+def confirm_action(prompt_message, options="[y/N/a(bort)]"):
+    """Asks the user for confirmation (Yes/No/Abort)."""
+    while True:
+        response = input(f"{prompt_message} {options}: ").lower().strip()
+        if response in ['y', 'yes']:
+            return 'yes'
+        elif response in ['n', 'no', '']: # Default to No
+            return 'no'
+        elif response in ['a', 'abort']:
+            return 'abort'
+        else:
+            print("Invalid input. Please enter 'y', 'n', or 'a'.")
 
 
 def handle_llm(year):
@@ -274,10 +282,15 @@ def handle_llm(year):
         conference_id = prompt_path.stem
         print(f"\n--- Processing: {conference_id} ({year}) ---")
 
-        if not confirm_action(f"Run LLM for '{prompt_path.name}'?"):
+        confirmation = confirm_action(f"Run LLM for {conference_id} {year}?")
+        if confirmation == 'abort':
+            print("Aborting script.")
+            sys.exit(1)
+        elif confirmation == 'no':
             print("Skipping.")
             skipped_count += 1
             continue
+        # If 'yes', proceed
 
         try:
             with open(prompt_path, 'r', encoding='utf-8') as f:
@@ -340,7 +353,11 @@ def handle_llm(year):
                     print("\n") # Add newline after diff
 
                     # Confirm before saving
-                    if confirm_action(f"Apply these changes to '{original_data_path.name}'?"):
+                    save_confirmation = confirm_action(f"Apply proposed changes for {conference_id} {year} to '{original_data_path.name}'?")
+                    if save_confirmation == 'abort':
+                        print("Aborting script.")
+                        sys.exit(1)
+                    elif save_confirmation == 'yes':
                         # Replace the old installment with the new one
                         original_conf_data["installments"][original_installment_index] = llm_json_data
 
