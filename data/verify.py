@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.8"
-# requires = ["requests"]
+# dependencies = ["requests"]
 # ///
 
 """
@@ -17,7 +17,7 @@ import requests
 
 # Base directory of the script, assuming it's in the 'data' directory
 SCRIPT_DIR = Path(__file__).parent
-BASE_DIR = SCRIPT_DIR.parent # Project root
+BASE_DIR = SCRIPT_DIR
 DATA_DIR = SCRIPT_DIR
 SOURCE_DIR = BASE_DIR / "source"
 
