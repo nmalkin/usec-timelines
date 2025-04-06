@@ -6,33 +6,35 @@
 """
 Verification script for conference data.
 
-Provides tools to download source websites for verification.
+Provides tools to download source websites for verification and use LLMs to check data accuracy.
 """
 
 import argparse
-import json
-import argparse
+import difflib
 import json
 import sys
-import difflib
 from pathlib import Path
-import requests
-import markdownify
-import llm  # For interacting with language models
 
-# Base directory of the script, assuming it's in the 'data' directory
+# Third-party libraries
+import llm
+import markdownify
+import requests
+
+# --- Constants ---
 SCRIPT_DIR = Path(__file__).parent
-BASE_DIR = SCRIPT_DIR
 DATA_DIR = SCRIPT_DIR
-SOURCE_DIR = BASE_DIR / "source"
-PROMPTS_DIR = BASE_DIR / "prompts"
+SOURCE_DIR = SCRIPT_DIR / "source"
+PROMPTS_DIR = SCRIPT_DIR / "prompts"
+
+OK_RESPONSE = "OK"
+DEFAULT_CONFIRM_OPTIONS = "[y/N/a(bort)]"
 
 BASE_PROMPT = """
 The following JSON contains important dates for a conference, plus some metadata. Please verify the correctness of the dates in the JSON based on the content that comes after it.
 
-If everything matches, output "OK" and nothing else.
+If everything matches, output "OK_RESPONSE" and nothing else.
 
-If some of the dates are incorrect, output the JSON with the corrected dates.
+If some of the dates are incorrect, output the JSON with the corrected dates. Use the exact same JSON structure as the input.
 
 If a date matches but has a slightly different name in the original, respect the original and treat this data as correct/unchanged.
 
@@ -64,15 +66,20 @@ def load_conference_data(conference_id):
         return None
 
 
-def find_website_for_year(data, year):
-    """Finds the website URL for a specific year within the conference data."""
+def find_installment_for_year(data, year):
+    """Finds the installment data for a specific year."""
     if not data or "installments" not in data:
         return None
-
     for installment in data["installments"]:
         if installment.get("year") == year:
-            return installment.get("website")
+            return installment
     return None
+
+
+def find_website_for_year(data, year):
+    """Finds the website URL for a specific year within the conference data."""
+    installment = find_installment_for_year(data, year)
+    return installment.get("website") if installment else None
 
 
 def download_and_save(url, output_path):
@@ -95,16 +102,23 @@ def download_and_save(url, output_path):
         return False
 
 
-def handle_download(conference_id, year):
-    """Handles the download logic for a single conference."""
+def handle_download(conference_id, year) -> bool | None:
+    """
+    Handles the download logic for a single conference.
+
+    Returns:
+        True if download was successful.
+        False if download failed or data loading failed.
+        None if no website was found for the year (skipped).
+    """
     data = load_conference_data(conference_id)
     if not data:
-        return False # Error message already printed by load_conference_data
+        return False # Error message already printed
 
     website_url = find_website_for_year(data, year)
     if not website_url:
-        print(f"Warning: No website found for conference '{conference_id}' year {year}.", file=sys.stderr)
-        return False # Not necessarily an error, but nothing to download
+        print(f"Info: No website found for conference '{conference_id}' year {year}. Skipping download.", file=sys.stderr)
+        return None # Indicate skipped
 
     output_dir = SOURCE_DIR / str(year)
     output_file = output_dir / f"{conference_id}.html"
@@ -128,7 +142,7 @@ def handle_download_all(year):
 
     success_count = 0
     failure_count = 0
-    skipped_count = 0
+    skipped_count = 0 # Count conferences skipped because no website was listed
 
     print(f"Attempting to download sources for {len(all_conference_ids)} conferences for year {year}...")
 
@@ -137,12 +151,9 @@ def handle_download_all(year):
         if result is True:
             success_count += 1
         elif result is False:
-            # Distinguish between actual download failures and missing websites
-            data = load_conference_data(conf_id)
-            if data and not find_website_for_year(data, year):
-                skipped_count += 1 # No website listed, skipped.
-            else:
-                failure_count += 1 # Actual download or file error.
+            failure_count += 1 # Actual download or file error.
+        elif result is None:
+            skipped_count += 1 # No website listed, skipped.
 
     print("\nDownload Summary:")
     print(f"  Successfully downloaded: {success_count}")
@@ -155,51 +166,43 @@ def handle_download_all(year):
 def handle_prompts():
     """Generates prompt files from downloaded source HTML."""
     if not SOURCE_DIR.is_dir():
-        print(f"Error: Source directory '{SOURCE_DIR}' not found. Run the download command first?", file=sys.stderr)
+        print(f"Error: Source directory '{SOURCE_DIR}' not found. Run the 'download' command first?", file=sys.stderr)
         return 1
 
-    html_files = list(SOURCE_DIR.rglob("*.html"))
+    # Find HTML files directly within year-specific subdirectories
+    html_files = [p for p in SOURCE_DIR.glob("*/*.html") if p.parent.name.isdigit()]
+
     if not html_files:
-        print(f"No HTML files found in '{SOURCE_DIR}'.", file=sys.stderr)
+        print(f"Info: No HTML source files found in year subdirectories within '{SOURCE_DIR}'.", file=sys.stderr)
         return 0 # Not an error, just nothing to do
 
-    print(f"Found {len(html_files)} HTML files. Generating prompts...")
+    print(f"Found {len(html_files)} HTML source files. Generating prompts...")
 
     success_count = 0
     failure_count = 0
 
     for html_path in html_files:
         try:
-            # Extract year and conference ID from path
-            # Assumes path structure like source/<year>/<conf_id>.html
+            # Extract year and conference ID from path (structure: source/<year>/<conf_id>.html)
             year_str = html_path.parent.name
             conference_id = html_path.stem
-            try:
-                year = int(year_str)
-            except ValueError:
-                print(f"Warning: Could not parse year from path '{html_path}'. Skipping.", file=sys.stderr)
-                continue
+            year = int(year_str) # Already filtered for digit parent dirs
 
             # Load conference data
             conf_data = load_conference_data(conference_id)
             if not conf_data:
-                print(f"Warning: Could not load data for '{conference_id}'. Skipping prompt generation for {html_path}.", file=sys.stderr)
+                # Error already printed by load_conference_data
                 failure_count += 1
                 continue
 
             # Find the specific installment for the year
-            installment_data = None
-            for inst in conf_data.get("installments", []):
-                if inst.get("year") == year:
-                    installment_data = inst
-                    break
+            installment_data = find_installment_for_year(conf_data, year)
 
             if not installment_data:
-                print(f"Warning: No installment found for year {year} in '{conference_id}'. Skipping prompt generation for {html_path}.", file=sys.stderr)
-                # failure_count += 1 # Don't count missing data as failure, just skip.
+                print(f"Info: No installment data found for year {year} in '{conference_id}'. Skipping prompt generation for {html_path}.", file=sys.stderr)
                 continue
 
-            # Format the installment data as JSON string
+            # Format the specific installment data as JSON string
             json_string = json.dumps(installment_data, indent=2)
 
             # Determine output path relative to SOURCE_DIR, then join with PROMPTS_DIR
@@ -237,15 +240,15 @@ def handle_prompts():
     return 1 if failure_count > 0 else 0
 
 
-def confirm_action(prompt_message, options="[y/N/a(bort)]"):
+def confirm_action(prompt_message, options=DEFAULT_CONFIRM_OPTIONS):
     """Asks the user for confirmation (Yes/No/Abort)."""
     while True:
         response = input(f"{prompt_message} {options}: ").lower().strip()
-        if response in ['y', 'yes']:
+        if response.startswith('y'):
             return 'yes'
-        elif response in ['n', 'no', '']: # Default to No
+        elif response.startswith('n') or response == '': # Default to No
             return 'no'
-        elif response in ['a', 'abort']:
+        elif response.startswith('a'):
             return 'abort'
         else:
             print("Invalid input. Please enter 'y', 'n', or 'a'.")
@@ -267,18 +270,20 @@ def handle_llm(year):
 
     print(f"Found {len(prompt_files)} prompt files for year {year}.")
 
-    # Try to get a default model; adjust model name if needed (e.g., "gpt-4", "claude-3-opus")
+    # Try to get a default LLM model
     try:
-        # You might need to configure llm beforehand, e.g., `llm keys set openai`
-        # Or specify a model alias you've set up.
-        model = llm.get_model()
-        if not model:
-             raise llm.UnknownModelError("Default model not found or configured.")
+        # User might need to configure llm beforehand (e.g., `llm keys set openai`)
+        # or specify a model alias they've set up.
+        model = llm.get_model() # Attempts to get default or alias "llm"
         print(f"Using LLM model: {model.model_id}")
-    except Exception as e:
-        print(f"Error initializing LLM model: {e}", file=sys.stderr)
-        print("Please ensure the 'llm' CLI tool is installed and configured with API keys.", file=sys.stderr)
+    except llm.UnknownModelError:
+        print("Error: Default LLM model not found or configured.", file=sys.stderr)
+        print("Please ensure the 'llm' CLI tool is installed, configured with API keys,", file=sys.stderr)
+        print("and potentially set a default model or alias (e.g., `llm models default gpt-4`).", file=sys.stderr)
         print("See: https://llm.datasette.io/en/stable/setup.html", file=sys.stderr)
+        return 1
+    except Exception as e: # Catch other potential init errors
+        print(f"Error initializing LLM model: {e}", file=sys.stderr)
         return 1
 
     processed_count = 0
@@ -308,33 +313,31 @@ def handle_llm(year):
             # Send prompt to LLM
             print("Sending prompt to LLM...")
             response = model.prompt(prompt_content)
-            # Call the text() method to get the response string
             response_text = response.text().strip()
-            print(f"LLM Response received: {response_text}")
+            print(f"LLM Response received.") # Keep output concise
 
-            if response_text == "OK":
+            if response_text == OK_RESPONSE:
                 print(f"Verification OK for {conference_id} {year}.")
                 verified_count += 1
             else:
-                # Attempt to parse response as JSON
+                # Attempt to parse response as JSON, cleaning potential markdown fences
                 try:
-                    # Clean potential markdown fences ```json ... ```
                     if response_text.startswith("```json"):
                         response_text = response_text[len("```json"):].strip()
                     if response_text.endswith("```"):
                         response_text = response_text[:-len("```")].strip()
 
                     llm_json_data = json.loads(response_text)
-                    # print("LLM response parsed as JSON.") # Less verbose
 
                     # Load original data to compare and update
                     original_data_path = DATA_DIR / f"{conference_id}.json"
                     original_conf_data = load_conference_data(conference_id)
                     if not original_conf_data:
-                        print(f"Error: Cannot load original data for {conference_id} to apply changes.", file=sys.stderr)
+                        print(f"Error: Cannot load original data file {original_data_path} to apply changes.", file=sys.stderr)
                         error_count += 1
-                        continue
+                        continue # Skip to next prompt file
 
+                    # Find the original installment index and data
                     original_installment_index = -1
                     original_installment_data = None
                     for i, inst in enumerate(original_conf_data.get("installments", [])):
@@ -346,14 +349,14 @@ def handle_llm(year):
                     if original_installment_index == -1:
                         print(f"Error: Cannot find original installment for year {year} in {original_data_path}.", file=sys.stderr)
                         error_count += 1
-                        continue
+                        continue # Skip to next prompt file
 
-                    # *** Compare Python dictionaries directly ***
+                    # Compare LLM data with original installment data
                     if llm_json_data == original_installment_data:
                         print(f"Verification OK (LLM JSON matches existing data) for {conference_id} {year}.")
                         verified_count += 1
                     else:
-                        # *** Data is different, show diff based on sorted strings and ask to save ***
+                        # Data differs, show diff and ask to save
                         print("LLM proposed changes (JSON differs from original):")
                         original_json_str = json.dumps(original_installment_data, indent=2, sort_keys=True).splitlines()
                         llm_json_str = json.dumps(llm_json_data, indent=2, sort_keys=True).splitlines()
@@ -363,14 +366,13 @@ def handle_llm(year):
                             tofile=f"LLM Proposed {conference_id} {year}",
                             lineterm=""
                         )
-                        diff_lines = list(diff) # Generate diff lines for display
+                        diff_lines = list(diff)
 
-                        # Print the diff if it's not empty (it shouldn't be if dicts differed, but check anyway)
                         if diff_lines:
                             for line in diff_lines:
                                 print(line)
                         else:
-                             print("(Objects differ but no textual difference found by diff - check data types?)")
+                             print("(Objects differ but no textual difference found - check data types or ordering?)")
                         print("\n") # Add newline after diff
 
                         # Confirm before saving
@@ -392,29 +394,26 @@ def handle_llm(year):
                             except IOError as e:
                                 print(f"Error writing updated file {original_data_path}: {e}", file=sys.stderr)
                                 error_count += 1
-                        else:
+                        else: # 'no'
                             print("Changes discarded.")
                             skipped_count += 1
 
                 except json.JSONDecodeError:
-                    print("LLM response was not 'OK' and could not be parsed as JSON.", file=sys.stderr)
+                    print(f"Error: LLM response for {conference_id} {year} was not '{OK_RESPONSE}' and could not be parsed as JSON.", file=sys.stderr)
                     print("LLM Raw Output:")
                     print("-" * 20)
                     print(response_text)
                     print("-" * 20)
                     error_count += 1
                 except Exception as e: # Catch other potential errors during diff/save
-                     print(f"An unexpected error occurred processing the LLM response: {e}", file=sys.stderr)
+                     print(f"An unexpected error occurred processing the LLM response for {conference_id} {year}: {e}", file=sys.stderr)
                      error_count += 1
 
-        # Catching a general Exception for LLM API errors as llm.LLMError might not exist
-        # or cover all cases (like network issues, specific model provider errors).
-        # The more specific errors inside the 'try' block handle JSON parsing etc.
-        except Exception as e:
-            print(f"Error during LLM processing or file handling for {prompt_path.name}: {e}", file=sys.stderr)
+        except Exception as e: # Catch errors during LLM call or file reading
+            print(f"Error during processing for {prompt_path.name}: {e}", file=sys.stderr)
             error_count += 1
 
-        processed_count += 1 # Increment even if skipped after confirmation prompt
+        processed_count += 1 # Increment regardless of skip/error within the loop
 
     print("\nLLM Processing Summary:")
     print(f"  Prompts processed: {processed_count}")
@@ -445,11 +444,11 @@ def main():
     )
 
     # Prompts subcommand
-    parser_prompts = subparsers.add_parser("prompts", help="Generate prompt files from source HTML.")
-    # No arguments needed for prompts subcommand for now
+    parser_prompts = subparsers.add_parser("prompts", help="Generate prompt files from downloaded source HTML.")
+    # No arguments needed for prompts subcommand
 
     # LLM subcommand
-    parser_llm = subparsers.add_parser("llm", help="Verify/update data using LLM and prompts.")
+    parser_llm = subparsers.add_parser("llm", help="Verify/update data using LLM and generated prompts.")
     parser_llm.add_argument(
         "year",
         type=int,
@@ -461,22 +460,19 @@ def main():
     exit_code = 0
     if args.command == "download":
         if args.conference_id == "_all":
+            # handle_download_all returns 0 on success, 1 on failure
             exit_code = handle_download_all(args.year)
         else:
-            if not handle_download(args.conference_id, args.year):
-                # If handle_download returns False, it indicates a failure or skip.
-                # We consider it an error exit code unless it was just a skip.
-                data = load_conference_data(args.conference_id)
-                if not data or find_website_for_year(data, args.year):
-                    exit_code = 1 # It was a real error, not just missing website
+            result = handle_download(args.conference_id, args.year)
+            # Treat False (download/data error) as failure, True/None (success/skipped) as success
+            exit_code = 0 if result in [True, None] else 1
     elif args.command == "prompts":
+        # handle_prompts returns 0 on success, 1 on failure
         exit_code = handle_prompts()
     elif args.command == "llm":
+        # handle_llm returns 0 on success (or partial success), 1 if errors occurred
         exit_code = handle_llm(args.year)
-    else:
-        # Should not happen due to `required=True` on subparsers
-        print(f"Unknown command: {args.command}", file=sys.stderr)
-        exit_code = 1
+    # No 'else' needed as subparsers are required
 
     sys.exit(exit_code)
 
