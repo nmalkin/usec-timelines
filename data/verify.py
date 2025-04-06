@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.8"
-# dependencies = ["requests"]
+# requires = ["requests", "markdownify"]
 # ///
 
 """
@@ -14,12 +14,17 @@ import json
 import sys
 from pathlib import Path
 import requests
+import markdownify
 
 # Base directory of the script, assuming it's in the 'data' directory
 SCRIPT_DIR = Path(__file__).parent
-BASE_DIR = SCRIPT_DIR
+BASE_DIR = SCRIPT_DIR.parent # Project root
 DATA_DIR = SCRIPT_DIR
 SOURCE_DIR = BASE_DIR / "source"
+PROMPTS_DIR = BASE_DIR / "prompts"
+
+# The base prompt to prepend to the markdownified HTML content
+BASE_PROMPT = "PLACEHOLDER"
 
 
 def load_conference_data(conference_id):
@@ -127,6 +132,59 @@ def handle_download_all(year):
     return 1 if failure_count > 0 else 0
 
 
+def handle_prompts():
+    """Generates prompt files from downloaded source HTML."""
+    if not SOURCE_DIR.is_dir():
+        print(f"Error: Source directory '{SOURCE_DIR}' not found. Run the download command first?", file=sys.stderr)
+        return 1
+
+    html_files = list(SOURCE_DIR.rglob("*.html"))
+    if not html_files:
+        print(f"No HTML files found in '{SOURCE_DIR}'.", file=sys.stderr)
+        return 0 # Not an error, just nothing to do
+
+    print(f"Found {len(html_files)} HTML files. Generating prompts...")
+
+    success_count = 0
+    failure_count = 0
+
+    for html_path in html_files:
+        try:
+            # Determine output path relative to SOURCE_DIR, then join with PROMPTS_DIR
+            relative_path = html_path.relative_to(SOURCE_DIR)
+            output_path = PROMPTS_DIR / relative_path.with_suffix(".txt")
+
+            # Ensure output directory exists
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # Read HTML content
+            with open(html_path, 'r', encoding='utf-8') as f_html:
+                html_content = f_html.read()
+
+            # Convert to Markdown
+            markdown_content = markdownify.markdownify(html_content, heading_style="ATX")
+
+            # Combine prompt and markdown
+            full_content = f"{BASE_PROMPT}\n\n{markdown_content}"
+
+            # Write to output file
+            with open(output_path, 'w', encoding='utf-8') as f_txt:
+                f_txt.write(full_content)
+
+            print(f"Generated prompt: '{output_path}'")
+            success_count += 1
+
+        except Exception as e:
+            print(f"Error processing {html_path}: {e}", file=sys.stderr)
+            failure_count += 1
+
+    print("\nPrompt Generation Summary:")
+    print(f"  Successfully generated: {success_count}")
+    print(f"  Failed: {failure_count}")
+
+    return 1 if failure_count > 0 else 0
+
+
 def main():
     """Main function to parse arguments and dispatch commands."""
     parser = argparse.ArgumentParser(description="Verify conference data.")
@@ -145,6 +203,10 @@ def main():
         help="The year of the conference installment."
     )
 
+    # Prompts subcommand
+    parser_prompts = subparsers.add_parser("prompts", help="Generate prompt files from source HTML.")
+    # No arguments needed for prompts subcommand for now
+
     args = parser.parse_args()
 
     exit_code = 0
@@ -158,6 +220,8 @@ def main():
                 data = load_conference_data(args.conference_id)
                 if not data or find_website_for_year(data, args.year):
                     exit_code = 1 # It was a real error, not just missing website
+    elif args.command == "prompts":
+        exit_code = handle_prompts()
     else:
         # Should not happen due to `required=True` on subparsers
         print(f"Unknown command: {args.command}", file=sys.stderr)
