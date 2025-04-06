@@ -391,28 +391,6 @@ def handle_llm(year):
 
                 except json.JSONDecodeError:
                     print("LLM response was not 'OK' and could not be parsed as JSON.", file=sys.stderr)
-                        print("Aborting script.")
-                        sys.exit(1)
-                    elif save_confirmation == 'yes':
-                        # Replace the old installment with the new one
-                        original_conf_data["installments"][original_installment_index] = llm_json_data
-
-                        # Save the updated data
-                        try:
-                            with open(original_data_path, 'w', encoding='utf-8') as f:
-                                json.dump(original_conf_data, f, indent=2, ensure_ascii=False)
-                                f.write("\n") # Add trailing newline
-                            print(f"Successfully updated '{original_data_path}'.")
-                            updated_count += 1
-                        except IOError as e:
-                            print(f"Error writing updated file {original_data_path}: {e}", file=sys.stderr)
-                            error_count += 1
-                    else:
-                        print("Changes discarded.")
-                        skipped_count += 1
-
-                except json.JSONDecodeError:
-                    print("LLM response was not 'OK' and could not be parsed as JSON.", file=sys.stderr)
                     print("LLM Raw Output:")
                     print("-" * 20)
                     print(response_text)
