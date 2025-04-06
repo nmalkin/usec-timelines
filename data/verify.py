@@ -23,6 +23,16 @@ DATA_DIR = SCRIPT_DIR
 SOURCE_DIR = BASE_DIR / "source"
 PROMPTS_DIR = BASE_DIR / "prompts"
 
+BASE_PROMPT = """
+The following JSON contains important dates for a conference, plus some metadata. Please verify the correctness of the dates in the JSON based on the content that comes after it.
+
+If everything matches, output "OK" and nothing else.
+
+If some of the dates are incorrect, output the JSON with the corrected dates.
+
+If the JSON is missing some dates, please add them to the JSON but DO NOT add any dates that come after the Author Notification (or whatever similar thing it is named). So, for example, the camera-ready due date should NOT be added.
+
+"""
 
 def load_conference_data(conference_id):
     """Loads the JSON data for a specific conference."""
@@ -194,8 +204,7 @@ def handle_prompts():
             markdown_input = markdownify.markdownify(html_content, heading_style="ATX")
 
             # Construct the final prompt content
-            prompt_header = "Please verify the following JSON based on the information that comes after it:"
-            full_content = f"{prompt_header}\n\n<json>\n{json_string}\n</json>\n\n<input>\n{markdown_input}\n</input>"
+            full_content = f"{BASE_PROMPT}\n\n<json>\n{json_string}\n</json>\n\n<input>\n{markdown_input}\n</input>"
 
             # Write to output file
             with open(output_path, 'w', encoding='utf-8') as f_txt:
