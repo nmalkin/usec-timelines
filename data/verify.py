@@ -262,7 +262,7 @@ def handle_llm(year):
     try:
         # You might need to configure llm beforehand, e.g., `llm keys set openai`
         # Or specify a model alias you've set up.
-        model = llm.get_model("gpt-4o") # Example: using GPT-4o
+        model = llm.get_model()
         if not model:
              raise llm.UnknownModelError("Default model not found or configured.")
         print(f"Using LLM model: {model.model_id}")
