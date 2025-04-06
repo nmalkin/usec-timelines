@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.8"
-# requires = ["requests", "markdownify", "llm"]
+# dependencies = ["requests", "markdownify", "llm"]
 # ///
 
 """
