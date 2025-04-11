@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Conference Data Schema",
+  "description": "Schema for validating the structure of individual conference JSON files.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "Unique identifier for the conference, usually matching the filename.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+$"
+    },
+    "conference": {
+      "description": "Short name or acronym of the conference.",
+      "type": "string"
+    },
+    "full_name": {
+      "description": "Full official name of the conference.",
+      "type": "string"
+    },
+    "installments": {
+      "description": "An array of conference installments, typically one per year.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/installment"
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "id",
+    "conference",
+    "full_name",
+    "installments"
+  ],
+  "definitions": {
+    "installment": {
+      "description": "Represents a single installment (year) of the conference.",
+      "type": "object",
+      "properties": {
+        "year": {
+          "description": "The year the conference installment takes place.",
+          "type": "integer",
+          "minimum": 2000
+        },
+        "website": {
+          "description": "The official website URL for this conference installment.",
+          "type": "string",
+          "format": "uri"
+        },
+        "cycles": {
+          "description": "An array of submission/review cycles within this installment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cycle"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "year",
+        "website",
+        "cycles"
+      ]
+    },
+    "cycle": {
+      "description": "Represents a single submission/review cycle (e.g., deadline period).",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the cycle (e.g., 'Issue 1', 'Summer Deadline').",
+          "type": "string"
+        },
+        "dates": {
+          "description": "An array of important dates within this cycle.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/eventDate"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "name",
+        "dates"
+      ]
+    },
+    "eventDate": {
+      "description": "Represents a specific event date within a cycle.",
+      "type": "object",
+      "properties": {
+        "date": {
+          "description": "The date of the event in YYYY-MM-DD format, optionally ending with '?' for uncertainty.",
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}\\??$"
+        },
+        "description": {
+          "description": "Description of the event (e.g., 'Paper Submission Deadline').",
+          "type": "string"
+        }
+      },
+      "required": [
+        "date",
+        "description"
+      ]
+    }
+  }
+}
