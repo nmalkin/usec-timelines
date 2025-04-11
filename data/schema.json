@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Conference Data Schema",
   "description": "Schema for validating the structure of individual conference JSON files.",
   "type": "object",
@@ -21,7 +21,7 @@
       "description": "An array of conference installments, typically one per year.",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/installment"
+        "$ref": "#/$defs/installment"
       },
       "minItems": 1
     }
@@ -32,7 +32,7 @@
     "full_name",
     "installments"
   ],
-  "definitions": {
+  "$defs": {
     "installment": {
       "description": "Represents a single installment (year) of the conference.",
       "type": "object",
@@ -51,7 +51,7 @@
           "description": "An array of submission/review cycles within this installment.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/cycle"
+            "$ref": "#/$defs/cycle"
           },
           "minItems": 1
         }
@@ -74,7 +74,7 @@
           "description": "An array of important dates within this cycle.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/eventDate"
+            "$ref": "#/$defs/eventDate"
           },
           "minItems": 1
         }
