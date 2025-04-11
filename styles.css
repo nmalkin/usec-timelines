@@ -160,41 +160,6 @@ body {
 }
 
 /* GitHub Corner styles */
-.github-corner:hover .octo-arm {
-  animation: octocat-wave 560ms ease-in-out;
-}
-
-@keyframes octocat-wave {
-  0%,
-  100% {
-    transform: rotate(0);
-  }
-  20%,
-  60% {
-    transform: rotate(-25deg);
-  }
-  40%,
-  80% {
-    transform: rotate(10deg);
-  }
-}
-
-@media (max-width: 500px) {
-  .github-corner:hover .octo-arm {
-    animation: none;
-  }
-  .github-corner .octo-arm {
-    animation: octocat-wave 560ms ease-in-out;
-  }
-}
-
-/* Ensure the SVG path colors are set correctly via inline styles or CSS vars */
-.github-corner svg {
-    /* fill is set inline using var(--link-color) */
-    /* color is set inline using var(--background-color) */
-    position: absolute; /* Redundant with inline, but good practice */
-    top: 0;
-    border: 0;
-    right: 0;
-    z-index: 20; /* Ensure it's above other content */
-}
+/* Styles for positioning are now inline on the <a> tag in index.html */
+/* Styles for SVG colors are now within img/github.svg */
+/* Animation related styles removed as they don't apply to <img> */
