@@ -1,0 +1,20 @@
+name: Validate Data
+
+# Run on pushes to any branch and on pull requests
+on: [push, pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v1
+
+      - name: Install dependencies
+        run: uv pip install jsonschema # Based on validate.py imports
+
+      - name: Run validation script
+        run: uv run python data/validate.py
