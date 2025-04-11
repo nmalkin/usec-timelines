@@ -245,7 +245,7 @@ function renderFilterControls(conferences) {
         console.error("Filter container not found!");
         return;
     }
-    filterContainer.innerHTML = '<h5>Filter Conferences:</h5>'; // Clear previous controls but keep title
+    filterContainer.innerHTML = '<h5>Filter Conferences</h5>'; // Clear previous controls but keep title
 
     const savedFilterState = loadFilterState();
 
