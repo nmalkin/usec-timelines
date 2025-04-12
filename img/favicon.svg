@@ -1,26 +1,24 @@
 <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
   <style>
-    .hourglass {
-      fill: black; /* Default: Dark hourglass for light mode */
-      stroke: black;
-      stroke-width: 1;
-    }
+    /* Default styles for light mode */
+    .frame { stroke: black; fill: none; stroke-width: 1.5; }
+    .sand { fill: black; stroke: none; }
+
+    /* Styles for dark mode */
     @media (prefers-color-scheme: dark) {
-      .hourglass {
-        fill: white; /* Light hourglass for dark mode */
-        stroke: white;
-      }
+      .frame { stroke: white; }
+      .sand { fill: white; }
     }
   </style>
-  <!-- Top base -->
-  <path class="hourglass" d="M6 4 H26 V 6 H6 Z"/>
-  <!-- Bottom base -->
-  <path class="hourglass" d="M6 26 H26 V 28 H6 Z"/>
-  <!-- Glass outline -->
-  <path class="hourglass" d="M6 6 L 14 14 V 18 L 6 26 Z"/>
-  <path class="hourglass" d="M26 6 L 18 14 V 18 L 26 26 Z"/>
-  <!-- Sand (top part) -->
-  <path class="hourglass" d="M8 8 L 16 16 L 24 8 Z"/>
-  <!-- Sand (bottom part) -->
-  <path class="hourglass" d="M16 16 L 8 24 H 24 L 16 16 Z"/>
+
+  <!-- Hourglass Frame -->
+  <rect x="4" y="2" width="24" height="4" class="frame"/> <!-- Top base -->
+  <rect x="4" y="26" width="24" height="4" class="frame"/> <!-- Bottom base -->
+  <line x1="5" y1="6" x2="5" y2="26" class="frame"/> <!-- Left support -->
+  <line x1="27" y1="6" x2="27" y2="26" class="frame"/> <!-- Right support -->
+
+  <!-- Hourglass Sand/Glass Shape -->
+  <!-- This path defines the filled area representing the glass bulbs and sand -->
+  <path class="sand" d="M 7 7 L 25 7 L 16 16 L 25 25 L 7 25 L 16 16 Z" />
+
 </svg>
