@@ -498,7 +498,8 @@ function renderConferenceLabels(conferenceLayouts, labelContainer) {
  * @param {number} y - The calculated Y position for the label.
  */
 function renderCycleLabel(svg, cycleData, x, y) {
-    const { cycle, inst } = cycleData;
+    // Destructure all parts needed from cycleData ({ cycle, inst, conference, year })
+    const { cycle, inst, conference, year } = cycleData;
     if (!cycle.name) return; // No label to render
 
     const labelText = createSvgElement("text", {
@@ -517,7 +518,8 @@ function renderCycleLabel(svg, cycleData, x, y) {
             target: "_blank"
         });
         const linkTitle = createSvgElement("title", {});
-        linkTitle.textContent = `Visit ${inst.conference} ${inst.year} website`; // Assuming inst has conference/year
+        // Use the destructured conference and year from cycleData
+        linkTitle.textContent = `Visit ${conference} ${year} website`;
         link.appendChild(linkTitle);
         link.appendChild(labelText);
         svg.appendChild(link);
@@ -590,8 +592,8 @@ function renderConferenceCycles(svg, cycleLayouts, conferenceStartY, minDate, to
                         // Render label before the first segment
                         if (firstSegmentX === -1) {
                             firstSegmentX = x;
-                            // Pass necessary data for label creation
-                            renderCycleLabel(svg, { cycle, inst, conference: inst.conference, year: inst.year }, firstSegmentX, cycleY);
+                            // Pass necessary data for label creation, using the conferenceName parameter
+                            renderCycleLabel(svg, { cycle, inst, conference: conferenceName, year: inst.year }, firstSegmentX, cycleY);
                         }
 
                         // Prepare popover content
