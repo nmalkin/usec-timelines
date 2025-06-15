@@ -75,6 +75,10 @@
           "name": "First deadline",
           "dates": [
             {
+              "date": "2025-05-29",
+              "description": "Paper Registration Deadline"
+            },
+            {
               "description": "Paper Submission Deadline",
               "date": "2025-06-05"
             },
@@ -103,6 +107,10 @@
         {
           "name": "Second deadline",
           "dates": [
+            {
+              "date": "2025-11-06",
+              "description": "Paper Registration Deadline"
+            },
             {
               "description": "Paper Submission Deadline",
               "date": "2025-11-13"
