@@ -25,6 +25,37 @@
                     ]
                 }
             ]
+        },
+        {
+            "year": 2026,
+            "website": "https://chi2026.acm.org/",
+            "cycles": [
+                {
+                    "name": "Papers",
+                    "dates": [
+                        {
+                            "date": "2025-09-04",
+                            "description": "Paper Registration Deadline"
+                        },
+                        {
+                            "date": "2025-09-11",
+                            "description": "Full Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2025-11-04",
+                            "description": "Reviews Released"
+                        },
+                        {
+                            "date": "2025-12-04",
+                            "description": "Resubmission Due"
+                        },
+                        {
+                            "date": "2026-01-15",
+                            "description": "Author Notification"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }
