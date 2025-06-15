@@ -83,10 +83,6 @@
                     "name": "Summer Cycle",
                     "dates": [
                         {
-                            "date": "2025-04-16",
-                            "description": "Title and abstract registration deadline (mandatory)"
-                        },
-                        {
                             "date": "2025-04-23",
                             "description": "Paper submission deadline"
                         },
@@ -119,10 +115,6 @@
                 {
                     "name": "Fall Cycle",
                     "dates": [
-                        {
-                            "date": "2025-07-30",
-                            "description": "Title and abstract registration deadline (mandatory)"
-                        },
                         {
                             "date": "2025-08-06",
                             "description": "Paper submission deadline"
