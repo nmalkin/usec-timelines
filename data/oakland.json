@@ -121,19 +121,19 @@
             },
             {
               "description": "Rebuttal Period - Start",
-              "date": "2026-02-16"
+              "date": "2026-02-12"
             },
             {
               "description": "Rebuttal text due",
+              "date": "2026-02-17"
+            },
+            {
+              "description": "Rebuttal Period - End",
               "date": "2026-02-23"
             },
             {
-              "description": "Rebuttal Period - Start",
-              "date": "2026-02-27"
-            },
-            {
               "description": "Author Notification",
-              "date": "2026-03-19"
+              "date": "2026-03-09"
             }
           ]
         }
