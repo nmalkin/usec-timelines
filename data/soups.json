@@ -37,6 +37,29 @@
                     ]
                 }
             ]
+        },
+        {
+            "year": 2026,
+            "website": "https://www.usenix.org/conferences",
+            "cycles": [
+                {
+                    "name": "Papers",
+                    "dates": [
+                        {
+                            "date": "2026-02-06?",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2026-03-20?",
+                            "description": "Early Rejection Notification"
+                        },
+                        {
+                            "date": "2026-05-12?",
+                            "description": "Author Notification"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

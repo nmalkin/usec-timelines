@@ -66,6 +66,70 @@
                     ]
                 }
             ]
+        },
+        {
+            "year": 2026,
+            "website": "https://www.sigsac.org/ccs/CCS2026/call-for/call-for-papers.html",
+            "cycles": [
+                {
+                    "name": "First Review Cycle",
+                    "dates": [
+                        {
+                            "date": "2026-01-07?",
+                            "description": "Mandatory Abstract Submission Deadline"
+                        },
+                        {
+                            "date": "2026-01-14",
+                            "description": "Full Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2026-02-16?",
+                            "description": "Early Rejection Notification"
+                        },
+                        {
+                            "date": "2026-03-09?",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2026-03-12?",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2026-04-05?",
+                            "description": "Author Notification"
+                        }
+                    ]
+                },
+                {
+                    "name": "Second Review Cycle",
+                    "dates": [
+                        {
+                            "date": "2026-04-22?",
+                            "description": "Mandatory Abstract Submission Deadline"
+                        },
+                        {
+                            "date": "2026-04-29",
+                            "description": "Full Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2026-06-01?",
+                            "description": "Early Rejection Notification"
+                        },
+                        {
+                            "date": "2026-06-19?",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2026-06-24?",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2026-07-14?",
+                            "description": "Author Notification"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }
