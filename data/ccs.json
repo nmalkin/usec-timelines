@@ -75,7 +75,7 @@
                     "name": "First Review Cycle",
                     "dates": [
                         {
-                            "date": "2026-01-07?",
+                            "date": "2026-01-07",
                             "description": "Mandatory Abstract Submission Deadline"
                         },
                         {
@@ -83,19 +83,19 @@
                             "description": "Full Paper Submission Deadline"
                         },
                         {
-                            "date": "2026-02-16?",
+                            "date": "2026-02-20",
                             "description": "Early Rejection Notification"
                         },
                         {
-                            "date": "2026-03-09?",
+                            "date": "2026-03-17",
                             "description": "Rebuttal Period - Start"
                         },
                         {
-                            "date": "2026-03-12?",
+                            "date": "2026-03-20",
                             "description": "Rebuttal Period - End"
                         },
                         {
-                            "date": "2026-04-05?",
+                            "date": "2026-04-09",
                             "description": "Author Notification"
                         }
                     ]
@@ -104,7 +104,7 @@
                     "name": "Second Review Cycle",
                     "dates": [
                         {
-                            "date": "2026-04-22?",
+                            "date": "2026-04-22",
                             "description": "Mandatory Abstract Submission Deadline"
                         },
                         {
@@ -112,19 +112,19 @@
                             "description": "Full Paper Submission Deadline"
                         },
                         {
-                            "date": "2026-06-01?",
+                            "date": "2026-06-03",
                             "description": "Early Rejection Notification"
                         },
                         {
-                            "date": "2026-06-19?",
+                            "date": "2026-06-29",
                             "description": "Rebuttal Period - Start"
                         },
                         {
-                            "date": "2026-06-24?",
+                            "date": "2026-07-01",
                             "description": "Rebuttal Period - End"
                         },
                         {
-                            "date": "2026-07-14?",
+                            "date": "2026-07-17",
                             "description": "Author Notification"
                         }
                     ]
