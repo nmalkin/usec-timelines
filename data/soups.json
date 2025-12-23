@@ -40,21 +40,33 @@
         },
         {
             "year": 2026,
-            "website": "https://www.usenix.org/conferences",
+            "website": "https://soups.page/",
             "cycles": [
                 {
                     "name": "Papers",
                     "dates": [
                         {
-                            "date": "2026-02-06?",
+                            "date": "2026-02-12",
+                            "description": "Paper Registration Deadline"
+                        },
+                        {
+                            "date": "2026-02-19",
                             "description": "Paper Submission Deadline"
                         },
                         {
-                            "date": "2026-03-20?",
+                            "date": "2026-03-26",
                             "description": "Early Rejection Notification"
                         },
                         {
-                            "date": "2026-05-12?",
+                            "date": "2026-04-23",
+                            "description": "Author Response Period - Start"
+                        },
+                        {
+                            "date": "2026-04-30",
+                            "description": "Author Response Period - End"
+                        },
+                        {
+                            "date": "2026-05-19",
                             "description": "Author Notification"
                         }
                     ]
