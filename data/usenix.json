@@ -122,6 +122,70 @@
                     ]
                 }
             ]
+        },
+        {
+            "year": 2027,
+            "website": "https://www.usenix.org/conference/usenixsecurity27/",
+            "cycles": [
+                {
+                    "name": "Cycle 1",
+                    "dates": [
+                        {
+                            "date": "2026-08-18",
+                            "description": "Paper Registration Deadline"
+                        },
+                        {
+                            "date": "2026-08-25",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2026-10-06?",
+                            "description": "Early Rejection Notification"
+                        },
+                        {
+                            "date": "2026-11-05?",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2026-11-12?",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2026-12-03?",
+                            "description": "Author Notification"
+                        }
+                    ]
+                },
+                {
+                    "name": "Cycle 2",
+                    "dates": [
+                        {
+                            "date": "2027-01-19",
+                            "description": "Paper Registration Deadline"
+                        },
+                        {
+                            "date": "2027-01-26",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2027-03-07?",
+                            "description": "Early Rejection Notification"
+                        },
+                        {
+                            "date": "2027-04-06?",
+                            "description": "Rebuttal Period - Start"
+                        },
+                        {
+                            "date": "2027-04-13?",
+                            "description": "Rebuttal Period - End"
+                        },
+                        {
+                            "date": "2027-05-04?",
+                            "description": "Author Notification"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }
