@@ -138,6 +138,70 @@
           ]
         }
       ]
+    },
+    {
+      "year": 2027,
+      "website": "https://www.ieee-security.org/TC/SP2027/cfpapers.html",
+      "cycles": [
+        {
+          "name": "First deadline",
+          "dates": [
+            {
+              "date": "2026-06-04",
+              "description": "Paper Registration Deadline"
+            },
+            {
+              "date": "2026-06-11",
+              "description": "Paper Submission Deadline"
+            },
+            {
+              "date": "2026-07-27",
+              "description": "Early Reject Notification"
+            },
+            {
+              "date": "2026-08-20",
+              "description": "Rebuttal Period - Start"
+            },
+            {
+              "date": "2026-09-03",
+              "description": "Rebuttal Period - End"
+            },
+            {
+              "date": "2026-09-11",
+              "description": "Author Notification"
+            }
+          ]
+        },
+        {
+          "name": "Second deadline",
+          "dates": [
+            {
+              "date": "2026-11-10",
+              "description": "Paper Registration Deadline"
+            },
+            {
+              "date": "2026-11-17",
+              "description": "Paper Submission Deadline"
+            },
+            {
+              "date": "2027-01-18",
+              "description": "Early Reject Notification"
+            },
+            {
+              "date": "2027-02-11",
+              "description": "Rebuttal Period - Start"
+            },
+            {
+              "date": "2027-02-25",
+              "description": "Rebuttal Period - End"
+            },
+            {
+              "date": "2027-03-05",
+              "description": "Author Notification"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
