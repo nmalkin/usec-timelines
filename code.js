@@ -407,19 +407,24 @@ function calculateConferenceLayouts(conferences, minDate, totalTimelineDays, tot
 
         conf.installments?.forEach(inst => {
             inst.cycles?.forEach(cycle => {
-                if (!cycle.dates || cycle.dates.length < 2) return;
+                if (!cycle.dates || (cycle.dates.length < 2 && !cycle.is_rolling)) return;
 
                 let cycleMinDate = parseDate(cycle.dates[0].date).date;
-                let cycleMaxDate = parseDate(cycle.dates[cycle.dates.length - 1].date).date;
-                // Ensure correct min/max if dates aren't pre-sorted (though they should be)
-                for (let i = 1; i < cycle.dates.length; i++) {
-                    const d = parseDate(cycle.dates[i].date).date;
-                    if (d < cycleMinDate) cycleMinDate = d;
-                    if (d > cycleMaxDate) cycleMaxDate = d;
+                let cycleMaxDate = cycleMinDate;
+
+                if (!cycle.is_rolling) {
+                    cycleMaxDate = parseDate(cycle.dates[cycle.dates.length - 1].date).date;
+                    // Ensure correct min/max if dates aren't pre-sorted (though they should be)
+                    for (let i = 1; i < cycle.dates.length; i++) {
+                        const d = parseDate(cycle.dates[i].date).date;
+                        if (d < cycleMinDate) cycleMinDate = d;
+                        if (d > cycleMaxDate) cycleMaxDate = d;
+                    }
                 }
 
                 const startDaysOffset = diffDays(minDate, cycleMinDate);
-                const endDaysOffset = diffDays(minDate, cycleMaxDate);
+                const endDaysOffset = cycle.is_rolling ? totalTimelineDays : diffDays(minDate, cycleMaxDate);
+
                 const startXPixel = (Math.max(0, startDaysOffset) / totalTimelineDays) * totalSvgTimelineWidth;
                 const endXPixel = (Math.min(totalTimelineDays, endDaysOffset) / totalTimelineDays) * totalSvgTimelineWidth;
 
@@ -554,6 +559,91 @@ function renderTimelineBar(svg, segmentData) {
 }
 
 /**
+ * Renders a rolling timeline bar in the SVG.
+ * @param {SVGElement} svg - The main SVG element.
+ * @param {object} segmentData - Data for the segment ({ x, y, width, color, popoverContent }).
+ */
+function renderRollingBar(svg, segmentData) {
+    const { x, y, width, color, popoverTitle, popoverContent } = segmentData;
+
+    let defs = svg.querySelector('defs');
+    if (!defs) {
+        defs = createSvgElement('defs', {});
+        svg.insertBefore(defs, svg.firstChild);
+    }
+    
+    if (!svg.querySelector('#rolling-pattern')) {
+        const pattern = createSvgElement('pattern', {
+            id: 'rolling-pattern',
+            width: '20',
+            height: '20',
+            patternUnits: 'userSpaceOnUse',
+            patternTransform: 'rotate(45)'
+        });
+        pattern.appendChild(createSvgElement('rect', {
+            width: '20',
+            height: '20',
+            fill: 'transparent'
+        }));
+        pattern.appendChild(createSvgElement('line', {
+            x1: '0',
+            y1: '0',
+            x2: '0',
+            y2: '20',
+            stroke: 'rgba(255, 255, 255, 0.4)',
+            'stroke-width': '10'
+        }));
+        defs.appendChild(pattern);
+    }
+
+    const rect = createSvgElement("rect", {
+        x: x,
+        y: y,
+        width: width,
+        height: BAR_HEIGHT,
+        fill: color,
+        "data-bs-toggle": "popover",
+        "data-bs-placement": "top",
+        "data-bs-trigger": "hover click focus",
+        "data-bs-title": popoverTitle,
+        "data-bs-content": popoverContent,
+        "data-bs-html": "true"
+    });
+    
+    if (segmentData.onDoubleClick) {
+        rect.addEventListener('dblclick', segmentData.onDoubleClick);
+    }
+
+    const patternRect = createSvgElement("rect", {
+        x: x,
+        y: y,
+        width: width,
+        height: BAR_HEIGHT,
+        fill: 'url(#rolling-pattern)',
+        style: 'pointer-events: none;'
+    });
+
+    svg.appendChild(rect);
+    svg.appendChild(patternRect);
+
+    if (segmentData.tickXs && segmentData.tickXs.length > 0) {
+        segmentData.tickXs.forEach(tickX => {
+            const tick = createSvgElement("line", {
+                x1: tickX,
+                y1: y,
+                x2: tickX,
+                y2: y + BAR_HEIGHT,
+                stroke: 'rgba(255, 255, 255, 0.9)',
+                'stroke-width': '3',
+                'stroke-dasharray': '6,4',
+                style: 'pointer-events: none;'
+            });
+            svg.appendChild(tick);
+        });
+    }
+}
+
+/**
  * Renders all cycle bars and their labels for a given conference.
  * @param {SVGElement} svg - The main SVG element.
  * @param {Array} cycleLayouts - Pre-calculated layouts for the cycles of one conference.
@@ -571,51 +661,134 @@ function renderConferenceCycles(svg, cycleLayouts, conferenceStartY, minDate, to
         let colorIndex = 0;
         let firstSegmentX = -1; // Track start X for label placement
 
-        for (let i = 0; i < cycle.dates.length - 1; i++) {
-            const startEvent = cycle.dates[i];
-            const endEvent = cycle.dates[i + 1];
+        if (cycle.is_rolling && cycle.dates && cycle.dates.length > 0) {
+            const startEvent = cycle.dates[0];
             const { date: segmentStartDate, isUncertain: startIsUncertain } = parseDate(startEvent.date);
-            const { date: segmentEndDate, isUncertain: endIsUncertain } = parseDate(endEvent.date);
 
-            // Check if segment is valid and within the overall timeline bounds
-            if (segmentStartDate < segmentEndDate && segmentEndDate > minDate && segmentStartDate < maxDate) {
+            if (segmentStartDate >= maxDate) return;
+
+            const startDaysOffset = diffDays(minDate, segmentStartDate);
+            const clampedStartDays = Math.max(0, startDaysOffset);
+            const clampedEndDays = totalTimelineDays; // Extend to the end
+
+            if (clampedStartDays >= clampedEndDays) return;
+
+            const width = ((clampedEndDays - clampedStartDays) / totalTimelineDays) * totalSvgTimelineWidth;
+            if (width < 1) return;
+
+            const x = (clampedStartDays / totalTimelineDays) * totalSvgTimelineWidth;
+
+            if (firstSegmentX === -1) {
+                firstSegmentX = x;
+                renderCycleLabel(svg, { cycle, inst, conference: conferenceName, year: inst.year }, firstSegmentX, cycleY);
+            }
+
+            const popoverTitle = `${conferenceName} ${inst.year}`;
+            const formattedStartDate = formatDateVerbose(segmentStartDate, startIsUncertain);
+            const popoverContent = `<strong>Rolling Submissions</strong><br>Starts: ${formattedStartDate}`;
+            
+            // Calculate tick marks only if cycle.cycle_duration is set
+            let tickXs = [];
+            let onDoubleClick = null;
+            
+            if (cycle.cycle_duration) {
+                let baseTickDate = cycle.customTickDate;
+                if (!baseTickDate) {
+                    const todayDate = getTodaysDate();
+                    baseTickDate = new Date(Date.UTC(todayDate.getUTCFullYear(), todayDate.getUTCMonth() + 1, 1));
+                }
+                let currentTickDaysOffset = diffDays(minDate, baseTickDate);
+                const cycleDays = cycle.cycle_duration * 7;
+                
+                onDoubleClick = (e) => {
+                    e.preventDefault();
+                    const svgRect = svg.getBoundingClientRect();
+                    const clickX = e.clientX - svgRect.left;
+                    const daysFromStart = (clickX / totalSvgTimelineWidth) * totalTimelineDays;
+                    cycle.customTickDate = new Date(minDate.getTime() + daysFromStart * 24 * 60 * 60 * 1000);
+                    
+                    // Close any open popovers before re-rendering
+                    const popovers = document.querySelectorAll('.popover');
+                    popovers.forEach(p => p.remove());
+
+                    renderTimeline();
+                };
+
+                // Go backwards to find the first tick that is within or before bounds
+                while (currentTickDaysOffset > clampedStartDays) {
+                    currentTickDaysOffset -= cycleDays;
+                }
+
+                // Now go forwards and collect all ticks within bounds
+                while (currentTickDaysOffset < clampedEndDays) {
+                    if (currentTickDaysOffset > clampedStartDays) {
+                        const tickX = (currentTickDaysOffset / totalTimelineDays) * totalSvgTimelineWidth;
+                        tickXs.push(tickX);
+                    }
+                    currentTickDaysOffset += cycleDays;
+                }
+            }
+
+            renderRollingBar(svg, {
+                x: x,
+                y: cycleY,
+                width: width,
+                color: ACTIVE_COLORS[colorIndex % ACTIVE_COLORS.length],
+                popoverTitle: popoverTitle,
+                popoverContent: popoverContent,
+                ...(tickXs.length > 0 && { tickXs }),
+                ...(onDoubleClick && { onDoubleClick })
+            });
+        } else {
+            for (let i = 0; i < cycle.dates.length - 1; i++) {
+                const startEvent = cycle.dates[i];
+                const endEvent = cycle.dates[i + 1];
+                const { date: segmentStartDate, isUncertain: startIsUncertain } = parseDate(startEvent.date);
+                const { date: segmentEndDate, isUncertain: endIsUncertain } = parseDate(endEvent.date);
+
+                // Check if segment is valid and within the overall timeline bounds
+                if (segmentStartDate >= segmentEndDate || segmentEndDate <= minDate || segmentStartDate >= maxDate) {
+                    continue;
+                }
+
                 const startDaysOffset = diffDays(minDate, segmentStartDate);
                 const endDaysOffset = diffDays(minDate, segmentEndDate);
                 const clampedStartDays = Math.max(0, startDaysOffset);
                 const clampedEndDays = Math.min(totalTimelineDays, endDaysOffset);
 
-                if (clampedStartDays < clampedEndDays) {
-                    const x = (clampedStartDays / totalTimelineDays) * totalSvgTimelineWidth;
-                    const width = ((clampedEndDays - clampedStartDays) / totalTimelineDays) * totalSvgTimelineWidth;
+                if (clampedStartDays >= clampedEndDays) continue;
 
-                    if (width >= 1) { // Only render if width is at least 1 pixel
-                        // Render label before the first segment
-                        if (firstSegmentX === -1) {
-                            firstSegmentX = x;
-                            // Pass necessary data for label creation, using the conferenceName parameter
-                            renderCycleLabel(svg, { cycle, inst, conference: conferenceName, year: inst.year }, firstSegmentX, cycleY);
-                        }
+                const width = ((clampedEndDays - clampedStartDays) / totalTimelineDays) * totalSvgTimelineWidth;
+                if (width < 1) continue;
 
-                        // Prepare popover content
-                        const popoverTitle = `${conferenceName} ${inst.year}`; // Use passed conference name
-                        const formattedStartDate = formatDateVerbose(segmentStartDate, startIsUncertain);
-                        const formattedEndDate = formatDateVerbose(segmentEndDate, endIsUncertain);
-                        const durationDays = diffDays(segmentStartDate, segmentEndDate);
-                        const popoverContent = `<strong>${startEvent.description}</strong><br>${formattedStartDate}<br><br><span class="popover-duration">(${durationDays} days)</span><br><br><strong>${endEvent.description}</strong><br>${formattedEndDate}`;
+                const x = (clampedStartDays / totalTimelineDays) * totalSvgTimelineWidth;
 
-                        // Render the bar
-                        renderTimelineBar(svg, {
-                            x: x,
-                            y: cycleY,
-                            width: width,
-                            color: ACTIVE_COLORS[colorIndex % ACTIVE_COLORS.length],
-                            popoverTitle: popoverTitle,
-                            popoverContent: popoverContent
-                        });
-                    }
+                // Render label before the first segment
+                if (firstSegmentX === -1) {
+                    firstSegmentX = x;
+                    // Pass necessary data for label creation, using the conferenceName parameter
+                    renderCycleLabel(svg, { cycle, inst, conference: conferenceName, year: inst.year }, firstSegmentX, cycleY);
                 }
+
+                // Prepare popover content
+                const popoverTitle = `${conferenceName} ${inst.year}`; // Use passed conference name
+                const formattedStartDate = formatDateVerbose(segmentStartDate, startIsUncertain);
+                const formattedEndDate = formatDateVerbose(segmentEndDate, endIsUncertain);
+                const durationDays = diffDays(segmentStartDate, segmentEndDate);
+                const popoverContent = `<strong>${startEvent.description}</strong><br>${formattedStartDate}<br><br><span class="popover-duration">(${durationDays} days)</span><br><br><strong>${endEvent.description}</strong><br>${formattedEndDate}`;
+
+                // Render the bar
+                renderTimelineBar(svg, {
+                    x: x,
+                    y: cycleY,
+                    width: width,
+                    color: ACTIVE_COLORS[colorIndex % ACTIVE_COLORS.length],
+                    popoverTitle: popoverTitle,
+                    popoverContent: popoverContent
+                });
+
+                colorIndex++; // Use next color for the next segment
             }
-            colorIndex++; // Use next color for the next segment
         }
     });
 }

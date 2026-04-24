@@ -70,6 +70,14 @@
           "description": "The name of the cycle (e.g., 'Issue 1', 'Summer Deadline').",
           "type": "string"
         },
+        "is_rolling": {
+          "description": "Whether the cycle has a rolling deadline.",
+          "type": "boolean"
+        },
+        "cycle_duration": {
+          "description": "For rolling deadlines, the duration of a cycle in weeks.",
+          "type": "integer"
+        },
         "dates": {
           "description": "An array of important dates within this cycle.",
           "type": "array",

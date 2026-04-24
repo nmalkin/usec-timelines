@@ -85,26 +85,16 @@
     },
     {
       "year": 2026,
-      "website": "https://cscw.acm.org/2026/papers.html",
+      "website": "https://cscw.acm.org/2026/rolling.html",
       "cycles": [
         {
-          "name": "May 2025 Cycle",
+          "name": "Rolling Submissions",
+          "is_rolling": true,
+          "cycle_duration": 15,
           "dates": [
             {
-              "description": "New paper submissions due",
-              "date": "2025-05-13"
-            },
-            {
-              "description": "Expected notification date",
-              "date": "2025-08-19"
-            },
-            {
-              "description": "Resubmission of papers that received a Revise for External Review recommendation due",
-              "date": "2025-09-16"
-            },
-            {
-              "description": "Expected notification date",
-              "date": "2025-11-11"
+              "description": "Submissions Open",
+              "date": "2026-01-01"
             }
           ]
         }
