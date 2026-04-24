@@ -1,0 +1,53 @@
+{
+    "id": "scp",
+    "conference": "SCP",
+    "full_name": "Symposium on Security, Privacy, and Computation",
+    "installments": [
+        {
+            "year": 2025,
+            "website": "https://eurousec2025.cis.strath.ac.uk/#cfpapers",
+            "cycles": [
+                {
+                    "name": "EuroUSEC 2025",
+                    "dates": [
+                        {
+                            "date": "2025-05-05",
+                            "description": "Paper Registration Deadline"
+                        },
+                        {
+                            "date": "2025-05-09",
+                            "description": "Paper Submission Deadline"
+                        },
+                        {
+                            "date": "2025-06-16",
+                            "description": "Author Notification"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "year": 2026,
+            "website": "https://scpconf.eu/",
+            "cycles": [
+                {
+                    "name": "SCP 2026",
+                    "dates": [
+                        {
+                            "date": "2026-05-20",
+                            "description": "Paper Registration (Abstract)"
+                        },
+                        {
+                            "date": "2026-05-25",
+                            "description": "Paper Submission"
+                        },
+                        {
+                            "date": "2026-06-25",
+                            "description": "Author Notification"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
