@@ -146,6 +146,70 @@
                     ]
                 }
             ]
+        },
+        {
+            "year": 2027,
+            "website": "https://www.ndss-symposium.org/ndss2027/submissions/call-for-papers/",
+            "cycles": [
+                {
+                    "name": "Summer Cycle",
+                    "dates": [
+                        {
+                            "date": "2026-05-06",
+                            "description": "Paper submission deadline"
+                        },
+                        {
+                            "date": "2026-06-12",
+                            "description": "Early reject/Round 2 notification and Round 1 reviews"
+                        },
+                        {
+                            "date": "2026-07-22",
+                            "description": "Author notification"
+                        },
+                        {
+                            "date": "2026-08-19",
+                            "description": "Resubmission of Major Revision papers, Minor Revision decision"
+                        },
+                        {
+                            "date": "2026-09-02",
+                            "description": "Author notification for Major Revision"
+                        },
+                        {
+                            "date": "2026-09-30",
+                            "description": "Camera Ready deadline"
+                        }
+                    ]
+                },
+                {
+                    "name": "Fall Cycle",
+                    "dates": [
+                        {
+                            "date": "2026-08-19",
+                            "description": "Paper submission deadline"
+                        },
+                        {
+                            "date": "2026-09-25",
+                            "description": "Early reject/Round 2 notification and Round 1 reviews"
+                        },
+                        {
+                            "date": "2026-11-04",
+                            "description": "Author notification"
+                        },
+                        {
+                            "date": "2026-12-02",
+                            "description": "Resubmission of Major Revision papers, Minor Revision decision"
+                        },
+                        {
+                            "date": "2026-12-16",
+                            "description": "Author notification for Major Revision"
+                        },
+                        {
+                            "date": "2027-01-06",
+                            "description": "Camera Ready deadline"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }
