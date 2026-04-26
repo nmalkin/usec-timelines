@@ -85,6 +85,41 @@
     },
     {
       "year": 2026,
+      "website": "https://cscw.acm.org/2026/papers.html",
+      "cycles": [
+        {
+          "name": "May 2025 Cycle",
+          "dates": [
+            {
+              "description": "New paper submissions due",
+              "date": "2025-05-14"
+            },
+            {
+              "description": "Expected notification date",
+              "date": "2025-08-19"
+            },
+            {
+              "description": "Resubmission: Revise for External Review",
+              "date": "2025-09-16"
+            },
+            {
+              "description": "Expected notification date (Outcomes: Conditional Accept, Revise and Resubmit, Reject)",
+              "date": "2025-11-11"
+            },
+            {
+              "description": "Resubmission: Major Revision",
+              "date": "2026-01-13"
+            },
+            {
+              "description": "Expected notification date (Outcomes: Conditional Accept, Reject)",
+              "date": "2026-03-25?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "year": 2027,
       "website": "https://cscw.acm.org/2026/rolling.html",
       "cycles": [
         {
